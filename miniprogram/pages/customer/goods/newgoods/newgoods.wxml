@@ -1,2 +1,30 @@
 <!--pages/customer/goods/newgoods/newgoods.wxml-->
-<text>pages/customer/goods/newgoods/newgoods.wxml</text>
+<view class="page">
+  <view class="title-wrap">
+    <text class="page-title">今日上新</text>
+    <text class="page-hot">接龙</text>
+  </view>
+
+  <view class="grid">
+    <block wx:for="{{list}}" wx:key="{{item._id}}">
+      <view class="card" bindtap="goToDetail" data-id="{{item._id}}">
+        <image class="card-img" src="{{item.coverImage || '/images/placeholder.png'}}" mode="aspectFill" />
+        <view class="card-body">
+          <text class="card-name" number-of-lines="2">{{item.name}}</text>
+          <view class="tag-row">
+            <text wx:if="{{item.tags[0]}}" class="tag tag-blue">{{item.tags[0]}}</text>
+            <text wx:if="{{item.tags[1]}}" class="tag tag-red">{{item.tags[1]}}</text>
+          </view>
+          <view class="price-row">
+            <text class="price">¥{{item.price}}</text>
+            <text class="spec">规格：{{item.unit}}</text>
+          </view>
+        </view>
+        <button class="btn-order" catchtap="onOrderTap" data-id="{{item._id}}">立即预定</button>
+      </view>
+    </block>
+  </view>
+
+  <view wx:if="{{!list.length && !loading}}" class="empty">暂无上新商品，稍后再来~</view>
+  <view wx:if="{{loading}}" class="empty">加载中...</view>
+</view>

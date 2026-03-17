@@ -1,0 +1,38 @@
+{
+  "pages": [
+    "pages/customer/index/index",
+    "pages/customer/goods/goods",
+    "pages/customer/goods/newgoods/newgoods",
+    "pages/customer/my/my",
+    "pages/customer/feedback/feedback",
+    "pages/customer/myOrder/myOrder",
+    "pages/customer/message/message"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#ffffff",
+    "navigationBarTitleText": "MC_store",
+    "navigationBarTextStyle": "black"
+  },
+  "tabBar": {
+    "backgroundColor": "#ffffff",
+    "color": "#999999",
+    "selectedColor": "#007AFF",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/customer/index/index",
+        "text": "首页"
+      },
+      {
+        "pagePath": "pages/customer/goods/goods",
+        "text": "商品"
+      },
+      {
+        "pagePath": "pages/customer/my/my",
+        "text": "我的"
+      }
+    ]
+  },
+  "sitemapLocation": "sitemap.json"
+}

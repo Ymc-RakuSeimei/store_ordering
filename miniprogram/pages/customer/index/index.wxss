@@ -1,0 +1,126 @@
+/* 纯白背景（严格匹配你的设计） */
+page {
+  background-color: #ffffff;
+  font-family: PingFang SC, Helvetica Neue, Arial, sans-serif;
+}
+.container {
+  padding: 30rpx;
+  box-sizing: border-box;
+}
+
+/* 顶部样式 */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 20rpx 0 50rpx;
+}
+.welcome-text {
+  display: flex;
+  flex-direction: column;
+  color: #333;
+}
+.main-title {
+  font-size: 50rpx;
+  font-weight: bold;
+  margin-top: 10rpx;
+}
+.avatar {
+  width: 110rpx;
+  height: 110rpx;
+  border-radius: 16rpx;
+}
+
+/* 卡片布局 */
+.card-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+/* 白色卡片 + 阴影（核心！） */
+.card-item {
+  width: 40%;
+  background: #ffffff;
+  border-radius: 24rpx;
+  padding: 40rpx 20rpx;
+  margin-bottom: 24rpx;
+  box-shadow: 0 6rpx 20rpx rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  min-height: 320rpx;
+}
+.card-icon {
+  width: 70rpx;
+  height: 70rpx;
+  margin-bottom: 20rpx;
+}
+.card-title {
+  font-size: 34rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 8rpx;
+}
+.card-subtitle {
+  font-size: 22rpx;
+  color: #888;
+  text-align: center;
+}
+.new-tag {
+  position: absolute;
+  top: 26rpx;
+  right: 26rpx;
+  color: #ff3b30;
+  font-size: 24rpx;
+}
+
+/* 长卡片 */
+.long-card {
+  background: #ffffff;
+  border-radius: 24rpx;
+  padding: 30rpx;
+  margin: 10rpx 0 50rpx;
+  box-shadow: 0 6rpx 20rpx rgba(0, 0, 0, 0.06);
+  
+  /* 让内部内容强制居中 */
+  display: flex;
+  justify-content: center;  /* 左右居中 */
+  align-items: center;      /* 上下居中 */
+  
+  /* 你可以随便改宽度，不会影响居中！ */
+  width: 90%; 
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* 居中容器 */
+.center-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 图标 */
+.long-icon {
+  width: 50rpx;
+  height: 50rpx;
+  margin-right: 20rpx;
+}
+
+/* 文字 */
+.long-title {
+  font-size: 34rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+/* 底部文字 */
+.bottom-text {
+  display: block;
+  text-align: center;
+  font-size: 38rpx;
+  color: #333;
+  font-style: italic;
+}

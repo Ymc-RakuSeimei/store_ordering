@@ -21,7 +21,7 @@
     <view class="card-item" bindtap="goToShopList">
       <image class="card-icon" src="/images/icon_shop.png"></image>
       <text class="card-title">进店选购</text>
-      <text class="card-subtitle">买点儿什么？</text>
+      <text class="card-subtitle">买点儿什么呢？</text>
     </view>
 
     <view class="card-item" bindtap="goToMyOrder">

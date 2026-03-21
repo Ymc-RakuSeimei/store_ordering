@@ -1,0 +1,46 @@
+<!-- 订单处理页面主容器 -->
+<view class="page">
+  <!-- 页面头部：包含返回按钮、标题和扫码取货按钮 -->
+  <view class="header">
+    <!-- 返回按钮：点击返回上一页 -->
+    <text class="back" bindtap="onBack">← 返回</text>
+    <!-- 页面标题 -->
+    <text class="title">订单处理</text>
+    <!-- 扫码取货按钮：绑定扫码事件（需在JS中实现onScanPickup方法） -->
+    <button class="scan-btn" bindtap="onScanPickup">扫码取货</button>
+  </view>
+
+  <!-- 订单状态标签栏：显示待取货、待到货、顾客订单三个tab -->
+  <view class="tabbar">
+    <!-- 循环渲染tab列表，每个tab绑定点击事件切换状态 -->
+    <block wx:for="{{tabs}}" wx:key="id">
+      <!-- tab项：根据activeTab判断是否激活，点击切换activeTab -->
+      <text class="tab {{activeTab===item.id?'active':''}}" bindtap="switchTab" data-tab="{{item.id}}">{{item.label}}</text>
+    </block>
+  </view>
+
+  <!-- 订单列表区域：根据当前activeTab显示对应订单 -->
+  <view class="order-list">
+    <!-- 循环渲染当前tab的订单数据 -->
+    <block wx:for="{{orderData[activeTab]}}" wx:key="id">
+      <!-- 订单卡片：点击跳转到详情页，传递订单数据 -->
+      <view class="order-card" data-item="{{item}}" bindtap="openOrderDetail">
+        <!-- 订单标题：显示序号和订单名称 -->
+        <text class="order-title">{{index+1}}. {{item.name || item.orderName}}</text>
+        <!-- 订单数量：显示商品数量 -->
+        <text class="order-qty">×{{item.qty || item.count}}</text>
+        <!-- 订单元信息：条件显示剩余数量或规格 -->
+        <text class="order-meta" wx:if="{{item.left}}">剩余 {{item.left}} 件未取</text>
+        <text class="order-meta" wx:if="{{item.spec}}">规格：{{item.spec}}</text>
+      </view>
+    </block>
+
+    <!-- 空状态提示：当当前tab无订单时显示 -->
+    <view wx:if="{{!orderData[activeTab] || orderData[activeTab].length===0}}" class="empty-state">
+      暂无订单
+    </view>
+  </view>
+
+  <!-- 一键提醒按钮：点击发送提醒给所有待处理订单 -->
+  <button class="action-btn" bindtap="oneKeyReminder">一键提醒</button>
+</view>

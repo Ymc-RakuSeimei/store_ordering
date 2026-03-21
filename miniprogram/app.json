@@ -1,5 +1,13 @@
 {
   "pages": [
+    "pages/merchant/index/index",
+    "pages/merchant/product/product",
+    "pages/merchant/order/order",
+    "pages/merchant/order/detail/detail",
+    "pages/merchant/datacenter/datacenter",
+    "pages/merchant/preorder/preorder",
+    "pages/merchant/preorder/create/create",
+    "pages/merchant/notification/notification",
     "pages/customer/index/index",
     "pages/customer/goods/goods",
     "pages/customer/goods/newgoods/newgoods",

@@ -1,2 +1,40 @@
-<!--pages/merchant/index/index.wxml-->
-<text>目前编译显示的是商家端前端(pages/merchant/index/index.wxml)</text>
+<!-- pages/merchant/index/index.wxml -->
+<view class="container">
+  <view class="topbar">
+    <image class="avatar" src="{{avatar}}" />
+    <view class="topbar-text">
+      <text class="title">Hi，{{userName}}</text>
+      <text class="subtitle">欢迎管理MC_store。</text>
+    </view>
+<!-- 原扫码按钮代码替换为：新增外层容器包裹按钮+文字 -->
+<view class="scan-btn-wrapper">
+  <button class="scan-btn" bindtap="onScanPickup">
+    <!-- 按钮内只保留图标，删除文字 -->
+    <image class="card-icon" src="/images/icon_QR.png" />
+  </button>
+
+</view>
+</view>
+
+  <view class="card-container">
+    <block wx:for="{{cardGroup}}" wx:key="id">
+      <view class="card-item" bindtap="onCardTap" data-id="{{item.id}}">
+        <image class="card-icon" src="{{item.icon}}" />
+        <text class="card-title">{{item.title}}</text>
+        <text class="card-subtitle">{{item.subtitle}}</text>
+      </view>
+    </block>
+  </view>
+
+  <view class="long-card" bindtap="onCardTap" data-id="{{notify.id}}">
+    <view class="long-holder">
+      <image class="long-icon" src="{{notify.icon}}" />
+      <view class="long-text">
+        <text class="long-title">{{notify.title}}</text>
+        <text class="long-subtitle">{{notify.subtitle}}</text>
+      </view>
+    </view>
+  </view>
+
+  <text class="bottom-text">Run your store well!</text>
+</view>

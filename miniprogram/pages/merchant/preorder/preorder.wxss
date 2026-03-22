@@ -94,6 +94,13 @@ page {
   border-radius: 16rpx;
   padding: 6rpx 10rpx;
 }
+.btn-handle1 {
+  background: #229e4b;
+  color: #000;
+  border: none;
+  border-radius: 16rpx;
+  padding: 6rpx 10rpx;
+}
 .btn-stop {
   background: #333;
   color: #fff;

@@ -34,3 +34,23 @@
 
 1.每个页面调用用到的函数都在每个页面的.js文件最后面，可根据注释或者在云开发里面直接打开到那个页面看看需要填写什么数据来构建数据库和写函数
 2.关于切换到商家端和顾客端的切换，由于好像并没有做，所以现在可以在app.json文件里面吧pages里面的"pages/customer/index/index",等一系列数据提前到merchant页面前面就可以显示顾客端了
+
+
+
+——————————————————————————————————————————————————mc3/23更新：
+
+添加了加载页面（pages/index）和开发身份切换界面（pages/debug/index）
+
+添加了三个云函数
+
+getOpenId 就是获取用户的OpenId
+
+getUserRole获取用户身份——列表DEVELOPER_OPENIDS是用户白名单，只有里面存的OpenId才有权限在开发者切换界面切换身份，如果数据库没有含该OpenId的元组，则自动生成一个（默认nickName:'微信用户'...，大家pull之后试下，之后在数据库里把自己openId对应的信息换成自己的）
+
+switchRole主要是用于开发身份界面
+
+app.js作了相应适配
+
+pages/index最开始的逻辑是通过系统自带APIwx.getAccountInfoSync()获取当前环境（develop/release/trial），只有非release（正非式发布）时才会有长按切换角色。长按切换的实现：放了一个铺满整个屏幕的透明区域，长按跳转到 pages/debug/index，点击切换身份。其中因为买家端使用了tabBar所以必须用wx.switchTab跳转，这是我卡住的一个点。
+
+添加了miniprogram/node_modules用于后续生成身份码

@@ -1,5 +1,6 @@
 {
   "pages": [
+    "pages/index",
     "pages/merchant/index/index",
     "pages/merchant/product/product",
     "pages/merchant/order/order",
@@ -14,7 +15,8 @@
     "pages/customer/my/my",
     "pages/customer/feedback/feedback",
     "pages/customer/myOrder/myOrder",
-    "pages/customer/message/message"
+    "pages/customer/message/message",
+    "pages/debug/index"
   ],
   "window": {
     "backgroundTextStyle": "light",
@@ -31,20 +33,16 @@
       {
         "pagePath": "pages/customer/index/index",
         "iconPath": "images/icon_home.png",
-        
         "text": "首页"
-
       },
       {
         "pagePath": "pages/customer/goods/goods",
         "iconPath": "images/icon_sort.png",
-        
         "text": "商品"
       },
       {
         "pagePath": "pages/customer/my/my",
         "iconPath": "images/icon_mine.png",
-        
         "text": "我的"
       }
     ]

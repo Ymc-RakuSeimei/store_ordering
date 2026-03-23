@@ -42,6 +42,7 @@
         </view>
         <view class="item-right">
           <text class="item-qty">×{{item.qty}}</text>
+          <button class="btn-handle1" bindtap="goodsArrival" data-id="{{item.id}}">到货</button>
         </view>
       </view>
     </block>

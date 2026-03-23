@@ -1,0 +1,90 @@
+page {
+  background: #f6f6f8;
+  font-family: PingFang SC, Helvetica Neue, Arial, sans-serif;
+  color: #333;
+  min-height: 100vh;
+}
+.page {
+  padding: 20rpx;
+}
+.header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 14rpx;
+}
+.back {
+  font-size: 30rpx;
+  color: #007AFF;
+}
+.title {
+  flex: 1;
+  text-align: center;
+  font-size: 32rpx;
+  font-weight: 600;
+}
+.form-card {
+  background: #ffffff;
+  border-radius: 16rpx;
+  padding: 14rpx;
+  box-shadow: 0 8rpx 18rpx rgba(0, 0, 0, 0.06);
+}
+.field {
+  border: 1rpx solid #eee;
+  border-radius: 12rpx;
+  margin-bottom: 12rpx;
+  padding: 10rpx;
+}
+.label {
+  font-size: 24rpx;
+  color: #333;
+  margin-bottom: 6rpx;
+  display: block;
+}
+.input {
+  width: 100%;
+  height: 50rpx;
+  border: 1rpx solid #ddd;
+  border-radius: 10rpx;
+  padding: 0 10rpx;
+  font-size: 24rpx;
+}
+.textarea {
+  width: 100%;
+  min-height: 120rpx;
+  border: 1rpx solid #ddd;
+  border-radius: 10rpx;
+  padding: 10rpx;
+  font-size: 24rpx;
+}
+.select {
+  height: 50rpx;
+  line-height: 50rpx;
+  border: 1rpx solid #ddd;
+  border-radius: 10rpx;
+  padding: 0 10rpx;
+  font-size: 24rpx;
+  color: #333;
+}
+.button-row {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 14rpx;
+}
+.primary-btn {
+  width: 56%;
+  height: 62rpx;
+  background: #00c853;
+  color: #fff;
+  border: none;
+  border-radius: 14rpx;
+  font-size: 28rpx;
+}
+.secondary-btn {
+  width: 38%;
+  height: 62rpx;
+  background: #333;
+  color: #fff;
+  border: none;
+  border-radius: 14rpx;
+  font-size: 28rpx;
+}

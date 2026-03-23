@@ -1,0 +1,110 @@
+page {
+  background: #f6f6f8;
+  font-family: PingFang SC, Helvetica Neue, Arial, sans-serif;
+  color: #333;
+}
+.page {
+  padding: 22rpx;
+  min-height: 100vh;
+}
+.header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16rpx;
+}
+.back {
+  color: #007AFF;
+  font-size: 30rpx;
+}
+.title {
+  flex: 1;
+  text-align: center;
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+}
+
+.card {
+  background: #fff;
+  border-radius: 20rpx;
+  box-shadow: 0 8rpx 18rpx rgba(0, 0, 0, 0.06);
+  padding: 18rpx;
+  margin-bottom: 16rpx;
+}
+
+.stats-card .stats-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16rpx;
+  font-size: 26rpx;
+  color: #333;
+}
+.stats-period {
+  font-weight: 600;
+}
+.stats-row {
+  display: flex;
+  justify-content: space-between;
+}
+.stats-item {
+  width: 32%;
+  padding: 14rpx;
+  background: #fafafa;
+  border-radius: 14rpx;
+  text-align: center;
+}
+.stats-label {
+  font-size: 26rpx;
+  color: #666;
+}
+.stats-value {
+  font-size: 34rpx;
+  font-weight: bold;
+  margin-top: 8rpx;
+  color: #333;
+}
+.value-cost {
+  color: #ff3b30;
+}
+.value-profit {
+  color: #00b894;
+}
+
+.order-card .order-title {
+  font-size: 28rpx;
+  font-weight: bold;
+  margin-bottom: 12rpx;
+}
+.order-list {
+  margin-bottom: 14rpx;
+}
+.order-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10rpx;
+  font-size: 24rpx;
+  color: #333;
+}
+.order-row.pending > .order-count {
+  color: #ff3b30;
+  font-weight: 700;
+}
+.order-label {
+  color: #666;
+}
+.order-count {
+  font-weight: 600;
+}
+.action-btn {
+  display: block;
+  width: 100%;
+  height: 56rpx;
+  line-height: 56rpx;
+  text-align: center;
+  background: #33c266;
+  border: none;
+  border-radius: 16rpx;
+  color: #fff;
+  font-size: 26rpx;
+}

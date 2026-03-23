@@ -1,0 +1,50 @@
+<!-- 待取货组件 -->
+<view class="waiting-container">
+  <!-- 身份核销码区域 -->
+  <view class="qrcode-section">
+    <image class="qrcode-image" src="/images/IdentifyQRcode.png" mode="aspectFit"></image>
+    <text class="qrcode-text">身份核销码</text>
+  </view>
+
+  <!-- 统计信息 -->
+  <view class="statistics" wx:if="{{waitingStatistics}}">
+    <text class="stat-text">{{waitingStatistics.waitingCount}}件待取，共{{waitingStatistics.totalCount}}件</text>
+  </view>
+
+  <!-- 订单列表 -->
+  <view class="order-list">
+    <block wx:for="{{orderList}}" wx:key="id">
+      <view class="order-item">
+        <!-- 序号 -->
+        <view class="order-number">{{index + 1}}</view>
+        
+        <!-- 商品图片 -->
+        <image class="order-image" src="{{item.image}}" mode="aspectFill"></image>
+        
+        <!-- 商品信息 -->
+        <view class="order-info">
+          <text class="order-name">{{item.name}}</text>
+          <text class="order-price">¥{{item.price}}</text>
+        </view>
+        
+        <!-- 右侧状态按钮 -->
+        <view class="order-status-area">
+          <!-- 已到货状态 -->
+          <view class="status-btn status-arrived" wx:if="{{item.status === 'arrived'}}">
+            已到货
+          </view>
+          
+          <!-- 待到货状态 -->
+          <view class="status-btn status-waiting" wx:if="{{item.status === 'waiting'}}">
+            待到货
+          </view>
+        </view>
+      </view>
+    </block>
+    
+    <!-- 空状态 -->
+    <view class="empty-state" wx:if="{{orderList.length === 0}}">
+      <text>暂无待取货订单</text>
+    </view>
+  </view>
+</view>

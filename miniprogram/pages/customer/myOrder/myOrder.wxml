@@ -1,2 +1,56 @@
-<!--pages/customer/myOrder/myOrder.wxml-->
-<text>pages/customer/myOrder/myOrder.wxml</text>
+<!-- 我的订单主容器页面 -->
+<view class="container">
+  <!-- 顶部导航栏 -->
+  <view class="nav-bar">
+    <view class="nav-back" bindtap="goBack">
+      <text class="back-icon"></text>
+    </view>
+    <view class="nav-title">我的订单</view>
+    <view class="nav-placeholder"></view>
+  </view>
+
+  <!-- Tab栏 -->
+  <view class="tab-bar">
+    <view class="tab-item {{currentTab === 'all' ? 'active' : ''}}" bindtap="switchTab" data-tab="all">
+      <text>全部</text>
+    </view>
+    <view class="tab-item {{currentTab === 'waiting' ? 'active' : ''}}" bindtap="switchTab" data-tab="waiting">
+      <text>待取货</text>
+    </view>
+    <view class="tab-item {{currentTab === 'completed' ? 'active' : ''}}" bindtap="switchTab" data-tab="completed">
+      <text>已完成</text>
+    </view>
+  </view>
+
+  <!-- 组件容器 -->
+  <view class="component-container">
+    <!-- 全部订单组件 -->
+    <block wx:if="{{currentTab === 'all'}}">
+      <all-component></all-component>
+    </block>
+    <!-- 待取货组件 -->
+    <block wx:if="{{currentTab === 'waiting'}}">
+      <waiting-component></waiting-component>
+    </block>
+    <!-- 已完成组件 -->
+    <block wx:if="{{currentTab === 'completed'}}">
+      <completed-component></completed-component>
+    </block>
+  </view>
+</view>
+
+<!-- 底部导航栏 -->
+<view class="tab-bar-bottom">
+  <view class="tab-bottom-item" bindtap="goToHome">
+    <view class="tab-icon icon-home"></view>
+    <text class="tab-text">首页</text>
+  </view>
+  <view class="tab-bottom-item" bindtap="goToGoods">
+    <view class="tab-icon icon-grid"></view>
+    <text class="tab-text">商品</text>
+  </view>
+  <view class="tab-bottom-item" bindtap="goToMy">
+    <view class="tab-icon icon-person"></view>
+    <text class="tab-text">我的</text>
+  </view>
+</view>

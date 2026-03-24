@@ -73,7 +73,7 @@ Page({
     wx.navigateTo({ url: '/pages/customer/myOrder/myOrder' })
   },
   goToFeedback() {
-    wx.navigateTo({ url: '/pages/customer/feedback/feedback' })
+    wx.navigateTo({ url: '/pages/customer/myOrder/myOrder?tab=waiting' })
   },
   goToMessage() {
     wx.navigateTo({ url: '/pages/customer/message/message' })

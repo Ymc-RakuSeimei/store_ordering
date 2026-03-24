@@ -1,0 +1,22 @@
+<!-- 上新通知组件 -->
+<view class="newgoods-container">
+  <!-- 消息列表 -->
+  <view class="message-list">
+    <block wx:for="{{messageList}}" wx:key="id">
+      <view class="message-card">
+        <view class="message-content">
+          <text class="message-number">{{index + 1}}.</text>
+          <text class="message-text">{{item.content}}</text>
+        </view>
+        <view class="view-btn orange" bindtap="viewDetail" data-id="{{item.id}}">
+          {{item.btnText}}
+        </view>
+      </view>
+    </block>
+    
+    <!-- 空状态 -->
+    <view class="empty-state" wx:if="{{messageList.length === 0}}">
+      <text>暂无上新通知</text>
+    </view>
+  </view>
+</view>

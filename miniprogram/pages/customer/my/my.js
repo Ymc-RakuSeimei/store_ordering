@@ -1,66 +1,79 @@
 // pages/customer/my/my.js
 Page({
-
-  /**
-   * 页面的初始数据
-   */
   data: {
 
   },
 
-  /**
-   * 生命周期函数--监听页面加载
-   */
   onLoad(options) {
 
   },
 
-  /**
-   * 生命周期函数--监听页面初次渲染完成
-   */
   onReady() {
 
   },
 
-  /**
-   * 生命周期函数--监听页面显示
-   */
   onShow() {
 
   },
 
-  /**
-   * 生命周期函数--监听页面隐藏
-   */
   onHide() {
 
   },
 
-  /**
-   * 生命周期函数--监听页面卸载
-   */
   onUnload() {
 
   },
 
-  /**
-   * 页面相关事件处理函数--监听用户下拉动作
-   */
   onPullDownRefresh() {
 
   },
 
-  /**
-   * 页面上拉触底事件的处理函数
-   */
   onReachBottom() {
 
   },
 
-  /**
-   * 用户点击右上角分享
-   */
   onShareAppMessage() {
 
+  },
+
+  // 跳转订单中心
+  goToOrderCenter() {
+    wx.navigateTo({
+      url: '/pages/customer/myOrder/myOrder'
+    });
+  },
+
+  // 消息订阅通知
+  toggleNotification() {
+    wx.showModal({
+      title: '消息订阅',
+      content: '开启后不错过新品与到货通知',
+      success(res) {
+        if (res.confirm) {
+          wx.showToast({
+            title: '已开启',
+            icon: 'success'
+          });
+        }
+      }
+    });
+  },
+
+  // 联系售后/商家
+  contactService() {
+    wx.showActionSheet({
+      itemList: ['联系电话', '意见反馈'],
+      success(res) {
+        if (res.tapIndex === 0) {
+          wx.makePhoneCall({
+            phoneNumber: '400-123-4567'
+          });
+        } else if (res.tapIndex === 1) {
+          wx.navigateTo({
+            url: '/pages/customer/feedback/feedback'
+          });
+        }
+      }
+    });
   }
 })

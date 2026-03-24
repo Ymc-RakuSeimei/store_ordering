@@ -1,4 +1,119 @@
-<!--pages/customer/goods/newgoods/newgoods.wxml-->
+<!-- 今日上新页面 -->
+<view class="container">
+  <!-- 顶部导航栏 -->
+  <view class="nav-bar">
+    <view class="nav-back" bindtap="goBack">
+      <text class="back-icon"></text>
+    </view>
+    <view class="nav-title">今日上新</view>
+    <view class="nav-notice" bindtap="goToMessage">
+      <image class="notice-icon" src="/images/喇叭.png" mode="aspectFit"></image>
+    </view>
+  </view>
+
+  <!-- 标签与统计区 -->
+  <view class="stats-area">
+    <view class="active-tag">今日上新</view>
+    <text class="stats-count">共{{totalCount}}件新品</text>
+  </view>
+
+  <!-- 商品列表区（2列网格） -->
+  <view class="goods-list">
+    <block wx:for="{{goodsList}}" wx:key="id">
+      <view class="goods-card">
+        <!-- 图片区域 + 角标 -->
+        <view class="goods-image-wrapper">
+          <image class="goods-image" src="{{item.image}}" mode="aspectFill"></image>
+          <view class="goods-badge {{item.badgeClass}}">{{item.badgeText}}</view>
+        </view>
+        <!-- 商品信息 -->
+        <view class="goods-info">
+          <text class="goods-name">{{item.name}}</text>
+          <text class="goods-price">¥{{item.price}}</text>
+          <text class="goods-status">{{item.statusText}}</text>
+          <text class="goods-spec">规格:{{item.spec}}</text>
+        </view>
+        <!-- 操作按钮 -->
+        <view class="goods-action" bindtap="onAction" data-item="{{item}}">
+          {{item.actionText}}
+        </view>
+      </view>
+    </block>
+  </view>
+</view>
+
+<!-- 底部购物车栏 -->
+<view class="cart-bar" bindtap="showCartDetail">
+  <view class="cart-left">
+    <view class="cart-icon-wrapper">
+      <image class="cart-icon" src="/images/icon_shop.png" mode="aspectFit"></image>
+      <view class="cart-badge" wx:if="{{cartTotalCount > 0}}">{{cartTotalCount}}</view>
+    </view>
+    <view class="cart-info">
+      <text class="cart-label">合计（现货+预定）</text>
+      <text class="cart-price">¥{{cartTotalPrice}}</text>
+    </view>
+  </view>
+  <view class="cart-checkout" bindtap="checkout" catchtap="stopPropagation">
+    <text>合并结算</text>
+  </view>
+</view>
+
+<!-- 购物车详情弹窗 -->
+<view class="cart-modal {{showCartModal ? 'show' : ''}}" bindtap="hideCartDetail">
+  <view class="cart-modal-content" catchtap="stopPropagation">
+    <view class="cart-modal-header">
+      <text class="cart-modal-title">购物车</text>
+      <view class="cart-modal-close" bindtap="hideCartDetail">×</view>
+    </view>
+    <scroll-view class="cart-modal-list" scroll-y>
+      <block wx:for="{{cartList}}" wx:key="id">
+        <view class="cart-modal-item">
+          <image class="cart-modal-image" src="{{item.image}}" mode="aspectFill"></image>
+          <view class="cart-modal-info">
+            <view class="cart-modal-name">{{item.name}}</view>
+            <view class="cart-modal-tag" wx:if="{{item.type === 'preorder'}}">接龙预定</view>
+            <text class="cart-modal-price">¥{{item.price}}</text>
+          </view>
+          <view class="cart-modal-control">
+            <view class="control-btn minus" bindtap="decreaseQuantity" data-id="{{item.id}}">-</view>
+            <text class="control-num">{{item.quantity}}</text>
+            <view class="control-btn plus" bindtap="increaseQuantity" data-id="{{item.id}}">+</view>
+          </view>
+        </view>
+      </block>
+      <view class="cart-modal-empty" wx:if="{{cartList.length === 0}}">
+        <text>购物车是空的</text>
+      </view>
+    </scroll-view>
+    <view class="cart-modal-footer">
+      <view class="cart-modal-total">
+        <text class="total-label">合计</text>
+        <text class="total-price">¥{{cartTotalPrice}}</text>
+      </view>
+      <view class="cart-modal-checkout" bindtap="checkout">
+        <text>去结算</text>
+      </view>
+    </view>
+  </view>
+</view>
+
+<!-- 底部导航栏 -->
+<view class="tab-bar-bottom">
+  <view class="tab-bottom-item" bindtap="goToHome">
+    <view class="tab-icon icon-home"></view>
+    <text class="tab-text">首页</text>
+  </view>
+  <view class="tab-bottom-item" bindtap="goToGoods">
+    <view class="tab-icon icon-grid"></view>
+    <text class="tab-text">商品</text>
+  </view>
+  <view class="tab-bottom-item" bindtap="goToMy">
+    <view class="tab-icon icon-person"></view>
+    <text class="tab-text">我的</text>
+  </view>
+</view>
+=======
 <view class="page">
   <view class="title-wrap">
     <text class="page-title">今日上新</text>

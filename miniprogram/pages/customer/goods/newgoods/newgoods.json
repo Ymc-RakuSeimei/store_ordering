@@ -1,3 +1,4 @@
 {
-  "usingComponents": {}
+  "navigationBarTitleText": "今日上新",
+  "navigationStyle": "custom"
 }

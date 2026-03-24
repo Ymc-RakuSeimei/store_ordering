@@ -1,0 +1,28 @@
+<!-- 全部商品组件 -->
+<view class="all-container">
+  <view class="goods-grid">
+    <block wx:for="{{goodsList}}" wx:key="id">
+      <view class="goods-card">
+        <!-- 图片区域 + 角标 -->
+        <view class="goods-image-wrapper">
+          <image class="goods-image" src="{{item.image}}" mode="aspectFill"></image>
+          <view class="goods-badge {{item.badgeClass}}" wx:if="{{item.badge}}">{{item.badge}}</view>
+        </view>
+        <!-- 商品信息 -->
+        <view class="goods-info">
+          <text class="goods-name">{{item.name}}</text>
+          <text class="goods-price">¥{{item.price}}</text>
+          <text class="goods-stock">{{item.stockText}}</text>
+          <text class="goods-spec">规格:{{item.spec}}</text>
+        </view>
+        <!-- 按钮 -->
+        <view class="goods-action" bindtap="onAction" data-item="{{item}}">
+          {{item.actionText}}
+        </view>
+      </view>
+    </block>
+  </view>
+  <view class="empty-state" wx:if="{{goodsList.length === 0}}">
+    <text>暂无商品</text>
+  </view>
+</view>

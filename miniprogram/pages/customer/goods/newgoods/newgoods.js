@@ -1,4 +1,4 @@
-// pages/customer/goods/newgoods.js
+// pages/customer/goods/newgoods/newgoods.js
 Page({
   // 页面初始数据
   data: {

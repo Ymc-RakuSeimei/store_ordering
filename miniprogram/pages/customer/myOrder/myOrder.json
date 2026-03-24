@@ -1,3 +1,8 @@
 {
-  "usingComponents": {}
+  "usingComponents": {
+    "all-component": "./components/all",
+    "waiting-component": "./components/waiting",
+    "completed-component": "./components/completed"
+  },
+  "navigationBarTitleText": "我的订单"
 }

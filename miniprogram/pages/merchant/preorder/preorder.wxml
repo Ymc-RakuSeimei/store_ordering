@@ -1,0 +1,54 @@
+<view class="page">
+  <!-- 顶部头部 -->
+  <view class="header">
+    <text class="back" bindtap="onBack">← 返回</text>
+    <text class="title">预售订货</text>
+  </view>
+
+  <!-- 正在接龙区域 -->
+  <view class="panel">
+    <view class="panel-head">
+      <text class="panel-title">正在接龙</text>
+      <button class="small-btn" bindtap="onOneKeyStatistics">一键统计</button>
+    </view>
+    <block wx:for="{{currentDragons}}" wx:key="id">
+      <view class="item-card">
+        <view class="item-left">
+          <text class="item-order">{{index+1}}</text>
+          <text class="item-name">{{item.name}}</text>
+          <text class="item-spec">规格：{{item.spec}}</text>
+        </view>
+        <view class="item-right">
+          <text class="item-qty">×{{item.qty}}</text>
+          <button class="btn-handle" bindtap="onHandleCurrent" data-id="{{item.id}}">统计</button>
+          <button class="btn-stop" bindtap="onStopCurrent" data-id="{{item.id}}">截止</button>
+        </view>
+      </view>
+    </block>
+    <view wx:if="{{!currentDragons || currentDragons.length===0}}" class="empty-state">暂无正在接龙数据</view>
+  </view>
+
+  <!-- 已截单区域 -->
+  <view class="panel">
+    <view class="panel-head">
+      <text class="panel-title">已截单</text>
+    </view>
+    <block wx:for="{{completedDragons}}" wx:key="id">
+      <view class="item-card simple">
+        <view class="item-left">
+          <text class="item-order">{{index+1}}</text>
+          <text class="item-name">{{item.name}}</text>
+          <text class="item-spec">规格：{{item.spec}}</text>
+        </view>
+        <view class="item-right">
+          <text class="item-qty">×{{item.qty}}</text>
+          
+        </view>
+      </view>
+    </block>
+    <view wx:if="{{!completedDragons || completedDragons.length===0}}" class="empty-state">暂无已截单数据</view>
+  </view>
+
+  <!-- 底部创建接龙按钮 -->
+  <button class="big-btn" bindtap="toCreatePreorder">创建接龙</button>
+</view>

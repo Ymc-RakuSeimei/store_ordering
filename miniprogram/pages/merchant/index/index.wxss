@@ -1,1 +1,171 @@
 /* pages/merchant/index/index.wxss */
+/* 整体页样式 */
+page {
+  background-color: #f2f2f5;           /* 全局背景灰白 */
+  font-family: PingFang SC, Helvetica Neue, Arial, sans-serif; /* 字体 */
+  color: #333;                         /* 默认文本颜色 */
+}
+
+/* 边距容器 */
+.container {
+  padding: 26rpx;                      /* 页面内边距 */
+  box-sizing: border-box;              /* 盒模型 */
+}
+
+/* 头部区域（白底圆角） */
+.topbar {
+  background: #ffffff;                 /* 白底 */
+  border-radius: 22rpx;                /* 圆角 */
+  padding: 20rpx;                      /* 内边距 */
+  display: flex;                       /* 弹性布局 */
+  align-items: center;                 /* 垂直居中 */
+  justify-content: space-between;      /* 左右分布 */
+  box-shadow: 0 8rpx 18rpx rgba(0,0,0,0.12); /* 投影 */
+  margin-bottom: 40rpx;                /* 下边距 */
+}
+
+/* 头像 */
+.avatar {
+  width: 86rpx;                        /* 宽度 */
+  height: 86rpx;                       /* 高度 */
+  border-radius: 22rpx;                /* 圆角 */
+  border: 2rpx solid #e6e6e6;          /* 边框 */
+}
+
+/* 头部文字 */
+.topbar-text {
+  flex: 1;                             /* 占剩余空间 */
+  margin-left: 16rpx;                  /* 左边距 */
+}
+
+.title {
+  font-size: 34rpx;                    /* 字体大小 */
+  font-weight: bold;                   /* 加粗 */
+  color: #222;                         /* 颜色 */
+}
+
+.subtitle {
+  font-size: 22rpx;                    /* 字体大小 */
+  color: #666;                         /* 颜色 */
+  margin-top: 6rpx;                    /* 上边距 */
+}
+
+/* 扫码按钮（修改后） */
+.scan-btn {
+  background: #ffffff;               
+  border-radius: 14rpx;                /* 保留圆角 */
+  padding: 1rpx 10rpx;                /* 保留内边距 */
+  /* 新增：清除默认按钮样式 + 适配图标居中 */
+  border: none;                         /* 清除默认边框 */
+  display: flex;                        /* 弹性布局 */
+  align-items: center;                  /* 图标垂直居中 */
+  justify-content: center;              /* 图标水平居中 */
+  /* 删除：原文字相关属性（font-size、color），因为按钮内无文字了 */
+}
+
+/* 新增：清除按钮默认点击态边框 */
+.scan-btn::after {
+  border: none;
+}
+/* 扫码按钮外层容器：控制按钮+文字垂直排列 */
+.scan-btn-wrapper {
+  display: flex;
+  flex-direction: column; /* 按钮在上，文字在下 */
+  align-items: center;     /* 水平居中 */
+}
+
+/*二维码图标*/
+.scan-btn .card-icon{
+  height: 100rpx;
+}
+
+/* 卡片容器：2列 */
+.card-container {
+  display: flex;                       /* 弹性布局 */
+  flex-wrap: wrap;                     /* 换行 */
+  justify-content: space-between;      /* 左右对称 */
+  padding-bottom: 40rpx;               /* 下内边距 */
+}
+
+/* 卡片 */
+.card-item {
+  width: 44%;                         /* 宽度，两列留缝 */
+  background: #333333;                 /* 深灰背景 */
+  border-radius: 24rpx;                /* 圆角 */
+  padding: 24rpx 16rpx;                /* 内边距 */
+  margin-bottom: 18rpx;                /* 下边距 */
+  box-shadow: 0 8rpx 20rpx rgba(0,0,0,0.28); /* 投影 */
+  display: flex;                       /* 弹性布局 */
+  flex-direction: column;               /* 垂直 */
+  align-items: center;                 /* 居中 */
+  min-height: 360rpx;                  /* 最小高度 */
+}
+
+/* 卡片 icon */
+.card-icon {
+  width: 60rpx;                        /* 宽度 */
+  height: 60rpx;                       /* 高度 */
+  margin-bottom: 16rpx;                /* 下边距 */
+  filter: brightness(1.3);             /* 亮度提升 */
+}
+
+/* 卡片标题 */
+.card-title {
+  font-size: 50rpx;                    /* 字体大小 */
+  font-weight: bold;                   /* 加粗 */
+  color: #ffffff;                      /* 白字 */
+  margin-bottom: 10rpx;                 /* 下边距 */
+}
+
+/* 卡片副标题 */
+.card-subtitle {
+  font-size: 30rpx;                    /* 字体大小 */
+  color: #f2f2f2;                      /* 浅白 */
+  text-align: center;                  /* 居中 */
+}
+
+/* 系统通知长卡片 */
+.long-card {
+  background: #333333;                 /* 深灰背景 */
+  border-radius: 24rpx;                /* 圆角 */
+  margin-top: 12rpx;                   /* 上边距 */
+  padding: 24rpx 20rpx;                /* 内边距 */
+  box-shadow: 0 8rpx 22rpx rgba(0,0,0,0.28); /* 投影 */
+  width: 100%;                        /* 全宽 */
+}
+
+.long-holder {
+  display: flex;                       /* 弹性布局 */
+  align-items: center;                 /* 垂直居中 */
+}
+
+.long-icon {
+  width: 36rpx;                        /* 宽度 */
+  height: 36rpx;                       /* 高度 */
+  margin-right: 14rpx;                 /* 右边距 */
+}
+
+.long-text {
+  flex: 1;                             /* 占剩余空间 */
+}
+
+.long-title {
+  font-size: 32rpx;                    /* 字体大小 */
+  font-weight: bold;                   /* 加粗 */
+  color: #ffffff;                      /* 白字 */
+}
+
+.long-subtitle {
+  font-size: 20rpx;                    /* 字体大小 */
+  color: #f1f1f1;                      /* 浅白 */
+  margin-top: 4rpx;                    /* 上边距 */
+}
+
+/* 底部提示线 */
+.bottom-text {
+  display: block;                      /* 块级 */
+  text-align: center;                  /* 居中 */
+  font-size: 26rpx;                    /* 字体大小 */
+  color: #666666;                      /* 灰色 */
+  margin-top: 20rpx;                   /* 上边距 */
+}

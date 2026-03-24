@@ -52,3 +52,11 @@ app.js作了相应适配
 pages/index最开始的逻辑是通过系统自带APIwx.getAccountInfoSync()获取当前环境（develop/release/trial），只有非release（正非式发布）时才会有长按切换角色。长按切换的实现：放了一个铺满整个屏幕的透明区域，长按跳转到 pages/debug/index，点击切换身份。其中因为买家端使用了tabBar所以必须用wx.switchTab跳转，这是我卡住的一个点。
 
 添加了miniprogram/node_modules用于后续生成身份码
+
+
+——————————————————————————————————————————————————mc3/24更新：
+
+### 商家端商品管理页面功能升级
+- 点击商品弹窗支持修改**进价、售价、库存、商品图片**四项信息
+- 新增图片上传功能，自动上传到微信云存储
+- 后端`updateProduct`云函数需同步支持`stock`和`img`字段更新

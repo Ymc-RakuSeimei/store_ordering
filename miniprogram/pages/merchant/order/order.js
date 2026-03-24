@@ -92,5 +92,18 @@ Page({
     // TODO：后端实现，提醒全部待处理订单
     // return wx.cloud.callFunction({ name: 'pushOrderReminder' });
     return Promise.resolve();
+  },
+
+  onTabTap(e) {
+    const tab = e.currentTarget.dataset.tab;
+    // 当前页为订单处理，不跳转
+    if (tab === 'order') return;
+    const map = {
+      home: '/pages/merchant/index/index',
+      product: '/pages/merchant/product/product',
+      order: '/pages/merchant/order/order',
+    };
+    const url = map[tab];
+    if (url) wx.navigateTo({ url });
   }
 });

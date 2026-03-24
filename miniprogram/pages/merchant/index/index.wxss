@@ -8,7 +8,7 @@ page {
 
 /* 边距容器 */
 .container {
-  padding: 26rpx;                      /* 页面内边距 */
+  padding: 26rpx 26rpx 190rpx;       /* 页面内边距（底部预留tab栏高度） */
   box-sizing: border-box;              /* 盒模型 */
 }
 
@@ -168,4 +168,46 @@ page {
   font-size: 26rpx;                    /* 字体大小 */
   color: #666666;                      /* 灰色 */
   margin-top: 20rpx;                   /* 上边距 */
+}
+
+/* 自定义底部tab栏（参考顾客端 tabBar 配色：#007AFF / #999999） */
+.merchant-tabbar {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 108rpx;
+  background-color: #ffffff;
+  border-top: 1rpx solid #f3f3f3;
+  display: flex;
+  z-index: 50;
+}
+
+.tabbar-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #999999; /* 未选中 */
+}
+
+.tabbar-icon {
+  width: 46rpx;
+  height: 46rpx;
+  margin-bottom: 6rpx;
+  opacity: 0.95;
+}
+
+.tabbar-text {
+  font-size: 24rpx;
+  line-height: 24rpx;
+}
+
+.tabbar-item--active {
+  color: #007AFF; /* selectedColor */
+}
+
+.tabbar-item--active .tabbar-icon {
+  opacity: 1;
 }

@@ -16,6 +16,8 @@ Page({
     editItem: null,
     editSellPrice: '',
     editCostPrice: '',
+    editStock: '',
+    editImg: '',
 
     showAddDialog: false,
     newProduct: { name: '', spec: '', sellPrice: '', costPrice: '', stock: '' }
@@ -43,7 +45,9 @@ Page({
       showEditDialog: true,
       editItem: item,
       editSellPrice: String(item.sellPrice || ''),
-      editCostPrice: String(item.costPrice || '')
+      editCostPrice: String(item.costPrice || ''),
+      editStock: String(item.stock || ''),
+      editImg: item.img || ''
     });
   },
 
@@ -57,6 +61,36 @@ Page({
     const value = e.detail.value;
     if (key === 'sellPrice') this.setData({ editSellPrice: value });
     if (key === 'costPrice') this.setData({ editCostPrice: value });
+    if (key === 'stock') this.setData({ editStock: value });
+  },
+
+  // 选择编辑时的商品图片
+  chooseEditImage() {
+    wx.chooseImage({
+      count: 1,
+      sizeType: ['compressed'],
+      sourceType: ['album', 'camera'],
+      success: res => {
+        const tempFile = res.tempFilePaths[0];
+        // 上传到云存储
+        const cloudPath = `goods/${Date.now()}_${Math.random().toString(36).substr(2, 9)}.png`;
+        wx.cloud.uploadFile({
+          cloudPath,
+          filePath: tempFile,
+          success: uploadRes => {
+            this.setData({ editImg: uploadRes.fileID });
+            wx.showToast({ title: '图片上传成功', icon: 'success', duration: 1000 });
+          },
+          fail: err => {
+            console.error('图片上传失败', err);
+            wx.showToast({ title: '图片上传失败', icon: 'none' });
+          }
+        });
+      },
+      fail: err => {
+        console.error('选择图片失败', err);
+      }
+    });
   },
 
   // 保存修改：要调用后端 updateProduct 接口
@@ -64,9 +98,11 @@ Page({
     const item = this.data.editItem;
     const sellPrice = Number(this.data.editSellPrice);
     const costPrice = Number(this.data.editCostPrice);
+    const stock = Number(this.data.editStock);
+    const img = this.data.editImg;
 
-    if (!item || Number.isNaN(sellPrice) || Number.isNaN(costPrice)) {
-      wx.showToast({ title: '请输入正确价格', icon: 'none' });
+    if (!item || Number.isNaN(sellPrice) || Number.isNaN(costPrice) || Number.isNaN(stock) || stock < 0) {
+      wx.showToast({ title: '请输入正确信息', icon: 'none' });
       return;
     }
 
@@ -74,12 +110,14 @@ Page({
     this.updateProductOnServer({
       id: item._id || item.id,
       sellPrice,
-      costPrice
+      costPrice,
+      stock,
+      img
     }).then(() => {
       const key = this.data.activeTab === 'stock' ? 'stockList' : 'specialList';
       const list = this.data[key].map(i => {
         if ((i._id || i.id) === (item._id || item.id)) {
-          return { ...i, sellPrice, costPrice };
+          return { ...i, sellPrice, costPrice, stock, img };
         }
         return i;
       });
@@ -189,5 +227,18 @@ Page({
       console.error('fetchGoodsFromServer失败', err);
       wx.showToast({ title: '加载商品失败', icon: 'none' });
     });
+  },
+
+  onTabTap(e) {
+    const tab = e.currentTarget.dataset.tab;
+    // 当前页为商品管理，不跳转
+    if (tab === 'product') return;
+    const map = {
+      home: '/pages/merchant/index/index',
+      product: '/pages/merchant/product/product',
+      order: '/pages/merchant/my/my',
+    };
+    const url = map[tab];
+    if (url) wx.navigateTo({ url });
   }
 });

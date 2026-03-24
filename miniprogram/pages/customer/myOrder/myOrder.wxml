@@ -5,8 +5,8 @@
     <view class="nav-back" bindtap="goBack">
       <text class="back-icon"></text>
     </view>
-    <view class="nav-title">我的订单</view>
-    <view class="nav-placeholder"></view>
+    <view class="nav-title"></view>
+    <view class="nav-placeholder">我的订单</view>
   </view>
 
   <!-- Tab栏 -->
@@ -36,21 +36,5 @@
     <block wx:if="{{currentTab === 'completed'}}">
       <completed-component></completed-component>
     </block>
-  </view>
-</view>
-
-<!-- 底部导航栏 -->
-<view class="tab-bar-bottom">
-  <view class="tab-bottom-item" bindtap="goToHome">
-    <view class="tab-icon icon-home"></view>
-    <text class="tab-text">首页</text>
-  </view>
-  <view class="tab-bottom-item" bindtap="goToGoods">
-    <view class="tab-icon icon-grid"></view>
-    <text class="tab-text">商品</text>
-  </view>
-  <view class="tab-bottom-item" bindtap="goToMy">
-    <view class="tab-icon icon-person"></view>
-    <text class="tab-text">我的</text>
   </view>
 </view>

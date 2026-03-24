@@ -1,6 +1,7 @@
 // pages/customer/goods/newgoods/newgoods.js
 Page({
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 
   /**
    * 页面的初始数据
@@ -66,6 +67,8 @@ Page({
   }
 })
 =======
+=======
+>>>>>>> Stashed changes
   data: {
     totalCount: 5,
     goodsList: [],
@@ -158,32 +161,6 @@ Page({
   goBack() {
     wx.navigateBack({
       delta: 1
-    });
-  },
-
-  // 跳转到消息中心
-  goToMessage() {
-    wx.navigateTo({
-      url: '/pages/customer/message/message'
-    });
-  },
-
-  // 底部导航跳转
-  goToHome() {
-    wx.switchTab({
-      url: '/pages/customer/index/index'
-    });
-  },
-
-  goToGoods() {
-    wx.switchTab({
-      url: '/pages/customer/goods/goods'
-    });
-  },
-
-  goToMy() {
-    wx.switchTab({
-      url: '/pages/customer/my/my'
     });
   },
 
@@ -364,5 +341,9 @@ Page({
       url: '/pages/customer/checkout/checkout?total=' + this.data.cartTotalPrice
     });
   }
+<<<<<<< Updated upstream
+});
+>>>>>>> Stashed changes
+=======
 });
 >>>>>>> Stashed changes

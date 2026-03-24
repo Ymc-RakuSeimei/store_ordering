@@ -96,32 +96,6 @@ Page({
     });
   },
 
-  // 跳转到消息中心
-  goToMessage() {
-    wx.navigateTo({
-      url: '/pages/customer/message/message'
-    });
-  },
-
-  // 底部导航跳转
-  goToHome() {
-    wx.switchTab({
-      url: '/pages/customer/index/index'
-    });
-  },
-
-  goToGoods() {
-    wx.switchTab({
-      url: '/pages/customer/goods/goods'
-    });
-  },
-
-  goToMy() {
-    wx.switchTab({
-      url: '/pages/customer/my/my'
-    });
-  },
-
   // 阻止事件冒泡
   stopPropagation() {},
 
@@ -299,4 +273,5 @@ Page({
       url: '/pages/customer/checkout/checkout?total=' + this.data.cartTotalPrice
     });
   }
+
 });

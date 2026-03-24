@@ -1,66 +1,43 @@
 // pages/merchant/index/index.js
 Page({
-
-  /**
-   * 页面的初始数据
-   */
   data: {
-
+    userName: '店长ymc',
+    avatar: '/images/avatar.png',
+    cardGroup: [
+      { id: 'product', title: '商品管理', subtitle: '上架新品、编辑库存', icon: '/images/icon_product.png' },
+      { id: 'order', title: '订单处理', subtitle: '查看顾客订单、售后提醒', icon: '/images/icon_ord.png' },
+      { id: 'data', title: '数据中心', subtitle: '销售统计、营收查看', icon: '/images/icon_data.png' },
+      { id: 'preorder', title: '预售订货', subtitle: '设置群接龙、统计进货', icon: '/images/icon_preord.png' }
+    ],
+    notify: { id: 'notify', title: '系统通知', subtitle: '库存、订单、预售提醒', icon: '/images/icon_notice.png' }
   },
 
-  /**
-   * 生命周期函数--监听页面加载
-   */
-  onLoad(options) {
-
+  onLoad() {
+    wx.setNavigationBarTitle({ title: '商家管理' });
   },
 
-  /**
-   * 生命周期函数--监听页面初次渲染完成
-   */
-  onReady() {
-
+  onScanPickup() {
+    wx.scanCode({
+      onlyFromCamera: true,
+      success: (res) => {
+        wx.showToast({ title: '取货码：' + (res.result || '未知'), icon: 'none', duration: 2200 });
+      },
+      fail: () => {
+        wx.showToast({ title: '扫码失败，请重试', icon: 'none' });
+      }
+    });
   },
 
-  /**
-   * 生命周期函数--监听页面显示
-   */
-  onShow() {
-
-  },
-
-  /**
-   * 生命周期函数--监听页面隐藏
-   */
-  onHide() {
-
-  },
-
-  /**
-   * 生命周期函数--监听页面卸载
-   */
-  onUnload() {
-
-  },
-
-  /**
-   * 页面相关事件处理函数--监听用户下拉动作
-   */
-  onPullDownRefresh() {
-
-  },
-
-  /**
-   * 页面上拉触底事件的处理函数
-   */
-  onReachBottom() {
-
-  },
-
-  /**
-   * 用户点击右上角分享
-   */
-  onShareAppMessage() {
-
+  onCardTap(event) {
+    const id = event.currentTarget.dataset.id;
+    const map = {
+      product: '/pages/merchant/product/product',
+      order: '/pages/merchant/order/order',
+      data: '/pages/merchant/datacenter/datacenter',
+      preorder: '/pages/merchant/preorder/preorder',
+      notify: '/pages/merchant/notification/notification'
+    };
+    const url = map[id];
+    if (url) wx.navigateTo({ url });
   }
-})
+});

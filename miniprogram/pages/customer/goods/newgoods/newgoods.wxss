@@ -1,6 +1,3 @@
-<<<<<<< Updated upstream
-/* pages/customer/newgoods/newgoods.wxss */
-=======
 .container {
   background-color: #ffffff;
   min-height: 100vh;
@@ -505,4 +502,4 @@
   font-size: 22rpx;
   color: #999999;
 }
->>>>>>> Stashed changes
+

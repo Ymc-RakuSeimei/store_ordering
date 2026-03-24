@@ -22,18 +22,11 @@
     "miniprogram": {
       "list": [
         {
-          "name": "pages/merchant/index/index",
-          "pathName": "pages/merchant/index/index",
-          "query": "",
-          "scene": null,
-          "launchMode": "default"
-        },
-        {
           "name": "pages/customer/index/index",
           "pathName": "pages/customer/index/index",
           "query": "",
-          "launchMode": "default",
-          "scene": null
+          "scene": null,
+          "launchMode": "default"
         }
       ]
     }

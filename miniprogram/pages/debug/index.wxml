@@ -1,0 +1,5 @@
+<view class="container">
+  <text>当前角色：{{role}}</text>
+  <button bindtap="switchToCustomer">切换为买家</button>
+  <button bindtap="switchToMerchant">切换为商家</button>
+</view>

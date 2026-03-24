@@ -2,6 +2,7 @@
   "pages": [
     "pages/merchant/index/index",
     "pages/merchant/product/product",
+    "pages/merchant/my/my",
     "pages/merchant/order/order",
     "pages/merchant/order/detail/detail",
     "pages/merchant/datacenter/datacenter",

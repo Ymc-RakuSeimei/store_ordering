@@ -189,5 +189,18 @@ Page({
       console.error('fetchGoodsFromServer失败', err);
       wx.showToast({ title: '加载商品失败', icon: 'none' });
     });
+  },
+
+  onTabTap(e) {
+    const tab = e.currentTarget.dataset.tab;
+    // 当前页为商品管理，不跳转
+    if (tab === 'product') return;
+    const map = {
+      home: '/pages/merchant/index/index',
+      product: '/pages/merchant/product/product',
+      order: '/pages/merchant/my/my',
+    };
+    const url = map[tab];
+    if (url) wx.navigateTo({ url });
   }
 });

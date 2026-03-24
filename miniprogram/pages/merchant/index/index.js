@@ -39,5 +39,17 @@ Page({
     };
     const url = map[id];
     if (url) wx.navigateTo({ url });
+  },
+
+  onTabTap(e) {
+    const tab = e.currentTarget.dataset.tab;
+    // 首页已在当前页则不跳转，避免产生多余历史栈
+    if (tab === 'home') return;
+    const map = {
+      product: '/pages/merchant/product/product',
+      order: '/pages/merchant/my/my',
+    };
+    const url = map[tab];
+    if (url) wx.navigateTo({ url });
   }
 });

@@ -54,4 +54,20 @@
       <view class="button-group"><button bindtap="closeAdd">取消</button><button type="primary" bindtap="saveAdd">确认添加</button></view>
     </view>
   </view>
+
+  <!-- 自定义底部tab栏（3按钮：首页/商品/我的） -->
+  <view class="merchant-tabbar">
+    <view class="tabbar-item" data-tab="home" bindtap="onTabTap">
+      <image class="tabbar-icon" src="/images/icon_home.png" />
+      <text class="tabbar-text">首页</text>
+    </view>
+    <view class="tabbar-item tabbar-item--active" data-tab="product" bindtap="onTabTap">
+      <image class="tabbar-icon" src="/images/icon_order.png" />
+      <text class="tabbar-text">商品</text>
+    </view>
+    <view class="tabbar-item" data-tab="order" bindtap="onTabTap">
+      <image class="tabbar-icon" src="/images/icon_mine.png" />
+      <text class="tabbar-text">我的</text>
+    </view>
+  </view>
 </view>

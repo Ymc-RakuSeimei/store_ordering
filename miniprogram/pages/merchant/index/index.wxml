@@ -38,3 +38,19 @@
 
   <text class="bottom-text">Run your store well!</text>
 </view>
+
+<!-- 自定义底部tab栏（样式参考顾客端 app.json 的 tabBar 配色） -->
+<view class="merchant-tabbar">
+  <view class="tabbar-item tabbar-item--active" data-tab="home" bindtap="onTabTap">
+    <image class="tabbar-icon" src="/images/icon_home.png" />
+    <text class="tabbar-text">首页</text>
+  </view>
+  <view class="tabbar-item" data-tab="product" bindtap="onTabTap">
+    <image class="tabbar-icon" src="/images/icon_order.png" />
+    <text class="tabbar-text">商品</text>
+  </view>
+  <view class="tabbar-item" data-tab="order" bindtap="onTabTap">
+    <image class="tabbar-icon" src="/images/icon_mine.png" />
+    <text class="tabbar-text">我的</text>
+  </view>
+</view>

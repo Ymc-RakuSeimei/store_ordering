@@ -42,6 +42,7 @@
         </view>
         <view class="item-right">
           <text class="item-qty">×{{item.qty}}</text>
+          
         </view>
       </view>
     </block>

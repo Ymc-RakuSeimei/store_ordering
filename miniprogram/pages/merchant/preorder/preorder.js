@@ -57,7 +57,6 @@ Page({
     // 后端需处理该操作，例如 wx.cloud.callFunction({name:'statSinglePreorder', data:{id}})
     wx.showToast({ title: `统计 ${id}`, icon: 'none' });
   },
-
   // 截止单个接龙（占位）
   onStopCurrent(e) {
     const id = e.currentTarget.dataset.id;

@@ -94,6 +94,7 @@ page {
   border-radius: 16rpx;
   padding: 6rpx 10rpx;
 }
+
 .btn-stop {
   background: #333;
   color: #fff;

@@ -1,90 +1,64 @@
-<view class="page">
-  <!-- 顶部：头像 + Hello -->
-  <view class="header">
-    <image class="avatar" src="{{avatarUrl}}" mode="aspectFill" />
-    <text class="hello">Hello! {{helloName}}~</text>
+<!-- 买家端我的页面 - 纯页面结构 -->
+<view class="container">
 
-    <!-- 右上角装饰图标（占位） -->
-    <view class="header-actions">
-      <text class="header-action">扫码取货</text>
-      <text class="header-action">上传</text>
-    </view>
+<!-- 顶部用户信息区 -->
+<view class="header">
+  <view class="greeting">
+    <text class="greeting-title">Hello, 派大星</text>
+    <text class="greeting-subtitle">Wish you a happy shopping!</text>
   </view>
-
-  <!-- 个人信息卡片 -->
-  <view class="card">
-    <view class="row">
-      <text class="row-icon">🏬</text>
-      <text class="row-value">{{storeName}}</text>
-    </view>
-
-    <view class="divider" />
-
-    <view class="row">
-      <text class="row-icon">📍</text>
-      <text class="row-value">{{address}}</text>
-    </view>
-
-    <view class="divider" />
-
-    <view class="row">
-      <text class="row-icon">🐟</text>
-      <text class="row-value">{{nickname}}</text>
-    </view>
-
-    <view class="divider" />
-
-    <view class="row">
-      <text class="row-icon">☎️</text>
-      <text class="row-value">{{phone}}</text>
-    </view>
-
-    <view class="divider" />
-
-    <view class="row">
-      <text class="row-icon">🐙</text>
-      <navigator class="github" url="{{githubUrl}}" open-type="redirect">
-        {{githubUrl}}
-      </navigator>
-    </view>
+  <view class="right-area">
+    <image class="qrcode" src="/images/二维码.png" mode="aspectFill"></image>
+    <image class="avatar" src="/images/avatar.png" mode="aspectFill"></image>
   </view>
+</view>
 
-  <!-- 更改按钮 -->
-  <view class="edit-btn" bindtap="onEditTap">更改</view>
+  <!-- 功能列表区（白色圆角卡片） -->
+  <view class="function-card">
+    <!-- 订单中心 -->
+    <view class="list-item" bindtap="goToOrderCenter">
+      <image class="item-icon" src="/images/分组1.png" mode="aspectFit"></image>
+      <view class="item-content">
+        <text class="item-title">订单中心</text>
+        <text class="item-subtitle">查看个人订单信息</text>
+      </view>
+    </view>
+    <view class="divider"></view>
 
-  <!-- 底部标语 -->
-  <text class="run-text">Run your store very well!</text>
+    <!-- 派大星（用户名） -->
+    <view class="list-item">
+      <image class="item-icon" src="/images/名片.png" mode="aspectFit"></image>
+      <view class="item-content">
+        <text class="item-title">用户名</text>
+        <text class="item-subtitle">派大星</text>
+      </view>
+    </view>
+    <view class="divider"></view>
 
-  <!-- 编辑弹窗 -->
-  <view wx:if="{{editing}}" class="modal">
-    <view class="modal-mask" bindtap="onCancelEdit" />
-    <view class="modal-body">
-      <text class="modal-title">修改个人信息</text>
+    <!-- 消息订阅通知 -->
+    <view class="list-item" bindtap="toggleNotification">
+      <image class="item-icon" src="/images/喇叭.png" mode="aspectFit"></image>
+      <view class="item-content">
+        <text class="item-title">消息订阅通知</text>
+        <text class="item-subtitle">开启后不错过新品与到货通知</text>
+      </view>
+    </view>
+    <view class="divider"></view>
 
-      <view class="field">
-        <text class="label">店名</text>
-        <input class="input" value="{{draft.storeName}}" data-key="storeName" bindinput="onDraftInput" placeholder="MC_Store" />
+    <!-- 手机号 -->
+    <view class="list-item">
+      <image class="item-icon" src="/images/电话.png" mode="aspectFit"></image>
+      <view class="item-content">
+        <text class="item-phone">12334562345</text>
       </view>
-      <view class="field">
-        <text class="label">地址</text>
-        <input class="input" value="{{draft.address}}" data-key="address" bindinput="onDraftInput" placeholder="A市B区C街D号" />
-      </view>
-      <view class="field">
-        <text class="label">用户名</text>
-        <input class="input" value="{{draft.nickname}}" data-key="nickname" bindinput="onDraftInput" placeholder="wxzh123" />
-      </view>
-      <view class="field">
-        <text class="label">电话</text>
-        <input class="input" value="{{draft.phone}}" data-key="phone" bindinput="onDraftInput" placeholder="12345678901" />
-      </view>
-      <view class="field">
-        <text class="label">GitHub</text>
-        <input class="input" value="{{draft.githubUrl}}" data-key="githubUrl" bindinput="onDraftInput" placeholder="https://github.com/..." />
-      </view>
+    </view>
+    <view class="divider"></view>
 
-      <view class="modal-actions">
-        <button class="btn" bindtap="onCancelEdit">取消</button>
-        <button class="btn btn-primary" type="primary" bindtap="onSaveEdit">保存</button>
+    <!-- 售后/联系商家 -->
+    <view class="list-item" bindtap="contactService">
+      <image class="item-icon" src="/images/商务用户.png" mode="aspectFit"></image>
+      <view class="item-content">
+        <text class="item-title">售后/联系商家</text>
       </view>
     </view>
   </view>

@@ -1,0 +1,18 @@
+<view class="container">
+  <view class="nav-bar">
+    <view class="nav-back" bindtap="goBack">
+      <text class="back-icon">←</text>
+    </view>
+    <view class="nav-title">确认订单</view>
+    <view class="nav-placeholder"></view>
+  </view>
+
+  <view class="order-info">
+    <text class="order-label">订单金额</text>
+    <text class="order-price">¥{{total}}</text>
+  </view>
+
+  <view class="pay-btn" bindtap="pay">
+    <text>立即支付</text>
+  </view>
+</view>

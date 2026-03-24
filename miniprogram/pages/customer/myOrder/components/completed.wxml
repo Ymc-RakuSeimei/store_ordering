@@ -1,0 +1,39 @@
+<!-- 已完成组件 -->
+<view class="completed-container">
+  <!-- 统计信息 -->
+  <view class="statistics" wx:if="{{completedStatistics}}">
+    <text class="stat-text">共计{{completedStatistics.total}}件</text>
+  </view>
+
+  <!-- 订单列表 -->
+  <view class="order-list">
+    <block wx:for="{{orderList}}" wx:key="id">
+      <view class="order-item">
+        <!-- 序号 -->
+        <view class="order-number">{{index + 1}}</view>
+        
+        <!-- 商品图片 -->
+        <image class="order-image" src="{{item.image}}" mode="aspectFill"></image>
+        
+        <!-- 商品信息 -->
+        <view class="order-info">
+          <text class="order-name">{{item.name}}</text>
+          <text class="order-price">¥{{item.price}}</text>
+        </view>
+        
+        <!-- 右侧状态和操作 -->
+        <view class="order-status-area">
+          <text class="status-completed-text">已完成</text>
+          <view class="evaluate-btn" bindtap="handleEvaluate" data-id="{{item.id}}">
+            去评价
+          </view>
+        </view>
+      </view>
+    </block>
+    
+    <!-- 空状态 -->
+    <view class="empty-state" wx:if="{{orderList.length === 0}}">
+      <text>暂无已完成订单</text>
+    </view>
+  </view>
+</view>

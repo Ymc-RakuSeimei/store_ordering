@@ -1,21 +1,22 @@
-测试——ymc
+看README！
 
 ## 微信开发者工具基本内容
 
-cloudfunctions ——云函数
-  里面每个函数都要单独建立一个文件夹，且文件夹名称必须与函数名一致
-  右键 "新建Node.js"
-  写完云函数一定要"上传并部署：云端安装依赖" 否则用不了
-cloudfunctions 右键选上环境 
-images/icon  里放的是小标识
-images/  里放较大图片（也可以自己建一个文件夹
-pages/  就是小程序的各个页面 
-pages/customer/  顾客端
-pages/merchant/  商家端
-其中的index指的是首页
-js文件是页面逻辑 wxml是页面结构 wxss是页面样式 json是说明
-components是组件，一般放不怎么动的东西
+`cloudfunctions` ——云函数
+里面每个函数都要单独建立一个文件夹，且文件夹名称必须与函数名一致。
+右键 "新建Node.js"
+写完云函数一定要"上传并部署：云端安装依赖" 否则用不了，
+`cloudfunctions ` 右键选上环境
+
+`images/icon/` 里放的是小标识`images/` 里放较大图片（也可以自己建一个文件夹`pages/` 就是小程序的各个页面
+
+`pages/customer/`  顾客端
+`pages/merchant/`  商家端
+其中的`index`指的是首页
+`js`文件是页面逻辑 `wxml`是页面结构 `wxss`是页面样式 `json`是说明
+`components`是组件，一般放不怎么动的东西
 编译模式 可以在开发时切换不同页面，而具体页面内换页按钮需代码（问AI）
+
 右上角-云开发:数据库、存储、云函数
 //x测试测试
 
@@ -32,65 +33,30 @@ components是组件，一般放不怎么动的东西
 1.每个页面调用用到的函数都在每个页面的.js文件最后面，可根据注释或者在云开发里面直接打开到那个页面看看需要填写什么数据来构建数据库和写函数
 2.关于切换到商家端和顾客端的切换，由于好像并没有做，所以现在可以在app.json文件里面吧pages里面的"pages/customer/index/index",等一系列数据提前到merchant页面前面就可以显示顾客端了
 
----
 
-## merchant 商家端需完成的后端接口函数清单
 
-以下为商家端各页面所需的后端云函数，按页面分类整理。目前前端均以 Promise.resolve() 占位，需在 cloudfunctions 中实现对应云函数并「上传并部署：云端安装依赖」。
+——————————————————————————————————————————————————mc3/23更新：
 
-### 一、数据中心 (datacenter)
+添加了加载页面（pages/index）和开发身份切换界面（pages/debug/index）
 
-| 序号 | 云函数名 | 说明 | 入参 | 返回结构 |
-|-----|----------|------|------|----------|
-| 1 | getDataCenterStats | 获取营收统计（本月总收入/总成本/净利润） | `{ period?: 'month' \| 'week' \| 'day' }` | `{ totalRevenue, totalCost, netProfit }` |
-| 2 | getOrderStatusCounts | 获取订单状态统计（已到货、已取货、待取货） | 无 | `{ delivered, pickedUp, pendingPickup }` |
-| 3 | pushOrderReminder | 一键提醒待取货客户 | 无 | 无 |
+添加了三个云函数
 
-### 二、系统通知 (notification)
+getOpenId 就是获取用户的OpenId
 
-| 序号 | 云函数名 | 说明 | 入参 | 返回结构 |
-|-----|----------|------|------|----------|
-| 4 | fetchNotifications | 获取通知列表 | 无 | `[{ id, type, title?, text, subText?, showRemindAction }]` |
-| 5 | deleteAllNotifications | 删除所有通知 | 无 | 无 |
-| 6 | remindNotification | 发送单条通知提醒 | `{ id }` | 无 |
+getUserRole获取用户身份——列表DEVELOPER_OPENIDS是用户白名单，只有里面存的OpenId才有权限在开发者切换界面切换身份，如果数据库没有含该OpenId的元组，则自动生成一个（默认nickName:'微信用户'...，大家pull之后试下，之后在数据库里把自己openId对应的信息换成自己的）
 
-### 三、订单处理 (order)
+switchRole主要是用于开发身份界面
 
-| 序号 | 云函数名 | 说明 | 入参 | 返回结构 |
-|-----|----------|------|------|----------|
-| 7 | fetchOrderList | 按状态获取订单列表 | `{ status: '待取货' \| '待到货' \| '顾客订单' }` | `[{ _id, name, qty, left?, spec }]` |
-| 8 | pushOrderReminder | 提醒全部待取货订单 | 无 | 无 |
+app.js作了相应适配
 
-### 四、订单详情 (order/detail)
+pages/index最开始的逻辑是通过系统自带APIwx.getAccountInfoSync()获取当前环境（develop/release/trial），只有非release（正非式发布）时才会有长按切换角色。长按切换的实现：放了一个铺满整个屏幕的透明区域，长按跳转到 pages/debug/index，点击切换身份。其中因为买家端使用了tabBar所以必须用wx.switchTab跳转，这是我卡住的一个点。
 
-| 序号 | 云函数名 | 说明 | 入参 | 返回结构 |
-|-----|----------|------|------|----------|
-| 9 | fetchOrderDetail | 获取订单详情 | `{ orderId }` | `{ _id, customerName, phone, pendingPickup, pendingArrival }` |
-| 10 | updateOrderItemStatus | 更新订单商品取货状态 | `{ orderId, itemId?, status: 'picked', all?: true }` | 无 |
+添加了miniprogram/node_modules用于后续生成身份码
 
-### 五、预售订货 (preorder)
 
-| 序号 | 云函数名 | 说明 | 入参 | 返回结构 |
-|-----|----------|------|------|----------|
-| 11 | getPreorderList | 获取预售接龙列表 | 无 | `{ current: [], completed: [] }` |
-| 12 | getPreorderStats | 一键统计预售数据 | 无 | 无 |
-| 13 | statSinglePreorder | 统计单个接龙 | `{ id }` | 无 |
-| 14 | stopPreorder | 截止单个接龙 | `{ id }` | 无 |
+——————————————————————————————————————————————————mc3/24更新：
 
-### 六、创建接龙 (preorder/create)
-
-| 序号 | 云函数名 | 说明 | 入参 | 返回结构 |
-|-----|----------|------|------|----------|
-| 15 | createPreorderDragon | 创建接龙并返回分享数据 | `{ name, description, spec, salePrice, costPrice, closeType }` | 分享链接或卡片数据 |
-
-### 七、商品管理 (product)
-
-| 序号 | 云函数名 | 说明 | 入参 | 返回结构 |
-|-----|----------|------|------|----------|
-| 16 | fetchGoods | 获取商品列表（现货/特价） | 无 | `{ stock: [], special: [] }` |
-| 17 | addProduct | 新增商品 | `{ name, spec, sellPrice, costPrice, stock, special, img }` | `{ _id }` |
-| 18 | updateProduct | 更新商品 | `{ id, sellPrice, costPrice }` | 无 |
-
----
-
-**汇总：共 18 个后端接口函数**（pushOrderReminder 在 datacenter 与 order 中复用）
+### 商家端商品管理页面功能升级
+- 点击商品弹窗支持修改**进价、售价、库存、商品图片**四项信息
+- 新增图片上传功能，自动上传到微信云存储
+- 后端`updateProduct`云函数需同步支持`stock`和`img`字段更新

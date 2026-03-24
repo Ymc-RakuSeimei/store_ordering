@@ -1,201 +1,273 @@
+/* 引入商家首页公共样式 */
 @import "../index/index.wxss";
+
 /* 商品管理页面样式（详细注释） */
+
+/* 页面整体样式 */
 page {
-  background: #f6f6f8; /* 页面背景色 */
-  font-family: PingFang SC, Helvetica Neue, Arial, sans-serif;
-  color: #333;
+  background: #f6f6f8; /* 页面背景色，浅灰色 */
+  font-family: PingFang SC, Helvetica Neue, Arial, sans-serif; /* 使用系统字体，保证跨平台一致性 */
+  color: #333; /* 默认文字颜色，深灰色 */
 }
 
+/* 页面容器 */
 .page {
-  min-height: 100vh;
-  padding: 20rpx 20rpx 190rpx;
-  box-sizing: border-box;
-  background: #f6f6f8;
+  min-height: 100vh; /* 最小高度占满整个视口 */
+  padding: 20rpx 20rpx 190rpx; /* 内边距，底部留出空间给自定义tabbar */
+  box-sizing: border-box; /* 盒模型，padding不会增加总宽度 */
+  background: #f6f6f8; /* 背景色 */
 }
 
-/* 顶部头部 */
+/* 顶部头部区域 */
 .header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 10rpx;
+  display: flex; /* flex布局 */
+  align-items: center; /* 垂直方向居中对齐 */
+  justify-content: space-between; /* 两端对齐，元素分散开 */
+  margin-bottom: 10rpx; /* 底部外边距，与下方内容分隔 */
 }
 
+/* 返回按钮文字样式 */
 .back {
-  color: #007AFF;
-  font-size: 30rpx;
+  color: #007AFF; /* 微信风格蓝色 */
+  font-size: 30rpx; /* 字体大小 */
 }
 
+/* 页面标题文字样式 */
 .title {
-  flex: 1;
-  text-align: center;
-  font-size: 32rpx;
-  font-weight: 600;
-  color: #333;
+  flex: 1; /* 占据剩余空间 */
+  text-align: center; /* 文字居中 */
+  font-size: 32rpx; /* 字体大小 */
+  font-weight: 600; /* 加粗 */
+  color: #333; /* 文字颜色 */
 }
 
+/* 占位元素，为了让标题真正居中 */
 .placeholder {
-  width: 30rpx;
+  width: 30rpx; /* 和返回按钮宽度保持一致，平衡布局 */
 }
 
-/* Tab 切换 */
+/* Tab 切换栏（现货/特价处理） */
 .tab-nav {
-  display: flex;
-  background: #e8e8e8;
-  border-radius: 32rpx;
-  padding: 5rpx;
-  margin-bottom: 14rpx;
+  display: flex; /* flex布局，平分宽度 */
+  background: #e8e8e8; /* 背景色 */
+  border-radius: 32rpx; /* 圆角处理 */
+  padding: 5rpx; /* 内边距 */
+  margin-bottom: 14rpx; /* 底部间距 */
 }
 
+/* 单个Tab选项样式 */
 .tab {
-  flex: 1;
-  text-align: center;
-  line-height: 48rpx;
-  font-size: 26rpx;
-  color: #535353;
-  border-radius: 26rpx;
+  flex: 1; /* 平分宽度，每个选项占一半 */
+  text-align: center; /* 文字居中 */
+  line-height: 48rpx; /* 行高，垂直方向居中 */
+  font-size: 26rpx; /* 字体大小 */
+  color: #535353; /* 非激活状态文字颜色 */
+  border-radius: 26rpx; /* 圆角 */
 }
 
+/* 激活状态的Tab选项 */
 .tab.active {
-  background: #333333;
-  color: #fff;
+  background: #333333; /* 深色背景 */
+  color: #fff; /* 白色文字 */
 }
 
-/* 商品列表 */
+/* 商品列表容器 */
 .goods-list {
-  min-height: 500rpx;
+  min-height: 500rpx; /* 最小高度，保证内容区域足够大 */
 }
 
+/* 单个商品卡片样式 */
 .goods-card {
-  display: flex;
-  background: #ffffff;
-  border-radius: 20rpx;
-  box-shadow: 0 5rpx 14rpx rgba(0, 0, 0, 0.08);
-  overflow: hidden;
-  margin-bottom: 14rpx;
+  display: flex; /* flex布局，图片在左，信息在右 */
+  background: #ffffff; /* 白色背景 */
+  border-radius: 20rpx; /* 圆角 */
+  box-shadow: 0 5rpx 14rpx rgba(0, 0, 0, 0.08); /* 阴影增加立体感 */
+  overflow: hidden; /* 溢出隐藏，圆角生效 */
+  margin-bottom: 20rpx; /* 底部间距，分隔不同商品卡片 */
+  height: 180rpx;
 }
 
+/* 商品图片样式 */
 .goods-img {
-  width: 138rpx;
-  height: 138rpx;
-  object-fit: cover;
+  width: 138rpx; /* 固定宽度 */
+  height: 138rpx; /* 固定高度，保持正方形 */
+  object-fit: cover; /* 图片按比例填充，超出部分裁剪 */
 }
 
+/* 商品信息区域 */
 .goods-info {
-  flex: 1;
-  padding: 14rpx;
+  display: flex;
+  flex-direction: column;   /* 垂直排列 */
+  justify-content: flex-start; /* 可选，从上开始排列 */
 }
 
+/* 商品名称样式 */
 .name {
-  font-size: 28rpx;
-  font-weight: bold;
-  color: #020202;
-  margin-bottom: 6rpx;
+  font-size: 28rpx; /* 字体大小 */
+  font-weight: bold; /* 加粗 */
+  color: #020202; /* 深色文字 */
+  margin-bottom: 6rpx; /* 底部间距 */
+  margin-top: 20rpx;
 }
 
+/* 商品规格和摘要信息公共样式 */
 .spec,
 .summary {
-  font-size: 20rpx;
-  color: #666;
-  margin-bottom: 4rpx;
+  font-size: 20rpx; /* 较小字体 */
+  color: #666; /* 灰色文字 */
+  margin-bottom: 4rpx; /* 底部间距 */
 }
 
+/* 价格库存摘要，突出显示 */
 .summary {
-  color: #222;
-  margin-top: 3rpx;
+  color: #222; /* 比spec更深的颜色 */
+  margin-top: 3rpx; /* 顶部间距 */
 }
 
-/* 添加按钮 */
+/* 右下角添加商品浮动按钮 */
 .fab {
-  position: fixed;
-  right: 20rpx;
-  bottom: 140rpx;
-  width: 68rpx;
-  height: 68rpx;
-  line-height: 68rpx;
-  text-align: center;
-  border-radius: 50%;
-  background: #33c266;
-  color: #fff;
-  font-size: 42rpx;
-  box-shadow: 0 8rpx 16rpx rgba(0, 0, 0, 0.25);
-  z-index: 100;
+  position: fixed; /* 固定定位，不随页面滚动 */
+  right: 20rpx; /* 距离右侧 */
+  bottom: 140rpx; /* 距离底部，避开自定义tabbar */
+  width: 68rpx; /* 按钮宽度 */
+  height: 68rpx; /* 按钮高度，保持圆形 */
+  line-height: 68rpx; /* 行高垂直居中 */
+  text-align: center; /* 文字水平居中 */
+  border-radius: 50%; /* 变成圆形 */
+  background: #33c266; /* 绿色背景，和确认按钮保持一致 */
+  color: #fff; /* 加号白色 */
+  font-size: 42rpx; /* 加号大小 */
+  box-shadow: 0 8rpx 16rpx rgba(0, 0, 0, 0.25); /* 阴影增加悬浮感 */
+  z-index: 100; /* 保证在最上层 */
 }
 
-/* 遮罩弹窗 */
+/* 弹窗背景遮罩 */
 .overlay {
-  position: fixed;
+  position: fixed; /* 固定定位，覆盖整个屏幕 */
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.45);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 200;
+  background: rgba(0, 0, 0, 0.45); /* 半透明黑色背景，突出弹窗 */
+  display: flex; /* flex布局，让弹窗居中 */
+  align-items: center; /* 垂直居中 */
+  justify-content: center; /* 水平居中 */
+  z-index: 200; /* 最高层级，覆盖所有元素 */
 }
 
+/* 弹窗内容容器 */
 .dialog {
-  width: 90%;
-  background: #fff;
-  border-radius: 20rpx;
-  padding: 18rpx;
+  width: 90%; /* 宽度占屏幕90% */
+  background: #fff; /* 白色背景 */
+  border-radius: 20rpx; /* 圆角 */
+  padding: 20rpx; /* 内边距 */
 }
 
+/* 弹窗标题样式 */
 .dialog-title {
-  font-size: 28rpx;
-  font-weight: bold;
-  color: #222;
-  text-align: center;
-  margin-bottom: 12rpx;
+  font-size: 28rpx; /* 字体大小 */
+  font-weight: bold; /* 加粗 */
+  color: #222; /* 深色文字 */
+  text-align: center; /* 居中 */
+  margin-bottom: 12rpx; /* 底部间距 */
 }
 
+/* 修改价格弹窗中的商品名称展示 */
 .item-name {
-  text-align: center;
-  font-size: 24rpx;
-  color: #444;
-  margin-bottom: 10rpx;
+  text-align: center; /* 居中 */
+  font-size: 24rpx; /* 字体大小 */
+  color: #444; /* 文字颜色 */
+  margin-bottom: 10rpx; /* 底部间距 */
 }
 
+/* ==================== 添加商品弹窗 - 图片上传区域 ==================== */
+/* 图片上传行容器 */
+.dialog-img-row {
+  display: flex; /* flex布局 */
+  flex-direction: column; /* 垂直方向排列：标题在上，图片在下 */
+  align-items: center; /* 水平方向居中对齐 */
+  margin-bottom: 20rpx; /* 底部间距 */
+  padding: 20rpx 0; /* 上下内边距，增加呼吸感 */
+}
+
+/* 图片上传区域标题 */
+.img-label {
+  color: #444; /* 文字颜色 */
+  font-size: 32rpx; /* 字体大小，和截图一致 */
+  margin-bottom: 30rpx; /* 与下方图片容器间距 */
+}
+
+/* 图片上传容器（点击区域） */
+.img-container {
+  width: 350rpx; /* 固定宽度 */
+  height: 350rpx; /* 固定高度，保持正方形，和截图一致 */
+  border: 2rpx solid #999; /* 灰色边框 */
+  background: #f0f0f0; /* 浅灰色背景，和截图一致 */
+  display: flex; /* flex布局，居中加号或图片 */
+  align-items: center; /* 垂直居中 */
+  justify-content: center; /* 水平居中 */
+  position: relative; /* 相对定位，为后续可能的绝对定位元素准备 */
+}
+
+/* 占位提示文字（显示加号） */
+.img-placeholder {
+  font-size: 100rpx; /* 大字体，加号足够大 */
+  color: #999; /* 灰色加号，和截图一致 */
+  line-height: 1; /* 行高重置为1，去掉默认行距 */
+}
+
+/* 预览图片样式 */
+.preview-img {
+  width: 100%; /* 占满容器宽度 */
+  height: 100%; /* 占满容器高度 */
+}
+
+/* ==================== 表单项通用样式 ==================== */
+/* 普通表单行（文字+输入框） */
 .dialog-row {
-  display: flex;
-  align-items: center;
-  margin-bottom: 10rpx;
+  display: flex; /* flex布局，文字左，输入框右 */
+  align-items: center; /* 垂直居中对齐 */
+  margin-bottom: 10rpx; /* 底部间距，分隔不同表单项 */
 }
 
+/* 表单标签文字 */
 .dialog-row text {
-  width: 70rpx;
-  color: #444;
-  font-size: 22rpx;
+  width: 70rpx; /* 固定宽度，所有标签对齐 */
+  color: #444; /* 文字颜色 */
+  font-size: 22rpx; /* 字体大小 */
 }
 
+/* 表单输入框 */
 .dialog-row input {
-  flex: 1;
-  height: 44rpx;
-  border: 1rpx solid #ddd;
-  border-radius: 10rpx;
-  padding: 0 10rpx;
-  font-size: 22rpx;
+  flex: 1; /* 占据剩余宽度 */
+  height: 44rpx; /* 输入框高度 */
+  border: 1rpx solid #ddd; /* 灰色边框 */
+  border-radius: 10rpx; /* 圆角 */
+  padding: 0 10rpx; /* 左右内边距 */
+  font-size: 22rpx; /* 字体大小 */
 }
 
+/* 底部按钮组（取消+确认） */
 .button-group {
-  display: flex;
-  margin-top: 12rpx;
+  display: flex; /* flex布局，平分宽度 */
+  margin-top: 12rpx; /* 顶部间距 */
 }
 
+/* 按钮通用样式 */
 .button-group button {
-  flex: 1;
-  height: 48rpx;
-  line-height: 48rpx;
-  border-radius: 10rpx;
+  flex: 1; /* 平分宽度 */
+  height: 48rpx; /* 按钮高度 */
+  line-height: 48rpx; /* 行高垂直居中 */
+  border-radius: 10rpx; /* 圆角 */
 }
 
+/* 第一个按钮（取消按钮）右边距 */
 .button-group button:first-child {
-  margin-right: 10rpx;
+  margin-right: 10rpx; /* 和确认按钮之间留出间距 */
 }
 
+/* 主按钮（确认按钮）样式 */
 .button-group button[type='primary'] {
-  background: #33c266;
-  color: #fff;
+  background: #33c266; /* 绿色背景 */
+  color: #fff; /* 白色文字 */
 }

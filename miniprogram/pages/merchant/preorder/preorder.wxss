@@ -124,6 +124,7 @@ page {
 .btn-handle::after {
   border: none;
 }
+
 .btn-stop {
   background: #333;
   color: #fff;

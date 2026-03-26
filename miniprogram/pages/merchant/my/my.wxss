@@ -16,7 +16,7 @@ page {
 /* 页面整体容器 - 最小高度占满视口，灰色背景，底部预留tab栏空间 */
 .page {
   min-height: 100vh;
-  background: #dce0e4;
+  background: #f2f2f5;
   box-sizing: border-box;
   padding: 26rpx 24rpx 180rpx;
 }
@@ -70,7 +70,7 @@ page {
 
 /* 卡片容器 - 浅灰色圆角，带阴影效果 */
 .card {
-  background: #ebedf0;
+  background: #ffffff;
   border-radius: 20rpx;
   box-shadow: 0 8rpx 20rpx rgba(0, 0, 0, 0.12);
   overflow: hidden;

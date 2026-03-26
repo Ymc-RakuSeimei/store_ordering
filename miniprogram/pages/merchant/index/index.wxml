@@ -12,7 +12,7 @@
     <!-- 按钮内只保留图标，删除文字 -->
     <image class="card-icon" src="/images/icon_QR.png" />
   </button>
-
+  <text class="scan-text">扫码取货</text>
 </view>
 </view>
 

@@ -1,6 +1,6 @@
 <view class="page">
   <view class="header">
-    <image class="avatar" src="{{avatarUrl}}" mode="aspectFill" />
+    <image class="avatar" src="{{avatarUrl}}" mode="aspectFill" bindtap="onAvatarClick" style="cursor: pointer;" />
     <text class="hello">Hello！ 店长{{helloName}}~</text>
 
     <view class="scan-wrapper" bindtap="onScanPickup">

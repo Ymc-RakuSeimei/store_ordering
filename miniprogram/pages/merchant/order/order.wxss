@@ -62,8 +62,8 @@ page {
 .order-card {
   background: #fff;
   border-radius: 18rpx;
-  padding: 14rpx 16rpx;
-  margin-bottom: 12rpx;
+  padding: 30rpx 24rpx; /* 再次增大内边距，容器更大 */
+  margin-bottom: 20rpx; /* 进一步增加间距 */
   box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.08);
   display: flex;
   justify-content: space-between;
@@ -73,20 +73,33 @@ page {
   flex: 1;
 }
 .order-title {
-  font-size: 24rpx;
+  font-size: 28rpx; /* 标题文字放大 */
   font-weight: 600;
   color: #222;
 }
 .order-qty {
-  font-size: 22rpx;
+  font-size: 26rpx; /* 数量文字放大 */
   color: #24b24d;
   font-weight: bold;
   margin-left: 8rpx;
 }
 .order-meta {
-  font-size: 20rpx;
+  font-size: 24rpx; /* 元信息文字放大 */
   color: #777;
-  margin-top: 6rpx;
+  margin-top: 8rpx; /* 增加上边距，适配更大的文字 */
+}
+/* 元信息标识文字加粗 */
+.meta-label {
+  font-weight: bold;
+}
+/* 状态文字颜色 */
+.status-red {
+  color: #ff3b30; /* 红色：待处理、未取件 */
+  font-weight: bold;
+}
+.status-green {
+  color: #34c759; /* 绿色：已处理、已取货 */
+  font-weight: bold;
 }
 .order-action {
   background: #33c266;

@@ -53,6 +53,31 @@ Page({
     });
   },
 
+  // 点击头像更换头像
+  onAvatarClick() {
+    wx.chooseMedia({
+      count: 1, // 只选1张图片
+      mediaType: ['image'], // 只允许选择图片
+      sourceType: ['album', 'camera'], // 支持相册选择和拍照
+      success: (res) => {
+        const tempFilePath = res.tempFiles[0].tempFilePath;
+        // 上传头像到服务器
+        this.uploadAvatarToServer(tempFilePath)
+          .then(avatarUrl => {
+            this.setData({ avatarUrl });
+            wx.showToast({ title: '头像更新成功', icon: 'success' });
+          })
+          .catch(err => {
+            console.error('头像上传失败', err);
+            wx.showToast({ title: '头像上传失败', icon: 'none' });
+          });
+      },
+      fail: () => {
+        wx.showToast({ title: '取消选择', icon: 'none' });
+      }
+    });
+  },
+
   onEditTap() {
     this.setData({
       editing: true,
@@ -85,8 +110,9 @@ Page({
 
   // 后端实现：从数据库读取商家资料
   getMerchantProfileFromDB() {
-    // TODO: 后端补充数据库查询逻辑
+    // TODO: 后端补充数据库查询逻辑，包含avatarUrl字段
     return Promise.resolve({
+      avatarUrl: '/images/avatar.png', // 商家头像地址
       storeName: 'MC_Store',
       address: 'A市B区C街D号',
       wechat: 'wxzh123',
@@ -99,6 +125,29 @@ Page({
   updateMerchantProfileToDB(payload) {
     // TODO: 后端补充数据库更新逻辑
     return Promise.resolve(payload);
+  },
+
+  // 后端实现：上传头像到存储服务并更新商家信息
+  uploadAvatarToServer(tempFilePath) {
+    // TODO: 后端需要实现的逻辑：
+    // 1. 将前端传来的临时图片路径上传到云存储/OSS等存储服务
+    // 2. 获取图片的永久访问URL或者云存储文件ID
+    // 3. 更新数据库中当前商家的avatarUrl字段为新的头像地址
+    // 4. 返回新的头像地址给前端更新显示
+    // 示例云开发上传代码：
+    // return wx.cloud.uploadFile({
+    //   cloudPath: `merchant/avatar/${Date.now()}_${Math.random().toString(36).substr(2)}.png`,
+    //   filePath: tempFilePath
+    // }).then(res => {
+    //   // 上传成功后更新数据库
+    //   return wx.cloud.callFunction({
+    //     name: 'updateMerchantAvatar',
+    //     data: { avatarUrl: res.fileID }
+    //   }).then(() => res.fileID);
+    // });
+
+    // 临时返回本地路径用于预览，后端接入时替换为真实逻辑
+    return Promise.resolve(tempFilePath);
   },
 
   onTabTap(e) {

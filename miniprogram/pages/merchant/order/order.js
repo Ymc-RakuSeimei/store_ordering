@@ -4,12 +4,14 @@ Page({
     tabs: [
       { id: 'pickup', label: '待取货' },
       { id: 'arrival', label: '待到货' },
-      { id: 'customer', label: '顾客订单' }
+      { id: 'customer', label: '顾客订单' },
+      { id: 'feedback', label: '售后反馈' }
     ],
     orderData: {
       pickup: [],
       arrival: [],
-      customer: []
+      customer: [],
+      feedback: []
     },
     loading: true
   },
@@ -31,14 +33,14 @@ Page({
   loadAllOrders() {
     this.setData({ loading: true });
 
-    const statusMap = { pickup: '待取货', arrival: '待到货', customer: '顾客订单' };
+    const statusMap = { pickup: '待取货', arrival: '待到货', customer: '顾客订单', feedback: '售后反馈' };
     const promises = Object.keys(statusMap).map(key =>
       this.fetchOrderListFromServer(statusMap[key]).then(list => ({ key, list }))
     );
 
     Promise.all(promises)
       .then(results => {
-        const orderData = { pickup: [], arrival: [], customer: [] };
+        const orderData = { pickup: [], arrival: [], customer: [], feedback: [] };
         results.forEach(item => { orderData[item.key] = item.list || []; });
         this.setData({ orderData, loading: false });
       })
@@ -81,7 +83,11 @@ Page({
         { _id: 'o002', name: '海绵宝宝领带', qty: 20, left: 10, spec: '1条' }
       ],
       '顾客订单': [
-        { _id: 'o003', name: '蟹黄堡秘方', qty: 3, spec: '500g' }
+        { _id: 'o003', name: '蟹黄堡秘方', qty: 3, spec: '500g', left: 2 }
+      ],
+      '售后反馈': [
+        { _id: 'f001', name: '蟹黄堡过期', qty: 1, spec: '食品变质', left: '待处理' },
+        { _id: 'f002', name: '派大星手套破损', qty: 2, spec: '质量问题', left: '已处理' }
       ]
     };
 

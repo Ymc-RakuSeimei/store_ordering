@@ -22,7 +22,7 @@ page {
 .header {
   display: flex; /* flex布局 */
   align-items: center; /* 垂直方向居中对齐 */
-  justify-content: space-between; /* 两端对齐，元素分散开 */
+  justify-content: center; /* 水平居中 */
   margin-bottom: 10rpx; /* 底部外边距，与下方内容分隔 */
 }
 

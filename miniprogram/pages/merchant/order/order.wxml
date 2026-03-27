@@ -1,9 +1,7 @@
 <!-- 订单处理页面主容器 -->
 <view class="page">
-  <!-- 页面头部：包含返回按钮、标题和扫码取货按钮 -->
+  <!-- 页面头部：包含标题和扫码取货按钮 -->
   <view class="header">
-    <!-- 返回按钮：点击返回上一页 -->
-    <text class="back" bindtap="onBack">← 返回</text>
     <!-- 页面标题 -->
     <text class="title">订单处理</text>
     <!-- 扫码取货按钮：绑定扫码事件（需在JS中实现onScanPickup方法） -->
@@ -29,9 +27,22 @@
         <text class="order-title">{{index+1}}. {{item.name || item.orderName}}</text>
         <!-- 订单数量：显示商品数量 -->
         <text class="order-qty">×{{item.qty || item.count}}</text>
-        <!-- 订单元信息：条件显示剩余数量或规格 -->
-        <text class="order-meta" wx:if="{{item.left}}">剩余 {{item.left}} 件未取</text>
-        <text class="order-meta" wx:if="{{item.spec}}">规格：{{item.spec}}</text>
+        <!-- 订单元信息：售后反馈和其他tab区分展示 -->
+        <text class="order-meta" wx:if="{{activeTab === 'feedback' && item.left}}" style="display:block;">
+          <text class="meta-label">处理状态：</text>
+          <text class="status-{{item.left === '待处理' ? 'red' : 'green'}}">{{item.left}}</text>
+        </text>
+        <text class="order-meta" wx:if="{{activeTab === 'feedback' && item.spec}}" style="display:block;">
+          <text class="meta-label">反馈内容：</text>{{item.spec}}
+        </text>
+        <text class="order-meta" wx:if="{{activeTab !== 'feedback' && item.left}}">
+          <text class="meta-label">剩余 </text>
+          <text class="status-{{item.left > 0 ? 'red' : 'green'}}">{{item.left}}</text>
+          <text class="meta-label"> 件未取</text>
+        </text>
+        <text class="order-meta" wx:if="{{activeTab !== 'feedback' && item.spec}}">
+          <text class="meta-label">规格：</text>{{item.spec}}
+        </text>
       </view>
     </block>
 

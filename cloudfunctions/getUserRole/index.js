@@ -20,23 +20,65 @@ exports.main = async (event, context) => {
     return { code: -1, message: '查询失败' }
   }
 
+  // 生成6位数字取货码
+  function generateSixDigitCode(openid) {
+    let hash = 0
+    for (let i = 0; i < openid.length; i++) {
+      const char = openid.charCodeAt(i)
+      hash = ((hash << 5) - hash) + char
+      hash = hash & hash
+    }
+    const code = Math.abs(hash) % 900000 + 100000
+    return code.toString()
+  }
+
   // 自动注册
   if (!user) {
     const { nickName = '微信用户', avatarUrl = '' } = event.userInfo || {}
     try {
+      const pickupCode = generateSixDigitCode(openid)
       const addRes = await db.collection('users').add({
         data: {
           openid,
           nickName,
           avatarUrl,
           role: 'customer',       // 默认买家
+          pickupCode: pickupCode,
           createTime: new Date()
         }
       })
-      user = { openid, nickName, avatarUrl, role: 'customer' }
+      user = { openid, nickName, avatarUrl, role: 'customer', pickupCode: pickupCode }
     } catch (err) {
       console.error('注册用户失败', err)
       return { code: -1, message: '注册失败' }
+    }
+  } else if (!user.pickupCode) {
+    // 已有用户但没有取货码，添加取货码
+    let retryCount = 0
+    const maxRetries = 3
+    let success = false
+    
+    while (retryCount < maxRetries && !success) {
+      try {
+        const pickupCode = generateSixDigitCode(openid)
+        await db.collection('users').where({ openid }).update({
+          data: {
+            pickupCode: pickupCode
+          }
+        })
+        user.pickupCode = pickupCode
+        success = true
+      } catch (err) {
+        retryCount++
+        console.error(`添加取货码失败 (尝试 ${retryCount}/${maxRetries})`, err)
+        if (retryCount < maxRetries) {
+          await new Promise(resolve => setTimeout(resolve, 500 * retryCount))
+        }
+      }
+    }
+    
+    if (!success) {
+      console.error('添加取货码最终失败，超过最大重试次数')
     }
   }
 

@@ -1,0 +1,41 @@
+<!-- 数据中心页面 -->
+<view class="page">
+  <view class="header">
+    <text class="title">数据中心</text>
+  </view>
+
+  <!-- 营收统计卡片 -->
+  <view class="card stats-card">
+    <view class="stats-header">
+      <text class="stats-period">本月</text>
+      <text class="stats-arrow">▼</text>
+    </view>
+
+    <view class="stats-row">
+      <view class="stats-item gauge">
+        <text class="stats-label">总收入</text>
+        <text class="stats-value">{{stats.totalRevenue.toFixed(2)}}</text>
+      </view>
+      <view class="stats-item gauge">
+        <text class="stats-label">总成本</text>
+        <text class="stats-value value-cost">{{stats.totalCost.toFixed(2)}}</text>
+      </view>
+      <view class="stats-item gauge">
+        <text class="stats-label">净利润</text>
+        <text class="stats-value value-profit">{{stats.netProfit.toFixed(2)}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 订单状态卡片 -->
+  <view class="card order-card">
+    <text class="order-title">订单状态</text>
+    <view class="order-list">
+      <view class="order-row"><text class="order-label">已到货</text><text class="order-count">{{orderSummary.delivered}}件</text></view>
+      <view class="order-row"><text class="order-label">已取货</text><text class="order-count">{{orderSummary.pickedUp}}件</text></view>
+      <view class="order-row pending"><text class="order-label">待取货</text><text class="order-count">{{orderSummary.pendingPickup}}件</text></view>
+    </view>
+
+    <button class="action-btn" bindtap="onOneKeyReminder">一键提醒</button>
+  </view>
+</view>

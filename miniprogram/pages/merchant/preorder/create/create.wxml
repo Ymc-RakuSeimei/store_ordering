@@ -1,0 +1,44 @@
+<view class="page">
+  <view class="header">
+    <text class="title">预售订货</text>
+  </view>
+
+  <view class="form-card">
+    <view class="field">
+      <text class="label">商品名称：</text>
+      <input class="input" placeholder="输入商品名称" data-key="name" value="{{form.name}}" bindinput="onInputChange" />
+    </view>
+
+    <view class="field">
+      <text class="label">请添加商品描述：</text>
+      <textarea class="textarea" placeholder="输入商品详情" data-key="description" value="{{form.description}}" bindinput="onInputChange"></textarea>
+    </view>
+
+    <view class="field">
+      <text class="label">规格：</text>
+      <input class="input" placeholder="输入规格" data-key="spec" value="{{form.spec}}" bindinput="onInputChange" />
+    </view>
+
+    <view class="field">
+      <text class="label">售价：</text>
+      <input class="input" type="number" placeholder="输入售价" data-key="salePrice" value="{{form.salePrice}}" bindinput="onInputChange" />
+    </view>
+
+    <view class="field">
+      <text class="label">进价：</text>
+      <input class="input" type="number" placeholder="输入进价" data-key="costPrice" value="{{form.costPrice}}" bindinput="onInputChange" />
+    </view>
+
+    <view class="field">
+      <text class="label">截单：</text>
+      <picker mode="selector" range="{{form.closeTypeLabels}}" range-key="label" value="0" bindchange="onCloseTypeChange">
+        <view class="select">{{form.closeTypeLabels[form.closeType==='timed'?1:0].label}}</view>
+      </picker>
+    </view>
+
+    <view class="button-row">
+      <button class="primary-btn" bindtap="onGenerateAndShare">生成卡片并转发</button>
+      <button class="secondary-btn" bindtap="onCancel">取消</button>
+    </view>
+  </view>
+</view>

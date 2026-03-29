@@ -1,0 +1,89 @@
+page {
+  background: #f2f2f5; /* 和商家其他页面统一背景色 */
+  font-family: PingFang SC, Helvetica Neue, Arial, sans-serif;
+  color: #333;
+}
+.page {
+  padding: 20rpx;
+  min-height: 100vh;
+}
+.header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16rpx;
+}
+.back {
+  color: #333; /* 黑色返回文字 */
+  font-size: 30rpx;
+  font-weight: 500;
+}
+.placeholder {
+  width: 60rpx; /* 占位元素，保证标题居中 */
+}
+.title {
+  flex: 1;
+  text-align: center;
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+}
+.tabbar {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border-radius: 18rpx;
+  padding: 8rpx;
+  border: 1rpx solid #ddd;
+  margin-bottom: 14rpx;
+}
+.tab {
+  flex: 1;
+  padding: 8rpx 0;
+  text-align: center;
+  font-size: 24rpx;
+  color: #666;
+  border-radius: 14rpx;
+  margin-right: 8rpx;
+}
+.tab.active {
+  background: #333;
+  color: #fff;
+}
+.delete-all {
+  color: #ff3b30;
+  font-weight: bold;
+  font-size: 22rpx;
+}
+.notice-list {
+  padding-bottom: 40rpx;
+}
+.notice-card {
+  background: #fff;
+  border-radius: 18rpx; /* 统一圆角风格 */
+  padding: 24rpx 20rpx; /* 加大内边距，容器变大 */
+  margin-bottom: 16rpx; /* 增加卡片间距，更宽松 */
+  min-height: 100rpx; /* 固定最小高度，所有容器大小一致 */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 6rpx 12rpx rgba(0, 0, 0, 0.05);
+}
+.notice-text {
+  font-size: 28rpx; /* 通知文字放大 */
+  color: #333;
+  flex: 1;
+}
+.notice-btn {
+  background: #00c853;
+  color: #fff;
+  border: none;
+  border-radius: 14rpx;
+  padding: 10rpx 16rpx; /* 按钮加大 */
+  font-size: 24rpx; /* 按钮文字放大 */
+}
+.empty-state {
+  text-align: center;
+  color: #999;
+  font-size: 24rpx;
+  margin-top: 80rpx;
+}

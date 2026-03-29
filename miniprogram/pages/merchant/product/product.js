@@ -63,6 +63,10 @@ Page({
     this.loadGoods();
   },
 
+  onBack() {
+    wx.navigateBack();
+  },
+
   // tab 切换
   switchTab(e) {
     const key = e.currentTarget.dataset.tab;

@@ -1,0 +1,224 @@
+@import "../index/index.wxss";
+
+page {
+  background: #f6f6f8;
+  font-family: PingFang SC, Helvetica Neue, Arial, sans-serif;
+  color: #333;
+}
+
+.page {
+  padding: 20rpx 20rpx 190rpx;
+  min-height: 100vh;
+}
+
+/* 取货码快捷入口 */
+.pickup-code-entry {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border-radius: 18rpx;
+  padding: 16rpx;
+  margin-bottom: 16rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.06);
+}
+
+.pickup-code-input {
+  flex: 1;
+  height: 60rpx;
+  font-size: 28rpx;
+  padding: 0 16rpx;
+  border: 1rpx solid #ddd;
+  border-radius: 8rpx;
+  margin-right: 12rpx;
+  background: #f9f9f9;
+}
+
+.pickup-code-input:focus {
+  border-color: #33c266;
+  background: #fff;
+}
+
+.verify-btn {
+  width: 140rpx;
+  height: 60rpx;
+  line-height: 60rpx;
+  background: #33c266;
+  color: #fff;
+  border: none;
+  border-radius: 8rpx;
+  font-size: 26rpx;
+  text-align: center;
+}
+
+.verify-btn:disabled {
+  background: #ccc;
+  color: #fff;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16rpx;
+}
+
+.back {
+  color: #333;
+  font-size: 30rpx;
+}
+
+.title {
+  flex: 1;
+  text-align: center;
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #222;
+}
+
+.scan-btn {
+  font-size: 22rpx;
+  color: #000;
+  background: none;
+  border: 1rpx solid #333;
+  border-radius: 12rpx;
+  padding: 6rpx 10rpx;
+}
+
+.tabbar {
+  display: flex;
+  justify-content: space-between;
+  background: #fff;
+  border: 1rpx solid #ddd;
+  border-radius: 30rpx;
+  padding: 6rpx;
+  margin-bottom: 16rpx;
+}
+
+.tab {
+  flex: 1;
+  text-align: center;
+  background: #f5f5f5;
+  color: #666;
+  font-size: 26rpx;
+  height: 60rpx;
+  line-height: 23rpx;
+  border-radius: 24rpx;
+  margin: 0 4rpx;
+}
+
+.tab.active {
+  background: #333;
+  color: #fff;
+}
+
+.order-list {
+  min-height: 360rpx;
+}
+
+.order-card {
+  background: #fff;
+  border-radius: 18rpx;
+  padding: 30rpx 24rpx;
+  /* 再次增大内边距，容器更大 */
+  margin-bottom: 20rpx;
+  /* 进一步增加间距 */
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.08);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.order-content {
+  flex: 1;
+}
+
+.order-title {
+  font-size: 28rpx;
+  /* 标题文字放大 */
+  font-weight: 600;
+  color: #222;
+}
+
+.order-qty {
+  font-size: 26rpx;
+  /* 数量文字放大 */
+  color: #24b24d;
+  font-weight: bold;
+  margin-left: 8rpx;
+}
+
+.order-meta {
+  font-size: 24rpx;
+  /* 元信息文字放大 */
+  color: #777;
+  margin-top: 8rpx;
+  /* 增加上边距，适配更大的文字 */
+}
+
+/* 元信息标识文字加粗 */
+.meta-label {
+  font-weight: bold;
+}
+
+/* 状态文字颜色 */
+.status-red {
+  color: #ff3b30;
+  /* 红色：待处理、未取件 */
+  font-weight: bold;
+}
+
+.status-green {
+  color: #34c759;
+  /* 绿色：已处理、已取货 */
+  font-weight: bold;
+}
+
+.order-action {
+  background: #33c266;
+  color: #fff;
+  border-radius: 20rpx;
+  padding: 8rpx 14rpx;
+  font-size: 20rpx;
+}
+
+.empty-state {
+  text-align: center;
+  color: #999;
+  margin-top: 80rpx;
+  font-size: 24rpx;
+}
+
+.action-btn {
+  width: 60%;
+  height: 58rpx;
+  line-height: 58rpx;
+  margin: 16rpx auto 0;
+  border-radius: 16rpx;
+  background: #33c266;
+  color: #fff;
+  font-size: 26rpx;
+  display: block;
+  text-align: center;
+  border: none;
+}
+
+.empty-state {
+  text-align: center;
+  color: #999;
+  margin-top: 60rpx;
+  font-size: 24rpx;
+}
+
+.action-btn {
+  width: 60%;
+  height: 58rpx;
+  line-height: 58rpx;
+  margin: 16rpx auto 0;
+  border-radius: 16rpx;
+  background: #33c266;
+  color: #fff;
+  font-size: 26rpx;
+  display: block;
+  text-align: center;
+  border: none;
+}

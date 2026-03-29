@@ -1,0 +1,30 @@
+<view class="page">
+  <view class="header">
+    <text class="title">订单详情</text>
+  </view>
+
+  <view class="order-info" wx:if="{{order}}">
+    <text class="customer">顾客 {{order.customerName}} 的订单</text>
+    <text class="phone">联系电话：{{order.phone}}</text>
+  </view>
+
+  <view class="section" wx:if="{{order && order.pendingPickup.length}}">
+    <text class="section-title">可取货</text>
+    <block wx:for="{{order.pendingPickup}}" wx:key="id">
+      <view class="line">
+        <text>{{index+1}}.{{item.name}}</text>
+        <text>×{{item.qty}}</text>
+        <button class="deal-btn" bindtap="pickSingleItem" data-row="{{item}}">取</button>
+      </view>
+    </block>
+  </view>
+
+  <view class="section" wx:if="{{order && order.pendingArrival.length}}">
+    <text class="section-title">待到货</text>
+    <block wx:for="{{order.pendingArrival}}" wx:key="id">
+      <view class="line"><text>{{index+1}}.{{item.name}}</text><text>×{{item.qty}}</text></view>
+    </block>
+  </view>
+
+  <button class="primary-btn" bindtap="pickAll">一键取货</button>
+</view>

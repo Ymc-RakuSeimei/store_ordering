@@ -1,3 +1,10 @@
 {
-  "usingComponents": {}
+  "usingComponents": {
+    "all-component": "./components/all",
+    "spot-component": "./components/spot",
+    "preorder-component": "./components/preorder",
+    "special-component": "./components/special"
+  },
+  "navigationBarTitleText": "商品",
+  "navigationStyle": "custom"
 }

@@ -1,0 +1,10 @@
+<view class="loading-container" wx:if="{{show}}">
+  <view class="loading-mask"></view>
+  <view class="loading-content">
+    <view class="loading-spinner {{size}} {{type}}">
+      <view class="spinner-icon" animation="{{animation}}"></view>
+    </view>
+    <text class="loading-text" wx:if="{{text}}">{{text}}</text>
+    <slot></slot>
+  </view>
+</view>

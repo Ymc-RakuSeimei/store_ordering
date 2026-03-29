@@ -14,14 +14,14 @@
     <view class="card-item" bindtap="goToNewGoods">
       <image class="card-icon" src="/images/icon_new.png"></image>
       <text class="card-title">今日上新</text>
-      <text class="card-subtitle">货品更新、新品预售</text>
+      <text class="card-subtitle">货品更新、新品发售</text>
       <view class="new-tag">●</view>
     </view>
 
     <view class="card-item" bindtap="goToShopList">
       <image class="card-icon" src="/images/icon_shop.png"></image>
       <text class="card-title">进店选购</text>
-      <text class="card-subtitle">买点儿什么？</text>
+      <text class="card-subtitle">买点儿什么呢？</text>
     </view>
 
     <view class="card-item" bindtap="goToMyOrder">
@@ -31,9 +31,9 @@
     </view>
 
     <view class="card-item" bindtap="goToFeedback">
-      <image class="card-icon" src="/images/icon_back.png"></image>
-      <text class="card-title">售后反馈</text>
-      <text class="card-subtitle">问题反馈、售后处理</text>
+      <image class="card-icon" src="/images/二维码.png"></image>
+      <text class="card-title">扫码取货</text>
+      <text class="card-subtitle">出示身份核验码</text>
     </view>
   </view>
 

@@ -1,0 +1,73 @@
+<!-- 订单处理页面主容器 -->
+<view class="page">
+  <!-- 页面头部：包含标题和扫码取货按钮 -->
+  <view class="header">
+    <!-- 页面标题 -->
+    <text class="title">订单处理</text>
+    <!-- 扫码取货按钮：绑定扫码事件（需在JS中实现onScanPickup方法） -->
+    <button class="scan-btn" bindtap="onScanPickup">扫码取货</button>
+  </view>
+
+  <!-- 订单状态标签栏：显示待取货、待到货、顾客订单三个tab -->
+  <view class="tabbar">
+    <!-- 循环渲染tab列表，每个tab绑定点击事件切换状态 -->
+    <block wx:for="{{tabs}}" wx:key="id">
+      <!-- tab项：根据activeTab判断是否激活，点击切换activeTab -->
+      <text class="tab {{activeTab===item.id?'active':''}}" bindtap="switchTab" data-tab="{{item.id}}">{{item.label}}</text>
+    </block>
+  </view>
+
+  <!-- 订单列表区域：根据当前activeTab显示对应订单 -->
+  <view class="order-list">
+    <!-- 循环渲染当前tab的订单数据 -->
+    <block wx:for="{{orderData[activeTab]}}" wx:key="id">
+      <!-- 订单卡片：点击跳转到详情页，传递订单数据 -->
+      <view class="order-card" data-item="{{item}}" bindtap="openOrderDetail">
+        <!-- 订单标题：显示序号和订单名称 -->
+        <text class="order-title">{{index+1}}. {{item.name || item.orderName}}</text>
+        <!-- 订单数量：显示商品数量 -->
+        <text class="order-qty">×{{item.qty || item.count}}</text>
+        <!-- 订单元信息：售后反馈和其他tab区分展示 -->
+        <text class="order-meta" wx:if="{{activeTab === 'feedback' && item.left}}" style="display:block;">
+          <text class="meta-label">处理状态：</text>
+          <text class="status-{{item.left === '待处理' ? 'red' : 'green'}}">{{item.left}}</text>
+        </text>
+        <text class="order-meta" wx:if="{{activeTab === 'feedback' && item.spec}}" style="display:block;">
+          <text class="meta-label">反馈内容：</text>{{item.spec}}
+        </text>
+        <text class="order-meta" wx:if="{{activeTab !== 'feedback' && item.left}}">
+          <text class="meta-label">剩余 </text>
+          <text class="status-{{item.left > 0 ? 'red' : 'green'}}">{{item.left}}</text>
+          <text class="meta-label"> 件未取</text>
+        </text>
+        <text class="order-meta" wx:if="{{activeTab !== 'feedback' && item.spec}}">
+          <text class="meta-label">规格：</text>{{item.spec}}
+        </text>
+      </view>
+    </block>
+
+    <!-- 空状态提示：当当前tab无订单时显示 -->
+    <view wx:if="{{!orderData[activeTab] || orderData[activeTab].length===0}}" class="empty-state">
+      暂无订单
+    </view>
+  </view>
+
+  <!-- 一键提醒按钮：点击发送提醒给所有待处理订单 -->
+  <button class="action-btn" bindtap="oneKeyReminder">一键提醒</button>
+
+  <!-- 自定义底部tab栏（3按钮：首页/商品/我的） -->
+  <view class="merchant-tabbar">
+    <view class="tabbar-item" data-tab="home" bindtap="onTabTap">
+      <image class="tabbar-icon" src="/images/icon_home.png" />
+      <text class="tabbar-text">首页</text>
+    </view>
+    <view class="tabbar-item" data-tab="product" bindtap="onTabTap">
+      <image class="tabbar-icon" src="/images/icon_order.png" />
+      <text class="tabbar-text">商品</text>
+    </view>
+    <view class="tabbar-item" data-tab="my" bindtap="onTabTap">
+      <image class="tabbar-icon" src="/images/icon_mine.png" />
+      <text class="tabbar-text">我的</text>
+    </view>
+  </view>
+</view>

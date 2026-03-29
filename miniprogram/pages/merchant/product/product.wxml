@@ -1,0 +1,88 @@
+<view class="page">
+  <!-- 顶部标题栏 -->
+  <view class="header">
+    <text class="title">商品管理</text>
+  </view>
+
+  <!-- 选项卡：现货 / 特价处理 -->
+  <view class="tab-nav">
+    <block wx:for="{{tabs}}" wx:key="id">
+      <text class="tab {{activeTab===item.id?'active':''}}" data-tab="{{item.id}}" bindtap="switchTab">{{item.label}}</text>
+    </block>
+  </view>
+
+  <!-- 商品列表 -->
+  <view class="goods-list">
+    <block wx:for="{{activeTab==='stock'?stockList:specialList}}" wx:key="_id">
+      <view class="goods-card" data-item="{{item}}" bindtap="openEdit">
+        <image class="goods-img" src="{{item.img}}" mode="aspectFill" />
+        <view class="goods-info">
+          <text class="name">{{item.name}}</text>
+          <text class="spec">规格：{{item.spec}}</text>
+          <text class="summary">售价：¥{{item.sellPrice}}  进价：¥{{item.costPrice}}</text>
+          <text class="summary">库存：{{item.stock}}件</text>
+        </view>
+      </view>
+    </block>
+  </view>
+
+  <!-- + 添加商品 -->
+  <view class="fab" bindtap="openAdd">+</view>
+
+  <!-- 修改商品信息弹窗 -->
+  <view class="overlay" wx:if="{{showEditDialog}}">
+    <view class="dialog">
+      <text class="dialog-title">修改商品信息</text>
+      <text class="item-name">{{editItem.name}}</text>
+      <view class="dialog-row"><text>售价</text><input data-key="sellPrice" value="{{editSellPrice}}" type="digit" bindinput="bindEditChange" /></view>
+      <view class="dialog-row"><text>进价</text><input data-key="costPrice" value="{{editCostPrice}}" type="digit" bindinput="bindEditChange" /></view>
+      <view class="dialog-row"><text>库存</text><input data-key="stock" value="{{editStock}}" type="number" bindinput="bindEditChange" /></view>
+      <!-- 商品图片上传 -->
+      <view class="dialog-img-row">
+        <text class="img-label">商品图片</text>
+        <view class="img-container" bindtap="chooseEditImage">
+          <image wx:if="{{editImg}}" class="preview-img" src="{{editImg}}" mode="aspectFill" />
+          <text wx:else class="img-placeholder"></text>
+        </view>
+      </view>
+      <view class="button-group"><button bindtap="closeEdit">取消</button><button type="primary" bindtap="saveEdit">确认更改</button></view>
+    </view>
+  </view>
+
+  <!-- 添加商品弹窗 -->
+  <view class="overlay" wx:if="{{showAddDialog}}">
+    <view class="dialog">
+      <text class="dialog-title">添加商品</text>
+      <view class="dialog-row"><text>名称</text><input data-field="name" value="{{newProduct.name}}" bindinput="bindAddInput" /></view>
+      <view class="dialog-row"><text>规格</text><input data-field="spec" value="{{newProduct.spec}}" bindinput="bindAddInput" /></view>
+      <view class="dialog-row"><text>售价</text><input data-field="sellPrice" type="digit" value="{{newProduct.sellPrice}}" bindinput="bindAddInput" /></view>
+      <view class="dialog-row"><text>进价</text><input data-field="costPrice" type="digit" value="{{newProduct.costPrice}}" bindinput="bindAddInput" /></view>
+      <view class="dialog-row"><text>库存</text><input data-field="stock" type="number" value="{{newProduct.stock}}" bindinput="bindAddInput" /></view>
+      <!-- 商品图片上传 -->
+      <view class="dialog-img-row">
+        <text class="img-label">商品图片</text>
+        <view class="img-container" bindtap="chooseProductImage">
+          <image wx:if="{{newProduct.img}}" class="preview-img" src="{{newProduct.img}}" mode="aspectFill" />
+          <text wx:else class="img-placeholder"></text>
+        </view>
+      </view>
+      <view class="button-group"><button bindtap="closeAdd">取消</button><button type="primary" bindtap="saveAdd">确认添加</button></view>
+    </view>
+  </view>
+
+  <!-- 自定义底部tab栏（3按钮：首页/商品/我的） -->
+  <view class="merchant-tabbar">
+    <view class="tabbar-item" data-tab="home" bindtap="onTabTap">
+      <image class="tabbar-icon" src="/images/icon_home.png" />
+      <text class="tabbar-text">首页</text>
+    </view>
+    <view class="tabbar-item tabbar-item--active" data-tab="product" bindtap="onTabTap">
+      <image class="tabbar-icon" src="/images/icon_order.png" />
+      <text class="tabbar-text">商品</text>
+    </view>
+    <view class="tabbar-item" data-tab="my" bindtap="onTabTap">
+      <image class="tabbar-icon" src="/images/icon_mine.png" />
+      <text class="tabbar-text">我的</text>
+    </view>
+  </view>
+</view>

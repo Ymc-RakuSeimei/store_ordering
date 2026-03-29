@@ -112,18 +112,8 @@ Page({
     };
     const url = map[tab];
     if (url) wx.navigateTo({ url });
-  }
-});
-    // 当前页为订单处理，不跳转
-    if (tab === 'order') return;
-    const map = {
-      home: '/pages/merchant/index/index',
-      product: '/pages/merchant/product/product',
-      order: '/pages/merchant/order/order',
-    };
-    const url = map[tab];
-    if (url) wx.navigateTo({ url });
   },
+
 
   // 取货码输入处理
   onPickupCodeInput(e) {

@@ -1,7 +1,7 @@
 // pages/customer/message/message.js
 Page({
   data: {
-    currentTab: 'all'  // all-全部, pickup-取货提醒, newgoods-上新通知
+    currentTab: 'all'
   },
 
   onLoad(options) {
@@ -35,7 +35,10 @@ Page({
       success: (res) => {
         if (res.confirm) {
           // 触发组件刷新消息列表
-          this.selectComponent(`.${this.data.currentTab}-component`).clearMessages();
+          const component = this.selectComponent(`.${this.data.currentTab}-component`);
+          if (component && component.clearMessages) {
+            component.clearMessages();
+          }
           wx.showToast({
             title: '已删除',
             icon: 'success'

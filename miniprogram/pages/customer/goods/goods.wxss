@@ -3,6 +3,8 @@
   min-height: 100vh;
   padding-bottom: 140rpx;
   padding-top: 20rpx;
+  padding-left: 0;
+  padding-right: 0;
 }
 
 /* 顶部导航栏 */
@@ -53,6 +55,8 @@
 .search-bar {
   background-color: transparent;
   padding: 20rpx 32rpx;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .search-box {
@@ -61,6 +65,8 @@
   background-color: #ffffff;
   border-radius: 60rpx;
   padding: 20rpx 28rpx;
+  width: 100%;
+  box-sizing: border-box;
   box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.04);
 }
 
@@ -104,7 +110,7 @@
   color: #ffffff;
 }
 
-/* 组件容器 - 统一内边距，确保所有组件卡片宽度一致 */
+/* 组件容器 - 统一内边距，确保商品卡片左右对齐 */
 .component-container {
   padding: 0 24rpx;
 }

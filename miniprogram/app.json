@@ -8,8 +8,9 @@
     "pages/merchant/datacenter/datacenter",
     "pages/merchant/preorder/preorder",
     "pages/merchant/preorder/create/create",
-    "pages/merchant/notification/notification",
+    "pages/merchant/preorder/detail/detail",
     "pages/merchant/my/my",
+    "pages/merchant/notification/notification",
     "pages/customer/index/index",
     "pages/customer/goods/goods",
     "pages/customer/goods/newgoods/newgoods",
@@ -17,6 +18,7 @@
     "pages/customer/feedback/feedback",
     "pages/customer/myOrder/myOrder",
     "pages/customer/message/message",
+    "pages/preorder/join/join",
     "pages/debug/index"
   ],
   "window": {

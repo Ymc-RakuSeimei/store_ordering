@@ -13,7 +13,7 @@
         <view class="order-number">{{index + 1}}</view>
         
         <!-- 商品图片 -->
-        <image class="order-image" src="{{item.image}}" mode="aspectFill"></image>
+        <image class="order-image" src="{{item.image || '/images/placeholder.png'}}" mode="aspectFill"></image>
         
         <!-- 商品信息 -->
         <view class="order-info">
@@ -34,12 +34,9 @@
           </view>
           
           <!-- 已完成状态 -->
-          <block wx:if="{{item.status === 'completed'}}">
-            <text class="status-completed-text">已完成</text>
-            <view class="evaluate-btn" bindtap="handleEvaluate" data-id="{{item.id}}">
-              去评价
-            </view>
-          </block>
+          <view class="status-btn status-completed" wx:if="{{item.status === 'completed' || item.status === '已完成'}}">
+            已完成
+          </view>
         </view>
       </view>
     </block>

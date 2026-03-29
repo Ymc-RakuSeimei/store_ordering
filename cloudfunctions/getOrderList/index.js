@@ -31,13 +31,19 @@ exports.main = async (event, context) => {
     };
     
     // 状态筛选
-    if (status) {
+    if (status && status !== 'all') {
       if (status === 'waiting') {
-        filter.status = '待取货';
+        // 待取货订单：包括已到货和待到货状态
+        filter.status = _.in(['waiting', 'arrived', '待取货', '已到货']);
+      } else if (status === 'completed') {
+        // 已完成订单
+        filter.status = _.in(['completed', '已完成']);
       } else {
+        // 其他具体状态
         filter.status = status;
       }
     }
+    // 'all' 状态不添加状态筛选条件
 
     const items = await db
       .collection('orders')

@@ -147,9 +147,19 @@ Component({
               order.goods.forEach(goods => {
                 // 只添加未取货的商品
                 if (goods.pickupStatus !== '已取货') {
+                  // 处理商品图片，支持字符串和数组格式
+                  let image = '';
+                  if (goods.images) {
+                    if (Array.isArray(goods.images) && goods.images.length > 0) {
+                      image = goods.images[0];
+                    } else if (typeof goods.images === 'string' && goods.images) {
+                      image = goods.images;
+                    }
+                  }
+                  
                   allGoods.push({
                     id: `${order._id}_${goods.goodsId}`,
-                    image: goods.images && goods.images.length > 0 ? goods.images[0] : '/images/goods_sample.png',
+                    image: image,
                     name: goods.name || '商品',
                     price: goods.price || 0,
                     pickupStatus: goods.pickupStatus || '待到货'

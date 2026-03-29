@@ -1,80 +1,72 @@
 // pages/customer/index/index.js
 Page({
-
-  /**
-   * 页面的初始数据
-   */
   data: {
-
+    userInfo: {
+      nickName: '派大星',
+      avatarUrl: '/images/avatar.png'
+    }
   },
 
-  /**
-   * 生命周期函数--监听页面加载
-   */
   onLoad(options) {
-
+    this.getUserInfo()
   },
 
-  /**
-   * 生命周期函数--监听页面初次渲染完成
-   */
-  onReady() {
-
-  },
-
-  /**
-   * 生命周期函数--监听页面显示
-   */
   onShow() {
-
+    this.getUserInfo()
   },
 
-  /**
-   * 生命周期函数--监听页面隐藏
-   */
-  onHide() {
-
+  // 获取当前登录用户信息
+  async getUserInfo() {
+    try {
+      const res = await wx.cloud.callFunction({
+        name: 'getUserInfo'
+      })
+      if (res.result.success && res.result.user) {
+        this.setData({
+          userInfo: {
+            nickName: res.result.user.nickName || '派大星',
+            avatarUrl: res.result.user.avatarUrl || '/images/avatar.png'
+          }
+        })
+      } else {
+        // 未登录，保持默认
+        this.setData({
+          userInfo: {
+            nickName: '派大星',
+            avatarUrl: '/images/avatar.png'
+          }
+        })
+      }
+    } catch (err) {
+      console.error('获取用户信息失败', err)
+      this.setData({
+        userInfo: {
+          nickName: '派大星',
+          avatarUrl: '/images/avatar.png'
+        }
+      })
+    }
   },
 
-  /**
-   * 生命周期函数--监听页面卸载
-   */
-  onUnload() {
-
-  },
-
-  /**
-   * 页面相关事件处理函数--监听用户下拉动作
-   */
-  onPullDownRefresh() {
-
-  },
-
-  /**
-   * 页面上拉触底事件的处理函数
-   */
-  onReachBottom() {
-
-  },
-
-  /**
-   * 用户点击右上角分享
-   */
-  onShareAppMessage() {
-
-  },
   goToNewGoods() {
     wx.navigateTo({ url: '/pages/customer/goods/newgoods/newgoods' })
   },
+
   goToShopList() {
     wx.switchTab({ url: '/pages/customer/goods/goods' })
   },
+
   goToMyOrder() {
     wx.navigateTo({ url: '/pages/customer/myOrder/myOrder' })
   },
+
+  // 扫码取货 - 跳转到我的订单页面，并选中"待取货"Tab
   goToFeedback() {
-    wx.navigateTo({ url: '/pages/customer/myOrder/myOrder?tab=waiting' })
+    wx.navigateTo({ 
+      url: '/pages/customer/myOrder/myOrder?tab=waiting'
+    })
   },
+
   goToMessage() {
     wx.navigateTo({ url: '/pages/customer/message/message' })
   }

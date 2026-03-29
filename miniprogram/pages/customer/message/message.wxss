@@ -24,8 +24,6 @@
   align-items: center;
   justify-content: flex-start;
   flex-shrink: 0;
-  position: relative;
-  z-index: 10;
 }
 
 .back-icon {
@@ -99,7 +97,7 @@
   margin-top: 20rpx;
 }
 
-/* 底部导航栏 */
+/* 底部导航栏 - 与主页统一 */
 .tab-bar-bottom {
   position: fixed;
   bottom: 0;
@@ -129,31 +127,16 @@
   margin-bottom: 6rpx;
 }
 
-.icon-home {
-  background-color: #999999;
-  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpath d='M3 9l9-6 9 6v11a2 2 0 0 1-2 2h-5v-8H9v8H5a2 2 0 0 1-2-2z'/%3E%3C/svg%3E") no-repeat center;
-  mask-size: contain;
-  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpath d='M3 9l9-6 9 6v11a2 2 0 0 1-2 2h-5v-8H9v8H5a2 2 0 0 1-2-2z'/%3E%3C/svg%3E") no-repeat center;
-  -webkit-mask-size: contain;
-}
-
-.icon-grid {
-  background-color: #999999;
-  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Crect x='3' y='3' width='7' height='7'/%3E%3Crect x='14' y='3' width='7' height='7'/%3E%3Crect x='14' y='14' width='7' height='7'/%3E%3Crect x='3' y='14' width='7' height='7'/%3E%3C/svg%3E") no-repeat center;
-  mask-size: contain;
-  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Crect x='3' y='3' width='7' height='7'/%3E%3Crect x='14' y='3' width='7' height='7'/%3E%3Crect x='14' y='14' width='7' height='7'/%3E%3Crect x='3' y='14' width='7' height='7'/%3E%3C/svg%3E") no-repeat center;
-  -webkit-mask-size: contain;
-}
-
-.icon-person {
-  background-color: #999999;
-  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpath d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'/%3E%3Ccircle cx='12' cy='7' r='4'/%3E%3C/svg%3E") no-repeat center;
-  mask-size: contain;
-  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpath d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'/%3E%3Ccircle cx='12' cy='7' r='4'/%3E%3C/svg%3E") no-repeat center;
-  -webkit-mask-size: contain;
-}
-
 .tab-text {
   font-size: 22rpx;
   color: #999999;
+}
+
+/* 选中状态 - 图标和文字变蓝色 */
+.tab-bottom-item.active .tab-icon {
+  filter: brightness(0) saturate(100%) invert(35%) sepia(98%) saturate(1482%) hue-rotate(200deg) brightness(98%) contrast(101%);
+}
+
+.tab-bottom-item.active .tab-text {
+  color: #007aff;
 }

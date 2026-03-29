@@ -1,6 +1,5 @@
 <view class="page">
   <view class="header">
-    <text class="back" bindtap="onBack">← 返回</text>
     <text class="title">预售订货</text>
   </view>
 

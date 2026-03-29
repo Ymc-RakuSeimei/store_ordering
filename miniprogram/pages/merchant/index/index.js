@@ -20,7 +20,15 @@ Page({
     wx.scanCode({
       onlyFromCamera: true,
       success: (res) => {
-        wx.showToast({ title: '取货码：' + (res.result || '未知'), icon: 'none', duration: 2200 });
+        const code = res.result;
+        if (!code) {
+          wx.showToast({ title: '扫码结果为空', icon: 'none' });
+          return;
+        }
+        // 跳转到核销页面，传递身份码
+        wx.navigateTo({
+          url: `/pages/merchant/verify/verify?code=${encodeURIComponent(code)}`
+        });
       },
       fail: () => {
         wx.showToast({ title: '扫码失败，请重试', icon: 'none' });
@@ -38,6 +46,18 @@ Page({
       notify: '/pages/merchant/notification/notification'
     };
     const url = map[id];
+    if (url) wx.navigateTo({ url });
+  },
+
+  onTabTap(e) {
+    const tab = e.currentTarget.dataset.tab;
+    // 首页已在当前页则不跳转，避免产生多余历史栈
+    if (tab === 'home') return;
+    const map = {
+      product: '/pages/merchant/product/product',
+      my: '/pages/merchant/my/my',
+    };
+    const url = map[tab];
     if (url) wx.navigateTo({ url });
   }
 });

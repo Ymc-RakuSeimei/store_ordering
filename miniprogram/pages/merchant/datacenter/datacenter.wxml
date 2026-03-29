@@ -1,7 +1,6 @@
 <!-- 数据中心页面 -->
 <view class="page">
   <view class="header">
-    <text class="back" bindtap="onBack">← 返回</text>
     <text class="title">数据中心</text>
   </view>
 

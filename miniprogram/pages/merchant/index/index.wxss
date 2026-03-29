@@ -8,59 +8,61 @@ page {
 
 /* 边距容器 */
 .container {
-  padding: 26rpx;                      /* 页面内边距 */
+  padding: 26rpx 26rpx 190rpx;       /* 页面内边距（底部预留tab栏高度） */
   box-sizing: border-box;              /* 盒模型 */
 }
 
-/* 头部区域（白底圆角） */
+/* 头部区域（无容器，融入背景） */
 .topbar {
-  background: #ffffff;                 /* 白底 */
-  border-radius: 22rpx;                /* 圆角 */
-  padding: 20rpx;                      /* 内边距 */
   display: flex;                       /* 弹性布局 */
   align-items: center;                 /* 垂直居中 */
   justify-content: space-between;      /* 左右分布 */
-  box-shadow: 0 8rpx 18rpx rgba(0,0,0,0.12); /* 投影 */
-  margin-bottom: 40rpx;                /* 下边距 */
+  margin: 20rpx 0 50rpx;               /* 边距 */
+  background: transparent;             /* 透明背景 */
+  padding: 0;                          /* 去掉内边距 */
+  box-shadow: none;                    /* 去掉阴影 */
+  border-radius: 0;                    /* 去掉圆角 */
 }
 
 /* 头像 */
 .avatar {
-  width: 86rpx;                        /* 宽度 */
-  height: 86rpx;                       /* 高度 */
-  border-radius: 22rpx;                /* 圆角 */
-  border: 2rpx solid #e6e6e6;          /* 边框 */
+  width: 110rpx;                        /* 宽度 */
+  height: 110rpx;                       /* 高度 */
+  border-radius: 16rpx;                /* 圆角 */
+  border: none;                        /* 去掉边框 */
 }
 
 /* 头部文字 */
 .topbar-text {
   flex: 1;                             /* 占剩余空间 */
-  margin-left: 16rpx;                  /* 左边距 */
+  margin-left: 16rpx;                   /* 左边距 */
+  text-align: center;                
 }
 
 .title {
-  font-size: 34rpx;                    /* 字体大小 */
-  font-weight: bold;                   /* 加粗 */
-  color: #222;                         /* 颜色 */
+  display: block;                      /* 块级显示，独占一行实现上下排布 */
+  font-size: 32rpx;                    /* ✅ 可在此调整【Hi,店长】文字大小 */
+  font-weight: normal;                 /* 正常粗细 */
+  color: #333;                         /* 颜色 */
 }
 
 .subtitle {
-  font-size: 22rpx;                    /* 字体大小 */
-  color: #666;                         /* 颜色 */
-  margin-top: 6rpx;                    /* 上边距 */
+  display: block;                      /* 块级显示，独占一行实现上下排布 */
+  font-size: 46rpx;                    /* ✅ 可在此调整【欢迎管理】文字大小（已从50rpx改小） */
+  font-weight: bold;                   /* 加粗 */
+  color: #333;                         /* 颜色 */
+  margin-top: 10rpx;                   /* 上边距 */
 }
 
-/* 扫码按钮（修改后） */
+/* 扫码按钮 */
 .scan-btn {
-  background: #ffffff;               
-  border-radius: 14rpx;                /* 保留圆角 */
-  padding: 1rpx 10rpx;                /* 保留内边距 */
-  /* 新增：清除默认按钮样式 + 适配图标居中 */
-  border: none;                         /* 清除默认边框 */
-  display: flex;                        /* 弹性布局 */
-  align-items: center;                  /* 图标垂直居中 */
-  justify-content: center;              /* 图标水平居中 */
-  /* 删除：原文字相关属性（font-size、color），因为按钮内无文字了 */
+  background: transparent;
+  border-radius: 14rpx;
+  padding: 0;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* 新增：清除按钮默认点击态边框 */
@@ -73,10 +75,17 @@ page {
   flex-direction: column; /* 按钮在上，文字在下 */
   align-items: center;     /* 水平居中 */
 }
+/* 扫码按钮文字 */
+.scan-text {
+  font-size: 24rpx;
+  color: #333;
+  margin-top: 8rpx;
+}
 
 /*二维码图标*/
 .scan-btn .card-icon{
-  height: 100rpx;
+  height: 60rpx;
+  width: 60rpx;
 }
 
 /* 卡片容器：2列 */
@@ -97,7 +106,8 @@ page {
   box-shadow: 0 8rpx 20rpx rgba(0,0,0,0.28); /* 投影 */
   display: flex;                       /* 弹性布局 */
   flex-direction: column;               /* 垂直 */
-  align-items: center;                 /* 居中 */
+  align-items: center;                 /* 水平居中 */
+  justify-content: center;             /* 垂直居中（解决内容偏上问题） */
   min-height: 360rpx;                  /* 最小高度 */
 }
 
@@ -128,21 +138,25 @@ page {
 .long-card {
   background: #333333;                 /* 深灰背景 */
   border-radius: 24rpx;                /* 圆角 */
-  margin-top: 12rpx;                   /* 上边距 */
+  margin-top: 0rpx;                   /* 上边距 */
   padding: 24rpx 20rpx;                /* 内边距 */
   box-shadow: 0 8rpx 22rpx rgba(0,0,0,0.28); /* 投影 */
-  width: 100%;                        /* 全宽 */
+  width: 94%;                        /* 全宽 */
+  height: 80rpx;
 }
 
 .long-holder {
   display: flex;                       /* 弹性布局 */
   align-items: center;                 /* 垂直居中 */
+  justify-content: center;             /* 水平居中 */
+  width: 100%;
 }
 
 .long-icon {
-  width: 36rpx;                        /* 宽度 */
-  height: 36rpx;                       /* 高度 */
+  width: 50rpx;                        /* 宽度 */
+  height: 50rpx;                       /* 高度 */
   margin-right: 14rpx;                 /* 右边距 */
+  margin-top: 15rpx;
 }
 
 .long-text {
@@ -150,13 +164,13 @@ page {
 }
 
 .long-title {
-  font-size: 32rpx;                    /* 字体大小 */
+  font-size: 50rpx;                    /* 字体大小 */
   font-weight: bold;                   /* 加粗 */
   color: #ffffff;                      /* 白字 */
 }
 
 .long-subtitle {
-  font-size: 20rpx;                    /* 字体大小 */
+  font-size: 30rpx;                    /* 字体大小 */
   color: #f1f1f1;                      /* 浅白 */
   margin-top: 4rpx;                    /* 上边距 */
 }
@@ -168,4 +182,46 @@ page {
   font-size: 26rpx;                    /* 字体大小 */
   color: #666666;                      /* 灰色 */
   margin-top: 20rpx;                   /* 上边距 */
+}
+
+/* 自定义底部tab栏（参考顾客端 tabBar 配色：#007AFF / #999999） */
+.merchant-tabbar {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 108rpx;
+  background-color: #ffffff;
+  border-top: 1rpx solid #f3f3f3;
+  display: flex;
+  z-index: 50;
+}
+
+.tabbar-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #999999; /* 未选中 */
+}
+
+.tabbar-icon {
+  width: 46rpx;
+  height: 46rpx;
+  margin-bottom: 6rpx;
+  opacity: 0.95;
+}
+
+.tabbar-text {
+  font-size: 24rpx;
+  line-height: 24rpx;
+}
+
+.tabbar-item--active {
+  color: #007AFF; /* selectedColor */
+}
+
+.tabbar-item--active .tabbar-icon {
+  opacity: 1;
 }

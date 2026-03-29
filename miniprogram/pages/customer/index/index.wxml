@@ -3,10 +3,10 @@
   <!-- 顶部：欢迎语 + 头像 -->
   <view class="header">
     <view class="welcome-text">
-      <text>Hi，派大星</text>
+      <text>Hi，{{userInfo.nickName}}</text>
       <text class="main-title">欢迎来到MC_store。</text>
     </view>
-    <image class="avatar" src="/images/avatar.png"></image>
+    <image class="avatar" src="{{userInfo.avatarUrl}}" mode="aspectFill"></image>
   </view>
 
   <!-- 功能卡片区域 -->
@@ -21,7 +21,7 @@
     <view class="card-item" bindtap="goToShopList">
       <image class="card-icon" src="/images/icon_shop.png"></image>
       <text class="card-title">进店选购</text>
-      <text class="card-subtitle">买点儿什么呢？</text>
+      <text class="card-subtitle">买点儿什么？</text>
     </view>
 
     <view class="card-item" bindtap="goToMyOrder">
@@ -39,11 +39,11 @@
 
   <!-- 消息中心长卡片 -->
   <view class="long-card" bindtap="goToMessage">
-  <view class="center-box">
-    <image class="long-icon" src="/images/icon_msg.png"></image>
-    <text class="long-title">消息中心</text>
+    <view class="center-box">
+      <image class="long-icon" src="/images/icon_msg.png"></image>
+      <text class="long-title">消息中心</text>
+    </view>
   </view>
-</view>
 
   <!-- 底部标语 -->
   <text class="bottom-text">Wish you a happy shopping!</text>

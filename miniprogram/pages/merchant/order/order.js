@@ -105,6 +105,15 @@ Page({
 
   onTabTap(e) {
     const tab = e.currentTarget.dataset.tab;
+    const map = {
+      home: '/pages/merchant/index/index',
+      product: '/pages/merchant/product/product',
+      my: '/pages/merchant/my/my',
+    };
+    const url = map[tab];
+    if (url) wx.navigateTo({ url });
+  }
+});
     // 当前页为订单处理，不跳转
     if (tab === 'order') return;
     const map = {

@@ -26,12 +26,6 @@ page {
   margin-bottom: 10rpx; /* 底部外边距，与下方内容分隔 */
 }
 
-/* 返回按钮文字样式 */
-.back {
-  color: #007AFF; /* 微信风格蓝色 */
-  font-size: 30rpx; /* 字体大小 */
-}
-
 /* 页面标题文字样式 */
 .title {
   flex: 1; /* 占据剩余空间 */
@@ -39,11 +33,6 @@ page {
   font-size: 32rpx; /* 字体大小 */
   font-weight: 600; /* 加粗 */
   color: #333; /* 文字颜色 */
-}
-
-/* 占位元素，为了让标题真正居中 */
-.placeholder {
-  width: 30rpx; /* 和返回按钮宽度保持一致，平衡布局 */
 }
 
 /* Tab 切换栏（现货/特价处理） */

@@ -71,7 +71,7 @@
       <image class="tabbar-icon" src="/images/icon_order.png" />
       <text class="tabbar-text">商品</text>
     </view>
-    <view class="tabbar-item tabbar-item--active" data-tab="order" bindtap="onTabTap">
+    <view class="tabbar-item" data-tab="my" bindtap="onTabTap">
       <image class="tabbar-icon" src="/images/icon_mine.png" />
       <text class="tabbar-text">我的</text>
     </view>

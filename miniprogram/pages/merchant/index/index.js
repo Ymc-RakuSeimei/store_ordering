@@ -55,7 +55,7 @@ Page({
     if (tab === 'home') return;
     const map = {
       product: '/pages/merchant/product/product',
-      order: '/pages/merchant/my/my',
+      my: '/pages/merchant/my/my',
     };
     const url = map[tab];
     if (url) wx.navigateTo({ url });

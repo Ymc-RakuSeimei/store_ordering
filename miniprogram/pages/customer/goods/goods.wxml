@@ -1,2 +1,116 @@
-<!--pages/customer/goods/goods.wxml-->
-<text>pages/customer/goods/goods.wxml</text>
+﻿<!-- 商品列表主容器页面 -->
+<view class="container">
+  <!-- 顶部导航栏 -->
+  <view class="nav-bar">
+    <view class="nav-back" bindtap="goBack">
+      <text class="back-icon"></text>
+    </view>
+    <view class="nav-title">商品</view>
+    <view class="nav-placeholder"></view>
+  </view>
+
+  <!-- 搜索栏 -->
+  <view class="search-bar">
+    <view class="search-box">
+      <image class="search-icon" src="/images/icon_search.png" mode="aspectFit"></image>
+      <input class="search-input" placeholder="搜索" placeholder-class="search-placeholder" />
+    </view>
+  </view>
+
+  <!-- 标签栏 -->
+  <view class="tab-bar">
+    <view class="tab-item {{currentTab === 'all' ? 'active' : ''}}" bindtap="switchTab" data-tab="all">
+      <text>全部</text>
+    </view>
+    <view class="tab-item {{currentTab === 'spot' ? 'active' : ''}}" bindtap="switchTab" data-tab="spot">
+      <text>现货区</text>
+    </view>
+    <view class="tab-item {{currentTab === 'preorder' ? 'active' : ''}}" bindtap="switchTab" data-tab="preorder">
+      <text>预定区</text>
+    </view>
+    <view class="tab-item {{currentTab === 'special' ? 'active' : ''}}" bindtap="switchTab" data-tab="special">
+      <text>特价区</text>
+    </view>
+  </view>
+
+  <!-- 组件容器 -->
+  <view class="component-container">
+    <block wx:if="{{currentTab === 'all'}}">
+      <all-component 
+        bind:addToCart="onAddToCart" 
+        bind:joinGroup="onJoinGroup"
+      ></all-component>
+    </block>
+    <block wx:if="{{currentTab === 'spot'}}">
+      <spot-component 
+        bind:addToCart="onAddToCart"
+      ></spot-component>
+    </block>
+    <block wx:if="{{currentTab === 'preorder'}}">
+      <preorder-component 
+        bind:joinGroup="onJoinGroup"
+      ></preorder-component>
+    </block>
+    <block wx:if="{{currentTab === 'special'}}">
+      <special-component 
+        bind:addToCart="onAddToCart"
+      ></special-component>
+    </block>
+  </view>
+
+  <!-- 底部购物车栏 -->
+  <view class="cart-bar" bindtap="showCartDetail">
+    <view class="cart-left">
+      <view class="cart-icon-wrapper">
+        <image class="cart-icon" src="/images/icon_shop.png" mode="aspectFit"></image>
+        <view class="cart-badge" wx:if="{{cartTotalCount > 0}}">{{cartTotalCount}}</view>
+      </view>
+      <view class="cart-info">
+        <text class="cart-label">合计（现货+预定）</text>
+        <text class="cart-price">¥{{cartTotalPrice}}</text>
+      </view>
+    </view>
+    <view class="cart-checkout" bindtap="checkout" catchtap="stopPropagation">
+      <text>合并结算</text>
+    </view>
+  </view>
+</view>
+
+<!-- 购物车详情弹窗 -->
+<view class="cart-modal {{showCartModal ? 'show' : ''}}" bindtap="hideCartDetail">
+  <view class="cart-modal-content" catchtap="stopPropagation">
+    <view class="cart-modal-header">
+      <text class="cart-modal-title">购物车</text>
+      <view class="cart-modal-close" bindtap="hideCartDetail">×</view>
+    </view>
+    <scroll-view class="cart-modal-list" scroll-y>
+      <block wx:for="{{cartList}}" wx:key="id">
+        <view class="cart-modal-item">
+          <image class="cart-modal-image" src="{{item.image}}" mode="aspectFill"></image>
+          <view class="cart-modal-info">
+            <view class="cart-modal-name">{{item.name}}</view>
+            <view class="cart-modal-tag" wx:if="{{item.type === 'preorder'}}">接龙预定</view>
+            <text class="cart-modal-price">¥{{item.price}}</text>
+          </view>
+          <view class="cart-modal-control">
+            <view class="control-btn minus" bindtap="decreaseQuantity" data-id="{{item.id}}">-</view>
+            <text class="control-num">{{item.quantity}}</text>
+            <view class="control-btn plus" bindtap="increaseQuantity" data-id="{{item.id}}">+</view>
+          </view>
+        </view>
+      </block>
+      <view class="cart-modal-empty" wx:if="{{cartList.length === 0}}">
+        <text>购物车是空的</text>
+      </view>
+    </scroll-view>
+    <view class="cart-modal-footer">
+      <view class="cart-modal-total">
+        <text class="total-label">合计</text>
+        <text class="total-price">¥{{cartTotalPrice}}</text>
+      </view>
+      <view class="cart-modal-checkout" bindtap="checkout">
+        <text>去结算</text>
+      </view>
+    </view>
+  </view>
+</view>

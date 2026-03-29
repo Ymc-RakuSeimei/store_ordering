@@ -1,0 +1,76 @@
+<view class="waiting-container">
+  <!-- 加载遮罩 -->
+  <view class="loading-mask" wx:if="{{loading}}">
+    <view class="loading-content">
+      <view class="loading-spinner"></view>
+      <text class="loading-text">加载中...</text>
+    </view>
+  </view>
+
+  <!-- 取货码区域 -->
+  <view class="qrcode-section" wx:if="{{pickupCode}}">
+    <view class="qrcode-header">
+      <text class="qrcode-title">取货码</text>
+      <button class="refresh-btn" bindtap="refresh" size="mini">
+        <text class="refresh-icon">⟳</text>
+      </button>
+    </view>
+    <view class="qrcode-content">
+      <!-- 在线二维码服务（主要方案） -->
+      <image wx:if="{{qrcodeUrl}}" src="{{qrcodeUrl}}" class="qrcode-image" mode="aspectFit"></image>
+      <!-- 保底文本：如果二维码生成失败，显示取货码 -->
+      <view class="fallback" wx:if="{{!qrcodeUrl && pickupCode}}">
+        <text class="fallback-text">{{pickupCode}}</text>
+        <button size="mini" bindtap="copyCode">复制取货码</button>
+      </view>
+    </view>
+    <view class="qrcode-footer">
+      <text class="qrcode-number">{{pickupCode}}</text>
+      <button class="copy-btn" bindtap="copyCode">
+        <text class="copy-icon">📋</text>
+        <text>复制</text>
+      </button>
+    </view>
+  </view>
+
+  <!-- 统计信息 -->
+  <view class="statistics" wx:if="{{statistics}}">
+    <view class="stat-item">
+      <text class="stat-number arrived">{{statistics.arrivedCount}}</text>
+      <text class="stat-label">已到货</text>
+    </view>
+    <view class="stat-divider"></view>
+    <view class="stat-item">
+      <text class="stat-number waiting">{{statistics.waitingCount}}</text>
+      <text class="stat-label">待到货</text>
+    </view>
+    <view class="stat-divider"></view>
+    <view class="stat-item">
+      <text class="stat-number total">{{statistics.totalCount}}</text>
+      <text class="stat-label">总计</text>
+    </view>
+  </view>
+
+  <!-- 订单列表 -->
+  <view class="order-list">
+    <block wx:for="{{orderList}}" wx:key="id">
+      <view class="order-item {{item.pickupStatus === '已到货' ? 'arrived' : 'waiting'}}" animation="{{item.animation}}">
+        <view class="order-number">{{index + 1}}</view>
+        <image class="order-image" src="{{item.image}}" mode="aspectFill"></image>
+        <view class="order-info">
+          <text class="order-name">{{item.name}}</text>
+          <text class="order-price">¥{{item.price}}</text>
+        </view>
+        <view class="order-status-area">
+          <view class="status-btn status-arrived" wx:if="{{item.pickupStatus === '已到货'}}">已到货</view>
+          <view class="status-btn status-waiting" wx:if="{{item.pickupStatus === '待到货'}}">待到货</view>
+        </view>
+      </view>
+    </block>
+    <view class="empty-state" wx:if="{{orderList.length === 0 && !loading}}">
+      <image src="/images/icon_order.png" class="empty-icon"></image>
+      <text class="empty-text">暂无待取货订单</text>
+      <text class="empty-subtext">您可以去商品页面浏览更多商品</text>
+    </view>
+  </view>
+</view>

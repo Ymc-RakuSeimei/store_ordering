@@ -1,0 +1,9 @@
+<!-- pages/index/index.wxml -->
+<view class="container">
+  <view class="loading-box" wx:if="{{loading}}">
+    <view class="loader"></view>
+    <text class="loading-text">加载中...</text>
+  </view>
+  <!-- 调试入口：透明区域，长按触发 -->
+  <view class="debug-area" wx:if="{{showDebug}}" bindlongpress="openDebugPage" style="position: fixed; left: -1rpx; top: -49rpx"></view>
+</view>

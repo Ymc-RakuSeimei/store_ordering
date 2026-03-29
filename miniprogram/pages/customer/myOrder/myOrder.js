@@ -1,66 +1,48 @@
 // pages/customer/myOrder/myOrder.js
 Page({
-
-  /**
-   * 页面的初始数据
-   */
   data: {
-
+    currentTab: 'all'
   },
 
-  /**
-   * 生命周期函数--监听页面加载
-   */
   onLoad(options) {
-
+    if (options.tab) {
+      this.setData({
+        currentTab: options.tab
+      });
+    }
   },
 
-  /**
-   * 生命周期函数--监听页面初次渲染完成
-   */
-  onReady() {
-
+  // 返回上一页
+  goBack() {
+    wx.navigateBack({
+      delta: 1
+    });
   },
 
-  /**
-   * 生命周期函数--监听页面显示
-   */
-  onShow() {
-
+  // 切换Tab
+  switchTab(e) {
+    const tab = e.currentTarget.dataset.tab;
+    this.setData({
+      currentTab: tab
+    });
   },
 
-  /**
-   * 生命周期函数--监听页面隐藏
-   */
-  onHide() {
-
+  // 底部导航跳转
+  goToHome() {
+    wx.switchTab({
+      url: '/pages/customer/index/index'
+    });
   },
 
-  /**
-   * 生命周期函数--监听页面卸载
-   */
-  onUnload() {
-
+  goToGoods() {
+    wx.switchTab({
+      url: '/pages/customer/goods/goods'
+    });
   },
 
-  /**
-   * 页面相关事件处理函数--监听用户下拉动作
-   */
-  onPullDownRefresh() {
-
-  },
-
-  /**
-   * 页面上拉触底事件的处理函数
-   */
-  onReachBottom() {
-
-  },
-
-  /**
-   * 用户点击右上角分享
-   */
-  onShareAppMessage() {
-
+  goToMy() {
+    wx.switchTab({
+      url: '/pages/customer/my/my'
+    });
   }
-})
+});

@@ -1,102 +1,273 @@
-// pages/customer/goods/newgoods.js
+// pages/customer/goods/newgoods/newgoods.js
 Page({
-  // 页面初始数据
   data: {
-    // 商品列表数据（从云开发数据库加载）
-    list: [],
-    // 是否正在加载中（用于显示加载提示或占位）
-    loading: true,
+    totalCount: 0,
+    goodsList: [],
+    showCartModal: false,
+    cartList: [],
+    cartTotalCount: 0,
+    cartTotalPrice: 0
   },
 
-  // 生命周期函数：页面加载完成时触发
-  onLoad() {
-    // 初次进页面立即请求商品数据
-    this.fetchNewGoods();
+  onLoad(options) {
+    this.loadGoodsData()
+    this.loadCartFromStorage()
   },
 
-  // 统一从云函数获取“今日上新”商品列表
-  fetchNewGoods() {
-    // 进入加载状态
-    this.setData({ loading: true });
-
-    // 调用云函数，实际逻辑在 cloudfunctions/getNewGoods/index.js 中编写
-    // 文件名称 getNewGoods 与下方 name 一样，需先在云开发中部署
-    wx.cloud.callFunction({
-      name: 'getNewGoods',
-      data: {
-        // 一次读取最大数量，灵活调整
-        limit: 30,
-        // page: 0,         // 可选：分页参数
-        // sortField: 'createdAt',
-        // sortOrder: 'desc',
-      },
-    })
-      .then((res) => {
-        // 增加云函数统一返回码判断，提升稳定性
-        const result = res.result || {};
-        if (result.code !== 0) {
-          console.error('getNewGoods 业务异常', result);
-          wx.showToast({
-            title: result.message || '商品加载出错',
-            icon: 'none',
-          });
-          this.setData({ loading: false });
-          return;
+  // 加载商品数据（从云数据库）
+  async loadGoodsData() {
+    wx.showLoading({ title: '加载中...' })
+    try {
+      const res = await wx.cloud.callFunction({
+        name: 'getGoodsList',
+        data: {
+          category: '',      // 不筛选分类，获取全部
+          page: 0,
+          limit: 50,
+          sortField: 'createdAt',
+          sortOrder: 'desc'
         }
-
-        const list = Array.isArray(result.data) ? result.data : [];
+      })
+      
+      console.log('云函数返回:', res)
+      
+      if (res.result && res.result.code === 0) {
+        const goodsList = this.formatGoodsData(res.result.data)
         this.setData({
-          list,
-          loading: false,
-        });
+          goodsList: goodsList,
+          totalCount: res.result.total > 0 ? res.result.total : goodsList.length
+        })
+        console.log('格式化后的商品列表:', goodsList)
+      } else {
+        throw new Error(res.result?.message || '获取失败')
+      }
+    } catch (err) {
+      console.error('加载商品失败', err)
+      wx.showToast({
+        title: '加载失败',
+        icon: 'none'
       })
-      .catch((err) => {
-        // 调用失败（网络、权限、云函数异常等）
-        console.error('getNewGoods failed', err);
-        wx.showToast({
-          title: '商品加载失败',
-          icon: 'none',
-        });
-        this.setData({ loading: false });
-      })
-      .finally(() => {
-        // 无论成功或失败，都停止下拉刷新动画（如果是下拉刷新触发）
-        wx.stopPullDownRefresh();
-      });
+    } finally {
+      wx.hideLoading()
+    }
   },
 
-  // 用户下拉刷新时触发，重新拉取数据
-  onPullDownRefresh() {
-    this.fetchNewGoods();
+  // 格式化商品数据，适配前端显示
+  formatGoodsData(goodsList) {
+    if (!goodsList || goodsList.length === 0) return []
+    
+    return goodsList.map(item => {
+      // 根据商品类型设置不同的显示样式
+      const isPreorder = item.type === 'preorder'
+      const isSpot = item.type === 'spot' || item.type === 'special'
+      
+      // 图片处理：如果有图片数组且第一个有值，则使用；否则使用空字符串（不显示图片）
+      let imageUrl = ''
+      if (item.images && item.images.length > 0 && item.images[0]) {
+        imageUrl = item.images[0]
+      }
+      // 如果图片是 "图一" 或 "图二" 这种示例文本，也视为无效
+      if (imageUrl && (imageUrl === '图一' || imageUrl === '图二')) {
+        imageUrl = ''
+      }
+      
+      return {
+        id: item._id,
+        name: item.name || '商品名称',
+        price: item.price || 0,
+        // 状态文本：预定商品显示"已预定X件"，现货显示"库存剩余X件"
+        statusText: isPreorder 
+          ? `已预定${item.totalBooked || 0}件` 
+          : `库存剩余${item.stock || 0}件`,
+        spec: item.specs || '无规格',
+        image: imageUrl,  // 没有图片时为空字符串
+        // 角标
+        badgeText: isPreorder ? '接龙预定' : (isSpot ? '现货订购' : ''),
+        badgeClass: isPreorder ? 'preorder' : (isSpot ? 'spot' : ''),
+        // 按钮文字和类型
+        actionText: isPreorder ? '参与接龙' : '加入购物车',
+        actionType: isPreorder ? 'joinGroup' : 'addToCart',
+        type: item.type,
+        // 原始数据
+        rawData: item
+      }
+    })
   },
 
-  // 商品卡片点击跳转至商品详情页（传递 goodsId）
-  goToDetail(event) {
-    const id = event.currentTarget.dataset.id;
-    if (!id) return;
+  // 返回上一页
+  goBack() {
+    wx.navigateBack({ delta: 1 })
+  },
+
+  // 阻止事件冒泡
+  stopPropagation() {},
+
+  // 显示购物车详情
+  showCartDetail() {
+    this.setData({ showCartModal: true })
+  },
+
+  // 隐藏购物车详情
+  hideCartDetail() {
+    this.setData({ showCartModal: false })
+  },
+
+  // 从本地缓存加载购物车
+  loadCartFromStorage() {
+    const cart = wx.getStorageSync('shoppingCart') || []
+    this.updateCartData(cart)
+  },
+
+  // 保存购物车到本地缓存
+  saveCartToStorage(cart) {
+    wx.setStorageSync('shoppingCart', cart)
+  },
+
+  // 更新购物车数据
+  updateCartData(cart) {
+    let totalCount = 0
+    let totalPrice = 0
+    cart.forEach(item => {
+      totalCount += item.quantity
+      totalPrice += item.price * item.quantity
+    })
+    this.setData({
+      cartList: cart,
+      cartTotalCount: totalCount,
+      cartTotalPrice: totalPrice.toFixed(2)
+    })
+    this.saveCartToStorage(cart)
+  },
+
+  // 添加到购物车
+  onAddToCart(e) {
+    const { id, name, price, image, type } = e.detail
+    const cart = [...this.data.cartList]
+    const existingItem = cart.find(item => item.id === id)
+
+    if (existingItem) {
+      existingItem.quantity += 1
+    } else {
+      cart.push({
+        id,
+        name,
+        price,
+        image,
+        type: type || 'spot',
+        quantity: 1
+      })
+    }
+
+    this.updateCartData(cart)
+    wx.showToast({
+      title: '已加入购物车',
+      icon: 'success',
+      duration: 1500
+    })
+  },
+
+  // 参与接龙
+  onJoinGroup(e) {
+    const { id, name, price, image } = e.detail
+    wx.showModal({
+      title: '参与接龙',
+      content: `确定要参与「${name}」的接龙预定吗？`,
+      success: (res) => {
+        if (res.confirm) {
+          const cart = [...this.data.cartList]
+          const existingItem = cart.find(item => item.id === id)
+
+          if (existingItem) {
+            existingItem.quantity += 1
+          } else {
+            cart.push({
+              id,
+              name,
+              price,
+              image,
+              type: 'preorder',
+              quantity: 1
+            })
+          }
+
+          this.updateCartData(cart)
+          wx.showToast({
+            title: '已加入接龙',
+            icon: 'success',
+            duration: 1500
+          })
+        }
+      }
+    })
+  },
+
+  // 商品操作
+  onAction(e) {
+    const { item } = e.currentTarget.dataset
+    if (item.actionType === 'addToCart') {
+      this.onAddToCart({
+        detail: {
+          id: item.id,
+          name: item.name,
+          price: item.price,
+          image: item.image,
+          type: item.type
+        }
+      })
+    } else if (item.actionType === 'joinGroup') {
+      this.onJoinGroup({
+        detail: {
+          id: item.id,
+          name: item.name,
+          price: item.price,
+          image: item.image
+        }
+      })
+    }
+  },
+
+  // 增加数量
+  increaseQuantity(e) {
+    const { id } = e.currentTarget.dataset
+    const cart = [...this.data.cartList]
+    const item = cart.find(item => item.id === id)
+    if (item) {
+      item.quantity += 1
+      this.updateCartData(cart)
+    }
+  },
+
+  // 减少数量
+  decreaseQuantity(e) {
+    const { id } = e.currentTarget.dataset
+    let cart = [...this.data.cartList]
+    const itemIndex = cart.findIndex(item => item.id === id)
+    if (itemIndex !== -1) {
+      if (cart[itemIndex].quantity > 1) {
+        cart[itemIndex].quantity -= 1
+        this.updateCartData(cart)
+      } else {
+        cart.splice(itemIndex, 1)
+        this.updateCartData(cart)
+      }
+    }
+  },
+
+  // 合并结算
+  checkout() {
+    if (this.data.cartList.length === 0) {
+      wx.showToast({
+        title: '购物车是空的',
+        icon: 'none',
+        duration: 2000
+      })
+      return
+    }
+
+    this.setData({ showCartModal: false })
 
     wx.navigateTo({
-      url: `/pages/customer/goods/goods?goodsId=${id}`,
-    });
-  },
-
-  // 点击按钮“立即预定”也跳到详情页，并附加 action=order 标记
-  onOrderTap(event) {
-    // 阻止事件冒泡，避免触发卡片整体 goToDetail
-    event.stopPropagation();
-    const id = event.currentTarget.dataset.id;
-    if (!id) return;
-
-    wx.navigateTo({
-      url: `/pages/customer/goods/goods?goodsId=${id}&action=order`,
-    });
-  },
-
-  // 分享当前页面设置（可选）
-  onShareAppMessage() {
-    return {
-      title: '今日上新',
-      path: '/pages/customer/goods/newgoods/newgoods',
-    };
-  },
-});
+      url: '/pages/customer/checkout/checkout?total=' + this.data.cartTotalPrice
+    })
+  }
+})

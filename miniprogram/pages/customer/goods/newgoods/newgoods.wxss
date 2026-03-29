@@ -1,6 +1,6 @@
-<<<<<<< Updated upstream
+
 /* pages/customer/newgoods/newgoods.wxss */
-=======
+
 .container {
   background-color: #ffffff;
   min-height: 100vh;
@@ -443,8 +443,6 @@
   color: #ffffff;
   font-size: 28rpx;
   font-weight: 500;
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
 }
 
 /* 底部导航栏 */
@@ -504,10 +502,3 @@
   font-size: 22rpx;
   color: #999999;
 }
->>>>>>> Stashed changes
-=======
-}
->>>>>>> Stashed changes
-=======
-}
->>>>>>> Stashed changes

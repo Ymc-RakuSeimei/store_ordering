@@ -1,7 +1,5 @@
-<<<<<<< Updated upstream
+
 <!--pages/customer/goods/newgoods/newgoods.wxml-->
-<text>pages/customer/goods/newgoods/newgoods.wxml</text>
-=======
 <!-- 今日上新页面 -->
 <view class="container">
   <!-- 顶部导航栏 -->
@@ -104,8 +102,6 @@
       </view>
     </view>
   </view>
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
 </view>
 
 <!-- 底部导航栏 -->
@@ -123,10 +119,3 @@
     <text class="tab-text">我的</text>
   </view>
 </view>
->>>>>>> Stashed changes
-=======
-</view>
->>>>>>> Stashed changes
-=======
-</view>
->>>>>>> Stashed changes

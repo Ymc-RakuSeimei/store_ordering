@@ -1,73 +1,200 @@
-// pages/customer/myOrder/components/waiting/waiting.js
+// pages/customer/myOrder/components/waiting.js
 Component({
   data: {
-    waitingStatistics: {
-      waitingCount: 1,    // 待取件数
-      totalCount: 2       // 总件数
-    },
-    orderList: []
+    pickupCode: '',
+    orderList: [],
+    statistics: null,
+    loading: false,
+    qrcodeUrl: ''
   },
 
   lifetimes: {
     attached() {
-      this.loadOrderData();
+      this.loadData()
+    }
+  },
+
+  pageLifetimes: {
+    show() {
+      // 页面显示时总是重新加载数据，确保获取最新状态
+      if (!this.data.loading) {
+        this.loadData()
+      }
     }
   },
 
   methods: {
-    /**
-     * 加载待取货订单数据
-     * 【接口预留】后续对接后端时替换这里的假数据
-     * 
-     * 后端接口设计建议：
-     * 接口路径：/api/order/list
-     * 请求参数：{ status: 'waiting' }  // waiting-待取货（包含已到货和待到货）
-     * 返回数据格式：
-     * {
-     *   statistics: { waitingCount: 1, totalCount: 2 },
-     *   list: [
-     *     {
-     *       id: 'order_001',
-     *       image: '商品图片URL',
-     *       name: '珊迪氧气罩',
-     *       price: 99.00,
-     *       status: 'arrived'  // arrived-已到货, waiting-待到货
-     *     }
-     *   ]
-     * }
-     */
-    loadOrderData() {
-      // TODO: 替换为真实接口调用
-      // 示例：调用云函数
-      // wx.cloud.callFunction({
-      //   name: 'getOrderList',
-      //   data: { status: 'waiting' }
-      // }).then(res => {
-      //   this.setData({
-      //     waitingStatistics: res.result.statistics,
-      //     orderList: res.result.list
-      //   });
-      // });
-      
-      // 临时假数据（方便你调试样式）
-      this.setData({
-        orderList: [
-          {
-            id: '1',
-            image: '/images/goods_sample.png',
-            name: '珊迪氧气罩',
-            price: 99.00,
-            status: 'arrived'    // 已到货
+    async loadData() {
+      this.setData({ loading: true })
+
+      try {
+        const openid = await this.getOpenid()
+        const pickupCode = await this.getPickupCode(openid)
+        this.setData({ pickupCode })
+
+        this.generateQrcodeUrl(pickupCode)
+
+        await this.loadWaitingOrders()
+      } catch (err) {
+        console.error('加载数据失败:', err)
+      } finally {
+        this.setData({ loading: false })
+      }
+    },
+
+    async getPickupCode(openid) {
+      try {
+        console.log('获取取货码，openid:', openid)
+        const res = await wx.cloud.callFunction({
+          name: 'getPickupCode',
+          data: { openid }
+        })
+
+        console.log('getPickupCode返回结果:', res)
+
+        if (res && res.result && res.result.code === 0) {
+          console.log('获取到取货码:', res.result.data.pickupCode)
+          return res.result.data.pickupCode
+        } else {
+          console.error('获取取货码失败，错误信息:', res.result)
+          throw new Error('获取取货码失败')
+        }
+      } catch (err) {
+        console.error('获取取货码失败:', err)
+        //  fallback: 如果云函数调用失败，使用本地生成作为备用
+        const fallbackCode = this.generateFallbackCode(openid)
+        console.log('使用备用取货码:', fallbackCode)
+        return fallbackCode
+      }
+    },
+
+    generateFallbackCode(openid) {
+      let hash = 0
+      for (let i = 0; i < openid.length; i++) {
+        const char = openid.charCodeAt(i)
+        hash = ((hash << 5) - hash) + char
+        hash = hash & hash
+      }
+      const code = Math.abs(hash) % 900000 + 100000
+      return code.toString()
+    },
+
+    getOpenid() {
+      return new Promise((resolve, reject) => {
+        const app = getApp()
+
+        // 优先从全局数据获取openid
+        if (app.globalData.userInfo?.openid) {
+          console.log('从全局数据获取openid:', app.globalData.userInfo.openid)
+          resolve(app.globalData.userInfo.openid)
+          return
+        }
+
+        // 调用云函数获取当前登录用户的openid
+        wx.cloud.callFunction({
+          name: 'getOpenId',
+          success: res => {
+            const openid = res.result.openid
+            if (openid) {
+              if (!app.globalData.userInfo) app.globalData.userInfo = {}
+              app.globalData.userInfo.openid = openid
+              console.log('从云函数获取openid:', openid)
+              resolve(openid)
+            } else {
+              reject(new Error('获取 openid 失败'))
+            }
           },
-          {
-            id: '2',
-            image: '/images/goods_sample.png',
-            name: '珊迪氧气罩',
-            price: 99.00,
-            status: 'waiting'    // 待到货
+          fail: (err) => {
+            console.error('调用getOpenId云函数失败:', err)
+            reject(new Error('获取 openid 失败'))
           }
-        ]
-      });
+        })
+      })
+    },
+
+    generateQrcodeUrl(content) {
+      try {
+        const encodedContent = encodeURIComponent(content)
+        const qrcodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=320x320&data=${encodedContent}`
+        this.setData({ qrcodeUrl })
+      } catch (err) {
+        console.error('生成二维码URL失败:', err)
+      }
+    },
+
+    async loadWaitingOrders() {
+      try {
+        const openid = await this.getOpenid()
+        console.log('加载待取货订单，openid:', openid)
+        const res = await wx.cloud.callFunction({
+          name: 'getOrderList',
+          data: {
+            status: 'waiting',
+            openid
+          }
+        })
+
+        console.log('getOrderList返回结果:', res)
+
+        if (res && res.result && res.result.code === 0) {
+          const orders = res.result.data || []
+          console.log('获取到的订单数量:', orders.length)
+          // 提取未取货的商品（已到货或待到货）
+          const allGoods = []
+          orders.forEach(order => {
+            console.log('处理订单:', order._id)
+            if (order.goods && order.goods.length > 0) {
+              order.goods.forEach(goods => {
+                // 只添加未取货的商品
+                if (goods.pickupStatus !== '已取货') {
+                  allGoods.push({
+                    id: `${order._id}_${goods.goodsId}`,
+                    image: goods.images && goods.images.length > 0 ? goods.images[0] : '/images/goods_sample.png',
+                    name: goods.name || '商品',
+                    price: goods.price || 0,
+                    pickupStatus: goods.pickupStatus || '待到货'
+                  })
+                }
+              })
+            }
+          })
+
+          console.log('提取的商品数量:', allGoods.length)
+
+          const statistics = {
+            arrivedCount: allGoods.filter(item => item.pickupStatus === '已到货').length,
+            waitingCount: allGoods.filter(item => item.pickupStatus === '待到货').length,
+            totalCount: allGoods.length
+          }
+
+          console.log('统计数据:', statistics)
+
+          this.setData({
+            orderList: allGoods,
+            statistics
+          })
+        } else {
+          console.error('getOrderList返回错误:', res.result)
+        }
+      } catch (err) {
+        console.error('加载待取货订单失败:', err)
+      }
+    },
+
+    refresh() {
+      this.loadData()
+    },
+
+    copyCode() {
+      if (!this.data.pickupCode) {
+        wx.showToast({ title: '取货码未获取', icon: 'none' })
+        return
+      }
+      wx.setClipboardData({
+        data: this.data.pickupCode,
+        success: () => wx.showToast({ title: '已复制', icon: 'success' }),
+        fail: () => wx.showToast({ title: '复制失败', icon: 'none' })
+      })
     }
   }
-});
+})

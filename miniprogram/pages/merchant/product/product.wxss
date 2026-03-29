@@ -1,0 +1,200 @@
+/* 商品管理页面样式（详细注释） */
+page {
+  background: #f6f6f8; /* 页面背景色 */
+  font-family: PingFang SC, Helvetica Neue, Arial, sans-serif;
+  color: #333;
+}
+
+.page {
+  min-height: 100vh;
+  padding: 20rpx;
+  box-sizing: border-box;
+  background: #f6f6f8;
+}
+
+/* 顶部头部 */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10rpx;
+}
+
+.back {
+  color: #007AFF;
+  font-size: 30rpx;
+}
+
+.title {
+  flex: 1;
+  text-align: center;
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+}
+
+.placeholder {
+  width: 30rpx;
+}
+
+/* Tab 切换 */
+.tab-nav {
+  display: flex;
+  background: #e8e8e8;
+  border-radius: 32rpx;
+  padding: 5rpx;
+  margin-bottom: 14rpx;
+}
+
+.tab {
+  flex: 1;
+  text-align: center;
+  line-height: 48rpx;
+  font-size: 26rpx;
+  color: #535353;
+  border-radius: 26rpx;
+}
+
+.tab.active {
+  background: #333333;
+  color: #fff;
+}
+
+/* 商品列表 */
+.goods-list {
+  min-height: 500rpx;
+}
+
+.goods-card {
+  display: flex;
+  background: #ffffff;
+  border-radius: 20rpx;
+  box-shadow: 0 5rpx 14rpx rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  margin-bottom: 14rpx;
+}
+
+.goods-img {
+  width: 138rpx;
+  height: 138rpx;
+  object-fit: cover;
+}
+
+.goods-info {
+  flex: 1;
+  padding: 14rpx;
+}
+
+.name {
+  font-size: 28rpx;
+  font-weight: bold;
+  color: #020202;
+  margin-bottom: 6rpx;
+}
+
+.spec,
+.summary {
+  font-size: 20rpx;
+  color: #666;
+  margin-bottom: 4rpx;
+}
+
+.summary {
+  color: #222;
+  margin-top: 3rpx;
+}
+
+/* 添加按钮 */
+.fab {
+  position: fixed;
+  right: 20rpx;
+  bottom: 82rpx;
+  width: 68rpx;
+  height: 68rpx;
+  line-height: 68rpx;
+  text-align: center;
+  border-radius: 50%;
+  background: #33c266;
+  color: #fff;
+  font-size: 42rpx;
+  box-shadow: 0 8rpx 16rpx rgba(0, 0, 0, 0.25);
+  z-index: 100;
+}
+
+/* 遮罩弹窗 */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+}
+
+.dialog {
+  width: 90%;
+  background: #fff;
+  border-radius: 20rpx;
+  padding: 18rpx;
+}
+
+.dialog-title {
+  font-size: 28rpx;
+  font-weight: bold;
+  color: #222;
+  text-align: center;
+  margin-bottom: 12rpx;
+}
+
+.item-name {
+  text-align: center;
+  font-size: 24rpx;
+  color: #444;
+  margin-bottom: 10rpx;
+}
+
+.dialog-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10rpx;
+}
+
+.dialog-row text {
+  width: 70rpx;
+  color: #444;
+  font-size: 22rpx;
+}
+
+.dialog-row input {
+  flex: 1;
+  height: 44rpx;
+  border: 1rpx solid #ddd;
+  border-radius: 10rpx;
+  padding: 0 10rpx;
+  font-size: 22rpx;
+}
+
+.button-group {
+  display: flex;
+  margin-top: 12rpx;
+}
+
+.button-group button {
+  flex: 1;
+  height: 48rpx;
+  line-height: 48rpx;
+  border-radius: 10rpx;
+}
+
+.button-group button:first-child {
+  margin-right: 10rpx;
+}
+
+.button-group button[type='primary'] {
+  background: #33c266;
+  color: #fff;
+}

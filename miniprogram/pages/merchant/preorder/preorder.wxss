@@ -1,0 +1,120 @@
+page {
+  background: #f6f6f8;
+  font-family: PingFang SC, Helvetica Neue, Arial, sans-serif;
+  color: #333;
+}
+.page {
+  padding: 20rpx;
+  min-height: 100vh;
+}
+.header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16rpx;
+}
+.back {
+  color: #007AFF;
+  font-size: 30rpx;
+}
+.title {
+  flex: 1;
+  text-align: center;
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+}
+.panel {
+  background: #ffffff;
+  border-radius: 16rpx;
+  padding: 14rpx;
+  box-shadow: 0 6rpx 16rpx rgba(0, 0, 0, 0.07);
+  margin-bottom: 16rpx;
+}
+.panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10rpx;
+}
+.panel-title {
+  font-size: 28rpx;
+  font-weight: bold;
+}
+.small-btn {
+  padding: 6rpx 12rpx;
+  border-radius: 16rpx;
+  background: #ffcc00;
+  color: #000;
+  font-size: 22rpx;
+}
+.item-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1rpx solid #eee;
+  border-radius: 14rpx;
+  padding: 12rpx;
+  margin-bottom: 10rpx;
+}
+.item-card.simple {
+  background: #fafafa;
+}
+.item-left {
+  display: flex;
+  flex-direction: column;
+}
+.item-order {
+  font-size: 18rpx;
+  color: #999;
+}
+.item-name {
+  font-size: 26rpx;
+  color: #333;
+  font-weight: 600;
+}
+.item-spec {
+  font-size: 22rpx;
+  color: #666;
+  margin-top: 4rpx;
+}
+.item-right {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+}
+.item-qty {
+  font-size: 28rpx;
+  color: #ff3b30;
+  font-weight: 700;
+}
+.btn-handle {
+  background: #ffcc00;
+  color: #000;
+  border: none;
+  border-radius: 16rpx;
+  padding: 6rpx 10rpx;
+}
+
+.btn-stop {
+  background: #333;
+  color: #fff;
+  border: none;
+  border-radius: 16rpx;
+  padding: 6rpx 10rpx;
+}
+.empty-state {
+  text-align: center;
+  color: #999;
+  font-size: 24rpx;
+  padding: 20rpx 0;
+}
+.big-btn {
+  width: 100%;
+  height: 70rpx;
+  background: #333;
+  color: #fff;
+  border: none;
+  border-radius: 18rpx;
+  font-size: 30rpx;
+  margin-top: 10rpx;
+}

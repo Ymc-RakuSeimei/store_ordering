@@ -16,6 +16,7 @@
     "pages/customer/feedback/feedback",
     "pages/customer/myOrder/myOrder",
     "pages/customer/message/message",
+    "pages/customer/checkout/checkout",
     "pages/debug/index"
   ],
   "window": {

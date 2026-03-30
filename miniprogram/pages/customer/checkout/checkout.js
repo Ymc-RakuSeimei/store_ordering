@@ -58,7 +58,7 @@ Page({
         data: {
           openid: openid,
           goods: goods,
-          address: {
+          customerInfo: {
             name: '',
             phone: '',
             address: ''

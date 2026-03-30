@@ -23,18 +23,18 @@
         
         <!-- 右侧状态按钮 -->
         <view class="order-status-area">
-          <!-- 已到货状态 -->
-          <view class="status-btn status-arrived" wx:if="{{item.status === 'arrived'}}">
-            已到货
+          <!-- 待取货状态 -->
+          <view class="status-btn status-arrived" wx:if="{{item.status === '待取货'}}">
+            待取货
           </view>
           
           <!-- 待到货状态 -->
-          <view class="status-btn status-waiting" wx:if="{{item.status === 'waiting'}}">
+          <view class="status-btn status-waiting" wx:if="{{item.status === '待到货'}}">
             待到货
           </view>
           
           <!-- 已完成状态 -->
-          <view class="status-btn status-completed" wx:if="{{item.status === 'completed' || item.status === '已完成'}}">
+          <view class="status-btn status-completed" wx:if="{{item.status === '已完成' || item.status === '已取货'}}">
             已完成
           </view>
         </view>

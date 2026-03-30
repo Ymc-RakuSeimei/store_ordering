@@ -37,7 +37,7 @@
   <view class="statistics" wx:if="{{statistics}}">
     <view class="stat-item">
       <text class="stat-number arrived">{{statistics.arrivedCount}}</text>
-      <text class="stat-label">已到货</text>
+      <text class="stat-label">待取货</text>
     </view>
     <view class="stat-divider"></view>
     <view class="stat-item">
@@ -62,8 +62,9 @@
           <text class="order-price">¥{{item.price}}</text>
         </view>
         <view class="order-status-area">
-          <view class="status-btn status-arrived" wx:if="{{item.pickupStatus === '已到货'}}">已到货</view>
+          <view class="status-btn status-arrived" wx:if="{{item.pickupStatus === '待取货'}}">待取货</view>
           <view class="status-btn status-waiting" wx:if="{{item.pickupStatus === '待到货'}}">待到货</view>
+
         </view>
       </view>
     </block>

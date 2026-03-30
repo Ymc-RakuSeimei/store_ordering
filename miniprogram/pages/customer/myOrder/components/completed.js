@@ -20,42 +20,51 @@ Component({
     async loadOrderData() {
       try {
         const openid = await this.getOpenid();
+        console.log('用户openid:', openid);
         const res = await wx.cloud.callFunction({
           name: 'getOrderList',
           data: {
-            status: 'completed',
+            status: 'all',
             openid
           }
         });
 
+        console.log('云函数返回结果:', res);
         if (res && res.result && res.result.code === 0) {
           const orders = res.result.data || [];
+          console.log('获取到的订单数量:', orders.length);
           // 提取已完成订单中的商品
           const completedGoods = [];
           orders.forEach(order => {
+            console.log('处理订单:', order._id, '订单状态:', order.status);
             if (order.goods && order.goods.length > 0) {
               order.goods.forEach(goods => {
-                // 处理商品图片，支持字符串和数组格式
-                let image = '';
-                if (goods.images) {
-                  if (Array.isArray(goods.images) && goods.images.length > 0) {
-                    image = goods.images[0];
-                  } else if (typeof goods.images === 'string' && goods.images) {
-                    image = goods.images;
+                console.log('处理商品:', goods.name, '状态:', goods.pickupStatus);
+                // 只添加已完成的商品
+                if (goods.pickupStatus === '已取货' || goods.pickupStatus === '已完成') {
+                  // 处理商品图片，支持字符串和数组格式
+                  let image = '';
+                  if (goods.images) {
+                    if (Array.isArray(goods.images) && goods.images.length > 0) {
+                      image = goods.images[0];
+                    } else if (typeof goods.images === 'string' && goods.images) {
+                      image = goods.images;
+                    }
                   }
+                  
+                  completedGoods.push({
+                    id: `${order._id}_${goods.goodsId || goods.id}`,
+                    image: image,
+                    name: goods.name || '商品',
+                    price: goods.price || 0,
+                    status: goods.pickupStatus || order.status
+                  });
                 }
-                
-                completedGoods.push({
-                  id: `${order._id}_${goods.goodsId || goods.id}`,
-                  image: image,
-                  name: goods.name || '商品',
-                  price: goods.price || 0,
-                  status: goods.pickupStatus || order.status
-                });
               });
             }
           });
 
+          console.log('提取的已完成商品数量:', completedGoods.length);
           this.setData({
             orderList: completedGoods,
             completedStatistics: {

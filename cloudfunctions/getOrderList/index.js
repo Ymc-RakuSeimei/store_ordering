@@ -17,6 +17,13 @@ exports.main = async (event, context) => {
     const status = event.status || '';
     const openid = event.openid;
 
+    console.log('getOrderList云函数被调用:', {
+      limit,
+      page,
+      status,
+      openid
+    });
+
     if (!openid) {
       return {
         code: -1,
@@ -34,10 +41,10 @@ exports.main = async (event, context) => {
     if (status && status !== 'all') {
       if (status === 'waiting') {
         // 待取货订单：包括已到货和待到货状态
-        filter.status = _.in(['waiting', 'arrived', '待取货', '已到货']);
+        filter.status = _.in(['待取货', '已到货']);
       } else if (status === 'completed') {
         // 已完成订单
-        filter.status = _.in(['completed', '已完成']);
+        filter.status = _.in(['已完成']);
       } else {
         // 其他具体状态
         filter.status = status;
@@ -45,6 +52,9 @@ exports.main = async (event, context) => {
     }
     // 'all' 状态不添加状态筛选条件
 
+    console.log('查询条件:', filter);
+
+    // 构建查询，使用createdAt字段进行排序
     const items = await db
       .collection('orders')
       .where(filter)
@@ -52,6 +62,8 @@ exports.main = async (event, context) => {
       .skip(skip)
       .limit(limit)
       .get();
+
+    console.log('查询结果:', items.data);
 
     // 为每个订单获取商品详情
     if (items.data && items.data.length > 0) {

@@ -21,11 +21,9 @@
           <text class="order-price">¥{{item.price}}</text>
         </view>
         
-        <!-- 右侧状态 -->
-        <view class="order-status-area">
-          <view class="status-btn status-completed">
-            已完成
-          </view>
+        <!-- 右侧状态按钮 -->
+        <view class="status-btn status-completed">
+          已完成
         </view>
       </view>
     </block>

@@ -18,6 +18,7 @@ Component({
     async loadOrderData() {
       try {
         const openid = await this.getOpenid();
+        console.log('用户openid:', openid);
         const res = await wx.cloud.callFunction({
           name: 'getOrderList',
           data: {
@@ -26,13 +27,17 @@ Component({
           }
         });
 
+        console.log('云函数返回结果:', res);
         if (res && res.result && res.result.code === 0) {
           const orders = res.result.data || [];
+          console.log('获取到的订单数量:', orders.length);
           // 提取所有订单中的商品
           const allGoods = [];
           orders.forEach(order => {
+            console.log('处理订单:', order._id);
             if (order.goods && order.goods.length > 0) {
               order.goods.forEach(goods => {
+                console.log('处理商品:', goods.name, '状态:', goods.pickupStatus);
                 // 处理商品图片，支持字符串和数组格式
                 let image = '';
                 if (goods.images) {
@@ -54,11 +59,13 @@ Component({
             }
           });
 
+          console.log('提取的商品数量:', allGoods.length);
+          console.log('已完成商品数量:', allGoods.filter(item => item.status === '已取货' || item.status === '已完成').length);
           this.setData({
             orderList: allGoods,
             orderStatistics: {
               total: allGoods.length,
-              completed: allGoods.filter(item => item.status === 'completed' || item.status === '已完成').length
+              completed: allGoods.filter(item => item.status === '已取货' || item.status === '已完成').length
             }
           });
         }

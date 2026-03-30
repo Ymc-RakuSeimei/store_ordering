@@ -2,6 +2,7 @@
   <view class="header">
     <text class="back" bindtap="onBack">← 返回</text>
     <text class="title">系统通知</text>
+    <view class="placeholder"></view>
   </view>
 
   <view class="tabbar">
@@ -15,7 +16,7 @@
     <block wx:for="{{notifications}}" wx:key="id">
       <block wx:if="{{activeTab==='all' || item.type===activeTab}}">
         <view class="notice-card">
-          <text class="notice-text">{{index+1}}. {{item.text}}</text>
+                    <text class="notice-text">{{index+1}}. {{item.text}}</text>
           <button wx:if="{{item.showRemindAction}}" class="notice-btn" data-id="{{item.id}}" bindtap="onRemind">提醒</button>
         </view>
       </block>

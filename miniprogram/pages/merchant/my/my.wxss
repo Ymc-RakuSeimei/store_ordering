@@ -1,0 +1,233 @@
+/* 
+ * pages/merchant/my/my.wxss
+ * 商家端个人中心页面样式表
+ * 包含商家信息展示、功能菜单、扫码入口、编辑弹窗等组件样式
+ * 导入了首页公共样式
+ */
+
+/* 导入首页公共样式 */
+@import "../index/index.wxss";
+
+/* 页面背景 */
+page {
+  background: #f2f2f5;
+}
+
+/* 页面整体容器 - 最小高度占满视口，灰色背景，底部预留tab栏空间 */
+.page {
+  min-height: 100vh;
+  background: #f2f2f5;
+  box-sizing: border-box;
+  padding: 26rpx 24rpx 180rpx;
+}
+
+/* 头部区域 - flex布局排列头像和欢迎信息 */
+.header {
+  display: flex;
+  align-items: center;
+  position: relative; /* 为扫码按钮提供定位参考 */
+  margin-bottom: 130rpx;
+  margin-top: 20rpx;
+}
+
+/* 商家头像 - 圆角矩形设计 */
+.avatar {
+  width: 86rpx;
+  height: 86rpx;
+  border-radius: 22rpx; /* 圆角 */
+  margin-right: 18rpx;
+}
+
+/* 欢迎文字 - 大字体突出显示商家名称 */
+.hello {
+  font-size: 50rpx;
+  color: #1a1a1a;
+  font-weight: 500;
+}
+
+/* 扫码按钮容器 - 右上角绝对定位 */
+.scan-wrapper {
+  position: absolute;
+  right: 0;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* 垂直排列图标和文字 */
+}
+
+/* 扫码图标 */
+.scan-icon {
+  width: 58rpx;
+  height: 58rpx;
+}
+
+/* 扫码文字说明 */
+.scan-text {
+  margin-top: 8rpx;
+  font-size: 26rpx;
+  color: #252525;
+}
+
+/* 卡片容器 - 浅灰色圆角，带阴影效果 */
+.card {
+  background: #ffffff;
+  border-radius: 20rpx;
+  box-shadow: 0 8rpx 20rpx rgba(0, 0, 0, 0.12);
+  overflow: hidden;
+}
+
+/* 菜单项行 - flex水平布局 */
+.row {
+  display: flex;
+  align-items: center;
+  padding: 20rpx 24rpx;
+}
+
+/* 菜单图标容器 - 固定宽度居中 */
+.row-icon {
+  width: 70rpx;
+  height: 100rpx;
+  font-size: 44rpx;
+  color: #3a3a3a;
+  text-align: center;
+}
+
+/* 菜单内容区域 - 自适应占满剩余宽度 */
+.row-value {
+  flex: 1;
+  font-size: 38rpx;
+  color: #101010;
+  font-weight: 700;
+  word-break: break-all; /* 长文本自动换行 */
+}
+
+/* GitHub链接样式 - 蓝色加粗 */
+.github {
+  flex: 1;
+  color: #2b72d6;
+  font-size: 38rpx;
+  line-height: 46rpx;
+  font-weight: 600;
+  word-break: break-all;
+}
+
+/* 分割线 - 细灰色分隔线，左侧缩进 */
+.divider {
+  height: 1rpx;
+  background: #b8bcc1;
+  margin-left: 24rpx;
+}
+
+/* 编辑信息按钮 - 右对齐悬浮按钮 */
+.edit-btn {
+  margin: 24rpx 8rpx 0 auto; /* 右边距自动实现右对齐 */
+  width: 178rpx;
+  height: 72rpx;
+  border-radius: 18rpx;
+  background: #efefef;
+  border: 1rpx solid #c7c7c7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 44rpx;
+  color: #111;
+  font-weight: 700;
+}
+
+/* 跑马灯文字样式 - 特殊字体斜体加粗效果 */
+.run-text {
+  display: block;
+  margin-top: 34rpx;
+  text-align: center;
+  font-size: 40rpx;
+  color: #3d3d3d;
+  font-family: Georgia, 'Times New Roman', Times, serif;
+  font-style: italic;
+  font-weight: 700;
+}
+
+/* ==== 弹窗相关样式 ==== */
+
+/* 弹窗容器 - 全屏居中 */
+.modal {
+  position: fixed;
+  inset: 0; /* 等同于top/right/bottom/left都为0 */
+  z-index: 100; /* 最高层级 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 弹窗蒙层 - 半透明背景 */
+.modal-mask {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+}
+
+/* 弹窗内容主体 - 白色圆角卡片 */
+.modal-body {
+  position: relative;
+  width: 88%;
+  background: #fff;
+  border-radius: 20rpx;
+  padding: 24rpx;
+  box-shadow: 0 14rpx 36rpx rgba(0, 0, 0, 0.22);
+}
+
+/* 弹窗标题 - 居中加粗 */
+.modal-title {
+  display: block;
+  text-align: center;
+  font-size: 32rpx;
+  font-weight: 700;
+  margin-bottom: 18rpx;
+}
+
+/* 表单字段行 - flex排列标签和输入框 */
+.field {
+  display: flex;
+  align-items: center;
+  margin-bottom: 14rpx;
+}
+
+/* 表单标签 - 固定宽度 */
+.label {
+  width: 110rpx;
+  font-size: 24rpx;
+  color: #444;
+}
+
+/* 输入框 - 自适应宽度带边框 */
+.input {
+  flex: 1;
+  height: 58rpx;
+  border: 1rpx solid #ddd;
+  border-radius: 10rpx;
+  padding: 0 12rpx;
+  font-size: 24rpx;
+}
+
+/* 弹窗按钮容器 - 两个按钮并排 */
+.modal-actions {
+  display: flex;
+  gap: 16rpx; /* 按钮间距 */
+  margin-top: 20rpx;
+}
+
+/* 通用按钮样式 */
+.btn {
+  flex: 1;
+  height: 58rpx;
+  line-height: 58rpx;
+  border-radius: 12rpx;
+  background: #f1f1f1;
+  color: #333;
+  font-size: 26rpx;
+}
+
+/* 主按钮样式 - 蓝色背景 */
+.btn-primary {
+  background: #007AFF;
+  color: #fff;
+}

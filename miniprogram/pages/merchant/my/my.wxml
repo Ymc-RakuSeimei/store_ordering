@@ -1,0 +1,94 @@
+<view class="page">
+  <view class="header">
+    <image class="avatar" src="{{avatarUrl}}" mode="aspectFill" bindtap="onAvatarClick" style="cursor: pointer;" />
+    <text class="hello">Hello！ 店长{{helloName}}~</text>
+
+    <view class="scan-wrapper" bindtap="onScanPickup">
+      <image class="scan-icon" src="/images/icon_QR.png" mode="aspectFit" />
+      <text class="scan-text">{{scanText}}</text>
+    </view>
+  </view>
+
+  <view class="card">
+    <view class="row">
+      <text class="row-icon">🏪</text>
+      <text class="row-value">{{profile.storeName}}</text>
+    </view>
+    <view class="divider"></view>
+
+    <view class="row">
+      <text class="row-icon">📍</text>
+      <text class="row-value">{{profile.address}}</text>
+    </view>
+    <view class="divider"></view>
+
+    <view class="row">
+      <text class="row-icon">💬</text>
+      <text class="row-value">{{profile.wechat}}</text>
+    </view>
+    <view class="divider"></view>
+
+    <view class="row">
+      <text class="row-icon">📞</text>
+      <text class="row-value">{{profile.phone}}</text>
+    </view>
+    <view class="divider"></view>
+
+    <view class="row">
+      <text class="row-icon">🐙</text>
+      <text class="github">{{profile.githubUrl}}</text>
+    </view>
+  </view>
+
+  <view class="edit-btn" bindtap="onEditTap">更改</view>
+
+  <text class="run-text">Run your store very well!</text>
+
+  <view wx:if="{{editing}}" class="modal">
+    <view class="modal-mask" bindtap="onCancelEdit"></view>
+    <view class="modal-body">
+      <text class="modal-title">修改商家信息</text>
+
+      <view class="field">
+        <text class="label">商店名</text>
+        <input class="input" value="{{draft.storeName}}" data-key="storeName" bindinput="onDraftInput" />
+      </view>
+      <view class="field">
+        <text class="label">地址</text>
+        <input class="input" value="{{draft.address}}" data-key="address" bindinput="onDraftInput" />
+      </view>
+      <view class="field">
+        <text class="label">微信号</text>
+        <input class="input" value="{{draft.wechat}}" data-key="wechat" bindinput="onDraftInput" />
+      </view>
+      <view class="field">
+        <text class="label">电话</text>
+        <input class="input" type="number" value="{{draft.phone}}" data-key="phone" bindinput="onDraftInput" />
+      </view>
+      <view class="field">
+        <text class="label">GitHub</text>
+        <input class="input" value="{{draft.githubUrl}}" data-key="githubUrl" bindinput="onDraftInput" />
+      </view>
+
+      <view class="modal-actions">
+        <button class="btn" bindtap="onCancelEdit">取消</button>
+        <button class="btn btn-primary" bindtap="onSaveEdit">保存</button>
+      </view>
+    </view>
+  </view>
+
+  <view class="merchant-tabbar">
+    <view class="tabbar-item" data-tab="home" bindtap="onTabTap">
+      <image class="tabbar-icon" src="/images/icon_home.png" />
+      <text class="tabbar-text">首页</text>
+    </view>
+    <view class="tabbar-item" data-tab="product" bindtap="onTabTap">
+      <image class="tabbar-icon" src="/images/icon_order.png" />
+      <text class="tabbar-text">商品</text>
+    </view>
+    <view class="tabbar-item tabbar-item--active" data-tab="my" bindtap="onTabTap">
+      <image class="tabbar-icon" src="/images/icon_mine.png" />
+      <text class="tabbar-text">我的</text>
+    </view>
+  </view>
+</view>

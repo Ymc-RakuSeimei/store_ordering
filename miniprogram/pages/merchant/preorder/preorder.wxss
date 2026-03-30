@@ -1,5 +1,5 @@
 page {
-  background: #f6f6f8;
+  background: #f2f2f5; /* 和商家首页背景统一 */
   font-family: PingFang SC, Helvetica Neue, Arial, sans-serif;
   color: #333;
 }
@@ -24,37 +24,45 @@ page {
   color: #333;
 }
 .panel {
-  background: #ffffff;
-  border-radius: 16rpx;
-  padding: 14rpx;
-  box-shadow: 0 6rpx 16rpx rgba(0, 0, 0, 0.07);
-  margin-bottom: 16rpx;
+  margin-bottom: 30rpx;
+  background: transparent;
+  box-shadow: none;
+  padding: 0;
 }
 .panel-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 10rpx;
+  margin-bottom: 20rpx;
 }
 .panel-title {
   font-size: 28rpx;
   font-weight: bold;
 }
 .small-btn {
-  padding: 6rpx 12rpx;
-  border-radius: 16rpx;
+  padding: 8rpx 24rpx;
+  border-radius: 24rpx;
   background: #ffcc00;
   color: #000;
-  font-size: 22rpx;
+  font-size: 24rpx;
+  font-weight: bold;
+  border: none;
+}
+.small-btn::after {
+  border: none;
 }
 .item-card {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border: 1rpx solid #eee;
-  border-radius: 14rpx;
-  padding: 12rpx;
-  margin-bottom: 10rpx;
+  border: none;
+  border-radius: 20rpx;
+  padding: 20rpx 20rpx 20rpx 40rpx; /* 左侧预留序号位置 */
+  margin-bottom: 16rpx;
+  background: #fff;
+  box-shadow: 0 6rpx 16rpx rgba(0, 0, 0, 0.08);
+  border-left: 6rpx solid #e5e5e5; /* 左侧灰色分隔线 */
+  position: relative;
 }
 .item-card.simple {
   background: #fafafa;
@@ -64,8 +72,13 @@ page {
   flex-direction: column;
 }
 .item-order {
-  font-size: 18rpx;
-  color: #999;
+  position: absolute;
+  left: 14rpx;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 28rpx;
+  color: #333;
+  font-weight: bold;
 }
 .item-name {
   font-size: 26rpx;
@@ -79,28 +92,50 @@ page {
 }
 .item-right {
   display: flex;
+  flex-direction: row; /* 数量和按钮组横向排列 */
   align-items: center;
-  gap: 10rpx;
+  gap: 30rpx; /* 数量和按钮组之间的间距 */
+}
+.btn-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+  align-items: flex-end;
 }
 .item-qty {
-  font-size: 28rpx;
-  color: #ff3b30;
+  font-size: 32rpx;
+  color: #24b24d; /* 正在接龙时数量为灰色 */
   font-weight: 700;
+  
+}
+/* 已截单时数量为红色 */
+.item-card.simple .item-qty {
+  color: #ff3b30;
 }
 .btn-handle {
   background: #ffcc00;
   color: #000;
   border: none;
-  border-radius: 16rpx;
-  padding: 6rpx 10rpx;
+  border-radius: 20rpx;
+  padding: 10rpx 20rpx;
+  font-size: 24rpx;
+  font-weight: bold;
+}
+.btn-handle::after {
+  border: none;
 }
 
 .btn-stop {
   background: #333;
   color: #fff;
   border: none;
-  border-radius: 16rpx;
-  padding: 6rpx 10rpx;
+  border-radius: 20rpx;
+  padding: 10rpx 20rpx;
+  font-size: 24rpx;
+  font-weight: bold;
+}
+.btn-stop::after {
+  border: none;
 }
 .empty-state {
   text-align: center;

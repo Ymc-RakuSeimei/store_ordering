@@ -44,18 +44,18 @@
   </view>
 </view>
 
-<!-- 底部导航栏 -->
+<!-- 底部导航栏 - 与主页统一 -->
 <view class="tab-bar-bottom">
   <view class="tab-bottom-item" bindtap="goToHome">
-    <view class="tab-icon icon-home"></view>
+    <image class="tab-icon" src="/images/tab_home.png" mode="aspectFit"></image>
     <text class="tab-text">首页</text>
   </view>
   <view class="tab-bottom-item" bindtap="goToGoods">
-    <view class="tab-icon icon-grid"></view>
+    <image class="tab-icon" src="/images/tab_goods.png" mode="aspectFit"></image>
     <text class="tab-text">商品</text>
   </view>
   <view class="tab-bottom-item" bindtap="goToMy">
-    <view class="tab-icon icon-person"></view>
+    <image class="tab-icon" src="/images/tab_my.png" mode="aspectFit"></image>
     <text class="tab-text">我的</text>
   </view>
 </view>

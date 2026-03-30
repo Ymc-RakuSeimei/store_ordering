@@ -11,6 +11,7 @@
     "pages/merchant/preorder/detail/detail",
     "pages/merchant/my/my",
     "pages/merchant/notification/notification",
+    "pages/merchant/verify/verify",
     "pages/customer/index/index",
     "pages/customer/goods/goods",
     "pages/customer/goods/newgoods/newgoods",

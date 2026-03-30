@@ -1,10 +1,21 @@
+
+<!--pages/customer/goods/newgoods/newgoods.wxml-->
 <!-- 今日上新页面 -->
 <view class="container">
-  <!-- 标签与统计区 -->
-  <view class="stats-area">
-    <view class="active-tag">今日上新</view>
-    <text class="stats-count">共{{totalCount}}件新品</text>
+  <!-- 顶部导航栏 -->
+  <view class="nav-bar">
+    <view class="nav-back" bindtap="goBack">
+      <text class="back-icon"></text>
+    </view>
+    <view class="nav-title">今日上新</view>
+    <view class="nav-placeholder"></view>
   </view>
+
+  <!-- 标签与统计区 -->
+<view class="stats-area">
+  <view class="active-tag">今日上新</view>
+  <text class="stats-count">共{{totalCount}}件新品</text>
+</view>
 
   <!-- 商品列表区（2列网格） -->
   <view class="goods-list">
@@ -12,7 +23,13 @@
       <view class="goods-card">
         <!-- 图片区域 + 角标 -->
         <view class="goods-image-wrapper">
-          <image class="goods-image" src="{{item.image}}" mode="aspectFill"></image>
+          <image 
+            wx:if="{{item.image}}" 
+            class="goods-image" 
+            src="{{item.image}}" 
+            mode="aspectFill"
+          ></image>
+          <view wx:else class="goods-image-placeholder"></view>
           <view class="goods-badge {{item.badgeClass}}">{{item.badgeText}}</view>
         </view>
         <!-- 商品信息 -->
@@ -84,5 +101,21 @@
         <text>去结算</text>
       </view>
     </view>
+  </view>
+</view>
+
+<!-- 底部导航栏 -->
+<view class="tab-bar-bottom">
+  <view class="tab-bottom-item" bindtap="goToHome">
+    <view class="tab-icon icon-home"></view>
+    <text class="tab-text">首页</text>
+  </view>
+  <view class="tab-bottom-item" bindtap="goToGoods">
+    <view class="tab-icon icon-grid"></view>
+    <text class="tab-text">商品</text>
+  </view>
+  <view class="tab-bottom-item" bindtap="goToMy">
+    <view class="tab-icon icon-person"></view>
+    <text class="tab-text">我的</text>
   </view>
 </view>

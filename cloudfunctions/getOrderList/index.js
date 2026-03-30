@@ -32,7 +32,11 @@ exports.main = async (event, context) => {
     
     // 状态筛选
     if (status) {
-      filter.status = status;
+      if (status === 'waiting') {
+        filter.status = '待取货';
+      } else {
+        filter.status = status;
+      }
     }
 
     const items = await db

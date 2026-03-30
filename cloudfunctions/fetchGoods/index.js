@@ -1,4 +1,4 @@
-﻿const cloud = require('wx-server-sdk');
+const cloud = require('wx-server-sdk');
 
 const ENV_ID = 'cloud1-2gltiqs6a2c5cd76';
 const PAGE_SIZE = 100;
@@ -8,6 +8,7 @@ cloud.init({ env: ENV_ID });
 
 const db = cloud.database();
 
+// 判断图片地址是否是可用的展示地址。
 function isUsableImage(value) {
   if (typeof value !== 'string') return false;
   const image = value.trim();
@@ -15,6 +16,7 @@ function isUsableImage(value) {
   return image.startsWith('cloud://') || image.startsWith('http://') || image.startsWith('https://') || image.startsWith('/images/');
 }
 
+// 将数据库中的 type 统一成前端商品页能直接识别的分类。
 function getProductType(doc = {}) {
   const rawType = String(doc.type || '').trim().toLowerCase();
 
@@ -29,6 +31,7 @@ function getProductType(doc = {}) {
   return 'stock';
 }
 
+// 用于按更新时间倒序排序；如果没有 updatedAt，再回退到 createdAt。
 function toTimestamp(value) {
   if (!value) return 0;
   const date = value instanceof Date ? value : new Date(value);
@@ -36,6 +39,7 @@ function toTimestamp(value) {
   return Number.isNaN(timestamp) ? 0 : timestamp;
 }
 
+// 把 goods 集合中的真实字段映射成商家商品页可直接渲染的字段。
 function normalizeProduct(doc = {}) {
   const type = getProductType(doc);
   const imageList = Array.isArray(doc.images) ? doc.images.filter(isUsableImage) : [];
@@ -57,6 +61,7 @@ function normalizeProduct(doc = {}) {
   };
 }
 
+// 商家商品管理页只允许商家访问。
 async function assertMerchant(openid) {
   const userRes = await db.collection('users').where({ openid }).limit(1).get();
   const user = (userRes.data || [])[0];
@@ -68,6 +73,7 @@ async function assertMerchant(openid) {
   return user;
 }
 
+// goods 集合可能逐渐变多，这里按分页拉取全部数据，避免一次 limit 不够。
 async function fetchAllGoods() {
   const countRes = await db.collection('goods').count();
   const total = countRes.total || 0;
@@ -87,7 +93,7 @@ async function fetchAllGoods() {
   }
 
   const results = await Promise.all(tasks);
-  return results.flatMap(item => item.data || []);
+  return results.flatMap((item) => item.data || []);
 }
 
 exports.main = async () => {
@@ -107,7 +113,8 @@ exports.main = async () => {
     const stock = [];
     const special = [];
 
-    sortedItems.forEach(item => {
+    // 这个页面只展示现货和特价商品，预定商品仍交给预售页处理。
+    sortedItems.forEach((item) => {
       if (item.type === 'preorder') {
         return;
       }
@@ -116,6 +123,7 @@ exports.main = async () => {
         special.push(item);
         return;
       }
+
       stock.push(item);
     });
 

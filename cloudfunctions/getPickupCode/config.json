@@ -1,6 +1,12 @@
 {
   "permissions": {
-    "openapi": [
-    ]
+    "openapi": [],
+    "db": [
+      {
+        "collection": "pickupCodes",
+        "actions": ["get", "add"]
+      }
+    ],
+    "cloud": []
   }
 }

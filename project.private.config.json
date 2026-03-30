@@ -22,15 +22,15 @@
     "miniprogram": {
       "list": [
         {
-          "name": "pages/merchant/verify/verify",
-          "pathName": "pages/merchant/verify/verify",
+          "name": "pages/customer/index/index",
+          "pathName": "pages/customer/index/index",
           "query": "",
           "scene": null,
           "launchMode": "default"
         },
         {
-          "name": "pages/customer/index/index",
-          "pathName": "pages/customer/index/index",
+          "name": "pages/merchant/index/index",
+          "pathName": "pages/merchant/index/index",
           "query": "",
           "launchMode": "default",
           "scene": null

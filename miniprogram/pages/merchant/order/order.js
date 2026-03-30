@@ -112,8 +112,8 @@ Page({
     };
     const url = map[tab];
     if (url) wx.navigateTo({ url });
-  }
-});
+  },
+
 
   // 取货码输入处理
   onPickupCodeInput(e) {

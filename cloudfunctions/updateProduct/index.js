@@ -1,4 +1,4 @@
-﻿const cloud = require('wx-server-sdk');
+const cloud = require('wx-server-sdk');
 
 const ENV_ID = 'cloud1-2gltiqs6a2c5cd76';
 const DEFAULT_PRODUCT_IMAGE = '/images/goods_sample.png';
@@ -7,6 +7,7 @@ cloud.init({ env: ENV_ID });
 
 const db = cloud.database();
 
+// 判断图片地址是否可以直接给前端展示。
 function isUsableImage(value) {
   if (typeof value !== 'string') return false;
   const image = value.trim();
@@ -14,6 +15,7 @@ function isUsableImage(value) {
   return image.startsWith('cloud://') || image.startsWith('http://') || image.startsWith('https://') || image.startsWith('/images/');
 }
 
+// 把数据库中的商品类型归一化成前端好判断的值。
 function getProductType(doc = {}) {
   const rawType = String(doc.type || '').trim().toLowerCase();
 
@@ -28,6 +30,7 @@ function getProductType(doc = {}) {
   return 'stock';
 }
 
+// 将 goods 集合中的真实字段，映射为商家商品页使用的字段。
 function normalizeProduct(doc = {}) {
   const type = getProductType(doc);
   const imageList = Array.isArray(doc.images) ? doc.images.filter(isUsableImage) : [];
@@ -49,6 +52,7 @@ function normalizeProduct(doc = {}) {
   };
 }
 
+// 商品修改同样只允许商家操作。
 async function assertMerchant(openid) {
   const userRes = await db.collection('users').where({ openid }).limit(1).get();
   const user = (userRes.data || [])[0];
@@ -60,6 +64,9 @@ async function assertMerchant(openid) {
   return user;
 }
 
+// 将前端编辑弹窗提交的数据，转成 goods 集合的真实更新字段。
+// 这里不再把 sellPrice / costPrice / img 直接写入数据库，
+// 而是统一更新成 price / cost / images 这套结构。
 function sanitizeUpdatePayload(event = {}, currentProduct = {}) {
   const id = String(event.id || '').trim();
 
@@ -90,12 +97,9 @@ function sanitizeUpdatePayload(event = {}, currentProduct = {}) {
   return {
     id,
     updateData: {
-      sellPrice,
       price: sellPrice,
-      costPrice,
       cost: costPrice,
       stock,
-      img: image,
       images: [image],
       updatedAt: new Date()
     }

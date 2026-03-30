@@ -68,23 +68,27 @@ page {
 /* 单个商品卡片样式 */
 .goods-card {
   display: flex; /* flex布局，图片在左，信息在右 */
+  align-items: center; /* 图片垂直居中 */
   background: #ffffff; /* 白色背景 */
   border-radius: 20rpx; /* 圆角 */
   box-shadow: 0 5rpx 14rpx rgba(0, 0, 0, 0.08); /* 阴影增加立体感 */
   overflow: hidden; /* 溢出隐藏，圆角生效 */
   margin-bottom: 20rpx; /* 底部间距，分隔不同商品卡片 */
-  height: 180rpx;
+  height: 200rpx;
 }
 
 /* 商品图片样式 */
 .goods-img {
-  width: 138rpx; /* 固定宽度 */
-  height: 138rpx; /* 固定高度，保持正方形 */
-  object-fit: cover; /* 图片按比例填充，超出部分裁剪 */
+  width: 170rpx; /* 正方形宽度 */
+  height: 170rpx; /* 正方形高度，和宽度一致 */
+  flex-shrink: 0; /* 防止图片被压缩 */
+  border-radius: 20rpx; /* 圆角 */
+  display: block;
 }
 
 /* 商品信息区域 */
 .goods-info {
+  margin-left: 4%;
   display: flex;
   flex-direction: column;   /* 垂直排列 */
   justify-content: flex-start; /* 可选，从上开始排列 */
@@ -92,24 +96,24 @@ page {
 
 /* 商品名称样式 */
 .name {
-  font-size: 28rpx; /* 字体大小 */
+  font-size: 33rpx; /* 字体大小 */
   font-weight: bold; /* 加粗 */
   color: #020202; /* 深色文字 */
   margin-bottom: 6rpx; /* 底部间距 */
-  margin-top: 20rpx;
+  margin-top: 0rpx;
 }
 
 /* 商品规格和摘要信息公共样式 */
 .spec,
 .summary {
-  font-size: 20rpx; /* 较小字体 */
+  font-size: 25rpx; /* 较小字体 */
   color: #666; /* 灰色文字 */
-  margin-bottom: 4rpx; /* 底部间距 */
+  margin-bottom: 10rpx; /* 底部间距 */
 }
 
 /* 价格库存摘要，突出显示 */
 .summary {
-  color: #222; /* 比spec更深的颜色 */
+  color: #0c0c0c; /* 比spec更深的颜色 */
   margin-top: 3rpx; /* 顶部间距 */
 }
 

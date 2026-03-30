@@ -43,7 +43,7 @@
           <text class="meta-label">反馈内容：</text>
           {{item.spec}}
         </text>
-        <text class="order-meta" wx:if="{{activeTab !== 'feedback' && item.left}}">
+        <text class="order-meta" wx:if="{{activeTab !== 'feedback' && activeTab !== 'arrival' && item.left}}">
           <text class="meta-label">剩余</text>
           <text class="status-{{item.left > 0 ? 'red' : 'green'}}">{{item.left}}</text>
           <text class="meta-label">件未取</text>

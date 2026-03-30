@@ -29,12 +29,7 @@ Component({
 
       try {
         const openid = await this.getOpenid()
-        const pickupCode = await this.getPickupCode(openid)
-        this.setData({ pickupCode })
-
-        this.generateQrcodeUrl(pickupCode)
-
-        await this.loadWaitingOrders()
+        await this.loadWaitingOrders(openid)
       } catch (err) {
         console.error('加载数据失败:', err)
       } finally {
@@ -122,14 +117,13 @@ Component({
       }
     },
 
-    async loadWaitingOrders() {
+    async loadWaitingOrders(openid) {
       try {
-        const openid = await this.getOpenid()
         console.log('加载待取货订单，openid:', openid)
         const res = await wx.cloud.callFunction({
           name: 'getOrderList',
           data: {
-            status: 'waiting',
+            status: 'all',
             openid
           }
         })
@@ -141,15 +135,32 @@ Component({
           console.log('获取到的订单数量:', orders.length)
           // 提取未取货的商品（已到货或待到货）
           const allGoods = []
+          let pickupCode = ''
+          
           orders.forEach(order => {
             console.log('处理订单:', order._id)
+            // 获取取货码
+            if (order.pickupCode) {
+              pickupCode = order.pickupCode
+            }
+            
             if (order.goods && order.goods.length > 0) {
               order.goods.forEach(goods => {
                 // 只添加未取货的商品
-                if (goods.pickupStatus !== '已取货') {
+                if (goods.pickupStatus !== '已取货' && goods.pickupStatus !== '已完成') {
+                  // 处理商品图片，支持字符串和数组格式
+                  let image = '';
+                  if (goods.images) {
+                    if (Array.isArray(goods.images) && goods.images.length > 0) {
+                      image = goods.images[0];
+                    } else if (typeof goods.images === 'string' && goods.images) {
+                      image = goods.images;
+                    }
+                  }
+                  
                   allGoods.push({
                     id: `${order._id}_${goods.goodsId}`,
-                    image: goods.images && goods.images.length > 0 ? goods.images[0] : '/images/goods_sample.png',
+                    image: image,
                     name: goods.name || '商品',
                     price: goods.price || 0,
                     pickupStatus: goods.pickupStatus || '待到货'
@@ -160,6 +171,7 @@ Component({
           })
 
           console.log('提取的商品数量:', allGoods.length)
+          console.log('获取到的取货码:', pickupCode)
 
           const statistics = {
             arrivedCount: allGoods.filter(item => item.pickupStatus === '已到货').length,
@@ -169,9 +181,15 @@ Component({
 
           console.log('统计数据:', statistics)
 
+          // 生成二维码
+          if (pickupCode) {
+            this.generateQrcodeUrl(pickupCode)
+          }
+
           this.setData({
             orderList: allGoods,
-            statistics
+            statistics,
+            pickupCode
           })
         } else {
           console.error('getOrderList返回错误:', res.result)

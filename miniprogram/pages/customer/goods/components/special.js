@@ -1,40 +1,82 @@
 // pages/customer/goods/components/special/special.js
 Component({
+  properties: {
+    searchKeyword: {
+      type: String,
+      value: '',
+      observer: function(newVal) {
+        this.filterGoods();
+      }
+    },
+    goodsList: {
+      type: Array,
+      value: [],
+      observer: function(newVal) {
+        this.setData({ originalList: newVal });
+        this.filterGoods();
+      }
+    }
+  },
+
   data: {
-    goodsList: []
+    originalList: [],
+    displayList: []
   },
 
   lifetimes: {
     attached() {
-      this.loadGoods();
+      this.setData({ originalList: this.properties.goodsList });
+      this.filterGoods();
     }
   },
 
   methods: {
-    loadGoods() {
-      // TODO: 替换为真实接口 - 只获取特价商品
-      this.setData({
-        goodsList: [
-          {
-            id: '3',
-            name: '珊迪氧气罩',
-            specialPrice: 84,
-            originalPrice: 99,
-            stock: 33,
-            spec: '0.5kg',
-            image: '/images/goods_sample.png'
-          },
-          {
-            id: '6',
-            name: '派大星渔网',
-            specialPrice: 59,
-            originalPrice: 89,
-            stock: 20,
-            spec: '0.8kg',
-            image: '/images/goods_sample.png'
-          }
-        ]
-      });
+    // 格式化商品数据
+    formatGoodsItem(item) {
+      let imageUrl = '';
+      if (item.images && item.images.length > 0 && item.images[0]) {
+        imageUrl = item.images[0];
+      }
+      if (imageUrl && (imageUrl === '图一' || imageUrl === '图二')) {
+        imageUrl = '';
+      }
+      
+      const isSpecial = item.type === 'special';
+      
+      return {
+        id: item._id,
+        name: item.name || '商品名称',
+        price: isSpecial ? (item.specialPrice || item.price) : item.price,
+        originalPrice: isSpecial ? item.price : null,
+        statusText: `库存剩余${item.stock || 0}件`,
+        spec: item.specs || '无规格',
+        image: imageUrl,
+        badgeText: '特价',
+        badgeClass: 'special',
+        priceClass: isSpecial ? 'special-price' : '',
+        actionText: '加入购物车',
+        actionType: 'addToCart',
+        type: item.type
+      };
+    },
+
+    // 筛选商品
+    filterGoods() {
+      let list = [...this.data.originalList];
+      
+      // 格式化数据
+      list = list.map(item => this.formatGoodsItem(item));
+      
+      // 关键词筛选
+      const keyword = this.properties.searchKeyword;
+      if (keyword && keyword.trim()) {
+        const lowerKeyword = keyword.toLowerCase().trim();
+        list = list.filter(item => 
+          item.name.toLowerCase().includes(lowerKeyword)
+        );
+      }
+      
+      this.setData({ displayList: list });
     },
 
     onAddToCart(e) {
@@ -42,9 +84,9 @@ Component({
       this.triggerEvent('addToCart', {
         id: item.id,
         name: item.name,
-        price: item.specialPrice,
+        price: item.price,
         image: item.image,
-        type: 'special'
+        type: item.type
       });
     }
   }

@@ -163,7 +163,8 @@ Component({
                     image: image,
                     name: goods.name || '商品',
                     price: goods.price || 0,
-                    pickupStatus: goods.pickupStatus || '待到货'
+                    quantity: goods.quantity || 1,
+                    pickupStatus: goods.pickupStatus || '未到货'
                   })
                 }
               })
@@ -174,8 +175,8 @@ Component({
           console.log('获取到的取货码:', pickupCode)
 
           const statistics = {
-            arrivedCount: allGoods.filter(item => item.pickupStatus === '已到货').length,
-            waitingCount: allGoods.filter(item => item.pickupStatus === '待到货').length,
+            arrivedCount: allGoods.filter(item => item.pickupStatus === '待取货').length,
+            waitingCount: allGoods.filter(item => item.pickupStatus === '未到货').length,
             totalCount: allGoods.length
           }
 

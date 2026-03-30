@@ -17,7 +17,10 @@
         
         <!-- 商品信息 -->
         <view class="order-info">
-          <text class="order-name">{{item.name}}</text>
+          <view class="name-quantity">
+            <text class="order-name">{{item.name}}</text>
+            <text class="order-quantity">x{{item.quantity}}</text>
+          </view>
           <text class="order-price">¥{{item.price}}</text>
         </view>
         

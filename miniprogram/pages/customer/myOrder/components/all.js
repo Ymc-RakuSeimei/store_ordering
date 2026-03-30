@@ -53,6 +53,7 @@ Component({
                   image: image,
                   name: goods.name || '商品',
                   price: goods.price || 0,
+                  quantity: goods.quantity || 1,
                   status: goods.pickupStatus || order.status
                 });
               });

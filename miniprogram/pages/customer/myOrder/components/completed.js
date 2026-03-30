@@ -41,7 +41,7 @@ Component({
               order.goods.forEach(goods => {
                 console.log('处理商品:', goods.name, '状态:', goods.pickupStatus);
                 // 只添加已完成的商品
-                if (goods.pickupStatus === '已取货' || goods.pickupStatus === '已完成') {
+                if (goods.pickupStatus === '已取货') {
                   // 处理商品图片，支持字符串和数组格式
                   let image = '';
                   if (goods.images) {
@@ -57,6 +57,7 @@ Component({
                     image: image,
                     name: goods.name || '商品',
                     price: goods.price || 0,
+                    quantity: goods.quantity || 1,
                     status: goods.pickupStatus || order.status
                   });
                 }

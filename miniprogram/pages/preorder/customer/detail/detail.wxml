@@ -1,0 +1,107 @@
+<!--pages/customer/preorder/detail/detail.wxml-->
+<view class="container">
+  <!-- 加载中 -->
+  <view wx:if="{{loading}}" class="loading-state">
+    <view class="empty-icon">⏳</view>
+    <view class="empty-text">加载中...</view>
+  </view>
+
+  <!-- 接龙已结束 -->
+  <view wx:elif="{{dragon.status === 'completed'}}" class="empty-state">
+    <view class="empty-icon">🛑</view>
+    <view class="empty-text">接龙已结束</view>
+  </view>
+
+  <!-- 接龙详情 -->
+  <view wx:elif="{{dragon}}" class="content">
+    <!-- 商品卡片 -->
+    <view class="product-card">
+      <image class="product-img" src="{{dragon.img || '/images/avatar.png'}}" mode="aspectFill"></image>
+      <view class="product-info">
+        <view class="product-name">{{dragon.name}}</view>
+        <view class="product-spec">规格：{{dragon.spec}}</view>
+        <view class="price-row">
+          <view class="price-group">
+            <view class="sale-price">{{dragon.salePrice}}</view>
+            <view wx:if="{{dragon.costPrice}}" class="cost-price">{{dragon.costPrice}}</view>
+          </view>
+          <view class="status-tag status-{{dragon.status}}">
+            {{dragon.status === 'ongoing' ? '进行中' : '已结束'}}
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 统计信息 -->
+    <view class="stats-card">
+      <view class="stats-row">
+        <view class="stat-item">
+          <view class="stat-value">{{dragon.participantCount}}</view>
+          <view class="stat-label">参与人数</view>
+        </view>
+        <view class="stat-item">
+          <view class="stat-value">{{dragon.totalQty}}</view>
+          <view class="stat-label">总数量</view>
+        </view>
+      </view>
+      <view wx:if="{{dragon.arrivalDate}}" class="arrival-date">
+        预计到货时间：{{dragon.arrivalDate}}
+      </view>
+    </view>
+
+    <!-- 参与表单（仅进行中显示） -->
+    <view wx:if="{{dragon.status === 'ongoing' && !hasJoined}}" class="form-card">
+      <view class="form-title">我要参与</view>
+
+      <view class="form-item">
+        <view class="form-label">数量</view>
+        <view class="quantity-selector">
+          <button class="qty-btn" bindtap="onDecreaseQty" disabled="{{quantity <= 1}}">-</button>
+          <input class="qty-input" type="number" value="{{quantity}}" bindinput="onQtyInput" />
+          <button class="qty-btn" bindtap="onIncreaseQty">+</button>
+        </view>
+      </view>
+
+      <view class="form-item">
+        <view class="form-label">备注（选填）</view>
+        <textarea class="remark-input" placeholder="如有特殊要求请备注..." value="{{remark}}" bindinput="onRemarkInput" maxlength="100"></textarea>
+      </view>
+    </view>
+
+    <!-- 已参与提示 -->
+    <view wx:if="{{hasJoined}}" class="form-card">
+      <view class="empty-state">
+        <view class="empty-icon">✅</view>
+        <view class="empty-text">您已参与此接龙</view>
+        <view wx:if="{{myParticipation}}" style="margin-top: 16rpx; color: #666; font-size: 28rpx;">
+          您的参与数量：{{myParticipation.qty}}
+        </view>
+      </view>
+    </view>
+
+    <!-- 参与列表 -->
+    <view wx:if="{{participants.length > 0}}" class="participants-card">
+      <view class="participants-header">
+        <view class="participants-title">最新参与</view>
+        <view class="view-all">共 {{dragon.participantCount}} 人</view>
+      </view>
+      <view class="participant-list">
+        <view wx:for="{{participants}}" wx:key="userId" class="participant-item">
+          <image class="participant-avatar" src="{{item.avatarUrl || '/images/avatar.png'}}" mode="aspectFill"></image>
+          <view class="participant-info">
+            <view class="participant-name">{{item.userName}}</view>
+            <view class="participant-time">{{item.joinTime}}</view>
+          </view>
+          <view class="participant-qty">{{item.qty}} 份</view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 底部提交按钮 -->
+  <view wx:if="{{dragon && dragon.status === 'ongoing' && !hasJoined}}" class="bottom-bar">
+    <button class="submit-btn" bindtap="onSubmit" disabled="{{submitting || quantity < 1}}">
+      {{submitting ? '提交中...' : '立即参与'}}
+    </button>
+  </view>
+</view>

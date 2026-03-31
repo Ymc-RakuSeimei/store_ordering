@@ -7,15 +7,15 @@ Page({
 
   onLoad(options) {
     console.log('支付页面加载', options);
-    
+
     const cart = wx.getStorageSync('shoppingCart') || [];
     const total = options.total || cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-    
+
     this.setData({
       cartList: cart,
       totalPrice: total
     });
-    
+
     console.log('购物车商品:', cart);
     console.log('总价:', total);
   },
@@ -39,7 +39,7 @@ Page({
         name: 'getOpenId'
       });
       const openid = openidRes.result.openid;
-      
+
       if (!openid) {
         throw new Error('获取用户标识失败');
       }
@@ -58,11 +58,6 @@ Page({
         data: {
           openid: openid,
           goods: goods,
-          customerInfo: {
-            name: '',
-            phone: '',
-            address: ''
-          },
           totalPrice: parseFloat(this.data.totalPrice),
           remark: ''
         }
@@ -73,14 +68,14 @@ Page({
       if (res.result && res.result.code === 0) {
         wx.removeStorageSync('shoppingCart');
         console.log('购物车已清空');
-        
+
         wx.hideLoading();
         wx.showToast({
           title: '下单成功',
           icon: 'success',
           duration: 2000
         });
-        
+
         setTimeout(() => {
           wx.navigateBack({
             success: () => {

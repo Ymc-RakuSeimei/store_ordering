@@ -99,6 +99,58 @@ Page({
     });
   },
 
+  // 删除商品。
+  // 流程：
+  // 1. 先弹确认框，避免误删
+  // 2. 调用 deleteProduct 云函数删除数据库记录
+  // 3. 前端本地列表同步移除已删除商品
+  deleteProduct() {
+    const item = this.data.editItem || {};
+    const productName = item.name || '当前商品';
+    const productId = item._id || item.id;
+
+    wx.showModal({
+      title: '删除商品',
+      content: `确认删除“${productName}”吗？删除后当前商品将从商品列表中移除。`,
+      confirmColor: '#e14d4d',
+      success: (res) => {
+        if (!res.confirm) return;
+
+        if (!productId) {
+          wx.showToast({ title: '商品ID异常', icon: 'none' });
+          return;
+        }
+
+        wx.showLoading({ title: '删除中...' });
+
+        this.deleteProductOnServer({ id: productId })
+          .then(() => {
+            // 优先根据商品自身分类决定从哪个本地列表中移除，
+            // 避免后续页面交互调整后只依赖 activeTab 带来误删风险。
+            const listKey = item.special || item.type === 'special' ? 'specialList' : 'stockList';
+            const nextList = (this.data[listKey] || []).filter(
+              (currentItem) => (currentItem._id || currentItem.id) !== productId
+            );
+
+            this.setData({
+              [listKey]: nextList,
+              showEditDialog: false,
+              editItem: null
+            });
+
+            wx.showToast({ title: '删除成功', icon: 'success' });
+          })
+          .catch((err) => {
+            console.error('deleteProductOnServer失败', err);
+            wx.showToast({ title: '删除失败', icon: 'none' });
+          })
+          .finally(() => {
+            wx.hideLoading();
+          });
+      }
+    });
+  },
+
   // 编辑弹窗中的输入框共用一个方法，通过 data-key 区分字段。
   bindEditChange(e) {
     const key = e.currentTarget.dataset.key;
@@ -350,6 +402,20 @@ Page({
         throw new Error(result.message || '更新商品失败');
       }
       return result.data ? result.data.product : null;
+    });
+  },
+
+  // 删除商品。
+  deleteProductOnServer(payload) {
+    return wx.cloud.callFunction({
+      name: 'deleteProduct',
+      data: payload
+    }).then((res) => {
+      const result = res.result || {};
+      if (result.code !== 0) {
+        throw new Error(result.message || '删除商品失败');
+      }
+      return result.data || null;
     });
   },
 

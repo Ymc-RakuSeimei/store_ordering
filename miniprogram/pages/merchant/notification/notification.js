@@ -46,25 +46,31 @@ Page({
     const now = new Date();
 
     goodsList.forEach((item, index) => {
-      // 1. 库存提醒：totalBooked（已卖）达到 stock（库存）的 70% 以上
-      const stock = item.stock || 0;
-      const totalBooked = item.totalBooked || 0;
-      if (stock > 0 && totalBooked >= stock * 0.7) {
-        const percent = Math.round((totalBooked / stock) * 100);
-        notifications.push({
-          id: `inventory_${item._id || item.goodsId || index}`,
-          type: 'inventory',
-          goodsId: item._id || item.goodsId,
-          name: item.name,
-          stock: stock,
-          totalBooked: totalBooked,
-          text: `${item.name} 库存可能不足`,
-          subText: `（已售 ${totalBooked} 件，库存 ${stock} 件，占 ${percent}%）`,
-          showRemindAction: false
-        });
+      const itemType = item.type || 'spot';
+
+      // 1. 库存提醒：仅对现货/特价发送预警
+      // - type = 现货/特价: stock 表示实际库存，totalBooked 表示已售出
+      // - 预警条件：totalBooked >= stock * 0.7
+      if (itemType === 'spot' || itemType === 'special') {
+        const stock = item.stock || 0;
+        const totalBooked = item.totalBooked || 0;
+        if (stock > 0 && totalBooked >= stock * 0.7) {
+          const percent = Math.round((totalBooked / stock) * 100);
+          notifications.push({
+            id: `inventory_${item._id || item.goodsId || index}`,
+            type: 'inventory',
+            goodsId: item._id || item.goodsId,
+            name: item.name,
+            stock: stock,
+            totalBooked: totalBooked,
+            text: `${item.name} 库存可能不足`,
+            subText: `（已售 ${totalBooked} 件，库存 ${stock} 件，占 ${percent}%）`,
+            showRemindAction: false
+          });
+        }
       }
 
-      // 2. 滞留预警：已到货未取超两天
+      // 2. 滞留预警：已到货未取超两天（所有类型都检查）
       if (item.status === '已到货' && item.arrivedAt) {
         const arrivedDate = new Date(item.arrivedAt);
         const diffDays = Math.floor((now - arrivedDate) / (1000 * 60 * 60 * 24));

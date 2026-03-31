@@ -46,7 +46,8 @@ Component({
       }
       
       return {
-        id: item._id,
+        // 优先使用 goodsId 作为业务索引；老数据没有 goodsId 时回退到 _id。
+        id: item.goodsId || item._id,
         name: item.name || '商品名称',
         price: isSpecial ? (item.specialPrice || item.price) : item.price,
         originalPrice: isSpecial ? item.price : null,

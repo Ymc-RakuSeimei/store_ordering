@@ -8,34 +8,46 @@
     <view class="nav-placeholder"></view>
   </view>
 
-  <!-- 商品清单 -->
-  <view class="order-goods">
-    <view class="section-title">商品清单</view>
-    <block wx:for="{{cartList}}" wx:key="id">
-      <view class="goods-item">
-        <image class="goods-image" src="{{item.image}}" mode="aspectFill"></image>
-        <view class="goods-info">
-          <text class="goods-name">{{item.name}}</text>
-          <text class="goods-price">¥{{item.price}}</text>
+  <!-- 可滚动内容区域 -->
+  <scroll-view class="scroll-content" scroll-y enhanced show-scrollbar="{{false}}">
+    <!-- 商品清单 -->
+    <view class="order-goods">
+      <view class="section-title">商品清单</view>
+      <block wx:for="{{cartList}}" wx:key="id">
+        <view class="goods-item">
+          <image class="goods-image" src="{{item.image}}" mode="aspectFill"></image>
+          <view class="goods-info">
+            <text class="goods-name">{{item.name}}</text>
+            <view class="goods-price-row">
+              <text class="goods-price">¥{{item.price}}</text>
+              <text class="goods-quantity">x{{item.quantity}}</text>
+            </view>
+          </view>
         </view>
-        <text class="goods-quantity">x{{item.quantity}}</text>
+      </block>
+    </view>
+
+    <!-- 订单信息 -->
+    <view class="order-info">
+      <view class="info-row">
+        <text class="info-label">商品总价</text>
+        <text class="info-value">¥{{totalPrice}}</text>
       </view>
-    </block>
-  </view>
-
-  <!-- 订单信息 -->
-  <view class="order-info">
-    <view class="info-row">
-      <text class="info-label">商品总价</text>
-      <text class="info-value">¥{{totalPrice}}</text>
+      <view class="info-row">
+        <text class="info-label">配送费</text>
+        <text class="info-value">¥0.00</text>
+      </view>
+      <view class="info-row total">
+        <text class="info-label">实付金额</text>
+        <text class="info-value total-price">¥{{totalPrice}}</text>
+      </view>
     </view>
-    <view class="info-row total">
-      <text class="info-label">实付金额</text>
-      <text class="info-value total-price">¥{{totalPrice}}</text>
-    </view>
-  </view>
 
-  <!-- 按钮组 -->
+    <!-- 底部占位，给固定按钮留空间 -->
+    <view class="bottom-placeholder"></view>
+  </scroll-view>
+
+  <!-- 底部固定按钮组 -->
   <view class="button-group">
     <view class="cancel-btn" bindtap="goBack">
       <text>取消</text>

@@ -5,7 +5,7 @@ Page({
     avatar: '/images/avatar.png',
     cardGroup: [
       { id: 'product', title: '商品管理', subtitle: '上架新品、编辑库存', icon: '/images/icon_product.png' },
-      { id: 'order', title: '订单处理', subtitle: '查看顾客订单、售后提醒', icon: '/images/icon_ord.png' },
+      { id: 'order', title: '订单处理', subtitle: '顾客订单、售后提醒', icon: '/images/icon_ord.png' },
       { id: 'data', title: '数据中心', subtitle: '销售统计、营收查看', icon: '/images/icon_data.png' },
       { id: 'preorder', title: '预售订货', subtitle: '设置群接龙、统计进货', icon: '/images/icon_preord.png' }
     ],

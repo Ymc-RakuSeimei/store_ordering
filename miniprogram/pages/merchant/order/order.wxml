@@ -19,31 +19,50 @@
 
   <!-- 订单列表区域：根据当前activeTab显示对应订单 -->
   <view class="order-list">
-    <!-- 循环渲染当前tab的订单数据 -->
-    <block wx:for="{{orderData[activeTab]}}" wx:key="id">
-      <!-- 订单卡片：点击跳转到详情页，传递订单数据 -->
-      <view class="order-card" data-item="{{item}}" bindtap="openOrderDetail">
-        <!-- 订单标题：显示序号和订单名称 -->
-        <text class="order-title">{{index+1}}. {{item.name || item.orderName}}</text>
-        <!-- 订单数量：显示商品数量 -->
-        <text class="order-qty">×{{item.qty || item.count}}</text>
-        <!-- 订单元信息：售后反馈和其他tab区分展示 -->
-        <text class="order-meta" wx:if="{{activeTab === 'feedback' && item.left}}" style="display:block;">
-          <text class="meta-label">处理状态：</text>
-          <text class="status-{{item.left === '待处理' ? 'red' : 'green'}}">{{item.left}}</text>
-        </text>
-        <text class="order-meta" wx:if="{{activeTab === 'feedback' && item.spec}}" style="display:block;">
-          <text class="meta-label">反馈内容：</text>{{item.spec}}
-        </text>
-        <text class="order-meta" wx:if="{{activeTab !== 'feedback' && item.left}}">
-          <text class="meta-label">剩余 </text>
-          <text class="status-{{item.left > 0 ? 'red' : 'green'}}">{{item.left}}</text>
-          <text class="meta-label"> 件未取</text>
-        </text>
-        <text class="order-meta" wx:if="{{activeTab !== 'feedback' && item.spec}}">
-          <text class="meta-label">规格：</text>{{item.spec}}
-        </text>
-      </view>
+    <!-- 顾客订单特殊展示 -->
+    <block wx:if="{{activeTab === 'customer'}}">
+      <block wx:for="{{orderData.customer}}" wx:key="_id">
+        <view class="customer-order-card" data-item="{{item}}" bindtap="openOrderDetail">
+          <view class="customer-order-header">
+            <text class="customer-name">{{item.customerName}} 的订单</text>
+            <text class="order-no">{{item.orderNo}}</text>
+          </view>
+          <view class="customer-order-info">
+            <text class="info-item">本单共{{item.totalQty}}件、可取{{item.pickableQty}}件</text>
+            <text class="arrival-status arrival-{{item.arrivalStatus}}">
+              {{item.arrivalStatus === 'all' ? '全部到货' : '部分到货'}}
+            </text>
+          </view>
+          <view class="view-detail">查看订单详情</view>
+        </view>
+      </block>
+    </block>
+
+    <!-- 其他tab通用展示 -->
+    <block wx:else>
+      <block wx:for="{{orderData[activeTab]}}" wx:key="id">
+        <view class="order-card" data-item="{{item}}" bindtap="openOrderDetail">
+          <text class="order-title">{{index+1}}. {{item.name || item.orderName}}</text>
+          <text class="order-qty">×{{item.qty || item.count}}</text>
+          <text class="order-meta" wx:if="{{activeTab === 'feedback' && item.left}}" style="display:block;">
+            <text class="meta-label">处理状态：</text>
+            <text class="status-{{item.left === '待处理' ? 'red' : 'green'}}">{{item.left}}</text>
+          </text>
+          <text class="order-meta" wx:if="{{activeTab === 'feedback' && item.spec}}" style="display:block;">
+            <text class="meta-label">反馈内容：</text>
+            {{item.spec}}
+          </text>
+          <text class="order-meta" wx:if="{{activeTab !== 'feedback' && item.left}}">
+            <text class="meta-label">剩余</text>
+            <text class="status-{{item.left > 0 ? 'red' : 'green'}}">{{item.left}}</text>
+            <text class="meta-label">件未取</text>
+          </text>
+          <text class="order-meta" wx:if="{{activeTab !== 'feedback' && item.spec}}">
+            <text class="meta-label">规格：</text>
+            {{item.spec}}
+          </text>
+        </view>
+      </block>
     </block>
 
     <!-- 空状态提示：当当前tab无订单时显示 -->

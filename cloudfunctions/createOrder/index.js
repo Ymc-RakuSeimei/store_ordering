@@ -45,7 +45,7 @@ exports.main = async (event, context) => {
       // 获取用户信息
       userInfo = {
         avatarUrl: user.avatarUrl || '',
-        name: user.nickname || '',
+        name: user.nickName || '',
         phone: user.phoneNumber || ''
       };
       // 获取用户的取货码

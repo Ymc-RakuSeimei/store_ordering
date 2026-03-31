@@ -63,11 +63,28 @@
   gap: 12rpx;
 }
 
+.name-quantity {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
 .order-name {
   font-size: 32rpx;
   font-weight: 700;
   color: #000000;
   line-height: 1.3;
+  flex: 1;
+}
+
+.order-quantity {
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #666666;
+  background-color: #f5f5f5;
+  padding: 4rpx 16rpx;
+  border-radius: 16rpx;
+  white-space: nowrap;
 }
 
 .order-price {
@@ -86,23 +103,39 @@
   min-width: 120rpx;
 }
 
+/* 状态按钮通用样式 */
+.status-btn {
+  padding: 10rpx 24rpx;
+  border-radius: 30rpx;
+  font-size: 26rpx;
+  font-weight: 700;
+  text-align: center;
+  min-width: 110rpx;
+}
+
+/* 待取货按钮（待取货） */
+.status-arrived {
+  background-color: #fff3cd;
+  color: #ffc107;
+}
+
+/* 待到货按钮 */
+.status-waiting {
+  background-color: #f5f5f5;
+  color: #9e9e9e;
+}
+
+/* 已完成按钮 */
+.status-completed {
+  background-color: #e8f5e9;
+  color: #4caf50;
+}
+
 /* 已完成文字 */
 .status-completed-text {
   font-size: 26rpx;
   font-weight: 400;
   color: #9e9e9e;
-}
-
-/* 去评价按钮 */
-.evaluate-btn {
-  background-color: #ffc107;
-  color: #000000;
-  font-size: 26rpx;
-  font-weight: 700;
-  padding: 10rpx 24rpx;
-  border-radius: 30rpx;
-  text-align: center;
-  min-width: 110rpx;
 }
 
 .evaluate-btn:active {

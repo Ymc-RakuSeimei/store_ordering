@@ -16,67 +16,103 @@ Component({
   methods: {
     /**
      * 加载已完成订单数据
-     * 【接口预留】后续对接后端时替换这里的假数据
-     * 
-     * 后端接口设计建议：
-     * 接口路径：/api/order/list
-     * 请求参数：{ status: 'completed' }  // completed-已完成
-     * 返回数据格式：
-     * {
-     *   statistics: { total: 2 },
-     *   list: [
-     *     {
-     *       id: 'order_001',
-     *       image: '商品图片URL',
-     *       name: '珊迪氧气罩',
-     *       price: 99.00,
-     *       status: 'completed'
-     *     }
-     *   ]
-     * }
      */
-    loadOrderData() {
-      // TODO: 替换为真实接口调用
-      // 示例：调用云函数
-      // wx.cloud.callFunction({
-      //   name: 'getOrderList',
-      //   data: { status: 'completed' }
-      // }).then(res => {
-      //   this.setData({
-      //     completedStatistics: res.result.statistics,
-      //     orderList: res.result.list
-      //   });
-      // });
-      
-      // 临时假数据（方便你调试样式）
-      this.setData({
-        orderList: [
-          {
-            id: '1',
-            image: '/images/goods_sample.png',
-            name: '珊迪氧气罩',
-            price: 99.00,
-            status: 'completed'
-          },
-          {
-            id: '2',
-            image: '/images/goods_sample.png',
-            name: '珊迪氧气罩',
-            price: 99.00,
-            status: 'completed'
+    async loadOrderData() {
+      try {
+        const openid = await this.getOpenid();
+        console.log('用户openid:', openid);
+        const res = await wx.cloud.callFunction({
+          name: 'getOrderList',
+          data: {
+            status: 'all',
+            openid
           }
-        ]
-      });
+        });
+
+        console.log('云函数返回结果:', res);
+        if (res && res.result && res.result.code === 0) {
+          const orders = res.result.data || [];
+          console.log('获取到的订单数量:', orders.length);
+          // 提取已完成订单中的商品
+          const completedGoods = [];
+          orders.forEach(order => {
+            console.log('处理订单:', order._id, '订单状态:', order.status);
+            if (order.goods && order.goods.length > 0) {
+              order.goods.forEach(goods => {
+                console.log('处理商品:', goods.name, '状态:', goods.pickupStatus);
+                // 只添加已完成的商品
+                if (goods.pickupStatus === '已取货') {
+                  // 处理商品图片，支持字符串和数组格式
+                  let image = '';
+                  if (goods.images) {
+                    if (Array.isArray(goods.images) && goods.images.length > 0) {
+                      image = goods.images[0];
+                    } else if (typeof goods.images === 'string' && goods.images) {
+                      image = goods.images;
+                    }
+                  }
+                  
+                  completedGoods.push({
+                    id: `${order._id}_${goods.goodsId || goods.id}`,
+                    image: image,
+                    name: goods.name || '商品',
+                    price: goods.price || 0,
+                    quantity: goods.quantity || 1,
+                    status: goods.pickupStatus || order.status
+                  });
+                }
+              });
+            }
+          });
+
+          console.log('提取的已完成商品数量:', completedGoods.length);
+          this.setData({
+            orderList: completedGoods,
+            completedStatistics: {
+              total: completedGoods.length
+            }
+          });
+        }
+      } catch (err) {
+        console.error('加载已完成订单数据失败:', err);
+        // 加载失败时使用空数据
+        this.setData({
+          orderList: [],
+          completedStatistics: {
+            total: 0
+          }
+        });
+      }
     },
 
-    /**
-     * 去评价
-     * @param {Object} e 事件对象
-     */
-    handleEvaluate(e) {
-      const { id } = e.currentTarget.dataset;
-      wx.navigateTo({
-        url: `/pages/customer/evaluate/evaluate?orderId=${id}`
+    getOpenid() {
+      return new Promise((resolve, reject) => {
+        const app = getApp();
+
+        // 优先从全局数据获取openid
+        if (app.globalData.userInfo?.openid) {
+          resolve(app.globalData.userInfo.openid);
+          return;
+        }
+
+        // 调用云函数获取当前登录用户的openid
+        wx.cloud.callFunction({
+          name: 'getOpenId',
+          success: res => {
+            const openid = res.result.openid;
+            if (openid) {
+              if (!app.globalData.userInfo) app.globalData.userInfo = {};
+              app.globalData.userInfo.openid = openid;
+              resolve(openid);
+            } else {
+              reject(new Error('获取 openid 失败'));
+            }
+          },
+          fail: (err) => {
+            console.error('调用getOpenId云函数失败:', err);
+            reject(new Error('获取 openid 失败'));
+          }
+        });
       });
     }
   }

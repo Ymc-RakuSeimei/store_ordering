@@ -3,6 +3,7 @@
   width: 100%;
 }
 
+/* 从 .goods-grid 到 .empty-state，和 all.wxss 完全一样，直接复制 */
 .goods-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -14,9 +15,10 @@
   background-color: #ffffff;
   border-radius: 20rpx;
   overflow: hidden;
-  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.04);
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.08);
   width: 100%;
   box-sizing: border-box;
+  border: 1rpx solid #f0f0f0;
 }
 
 .goods-image-wrapper {
@@ -30,6 +32,35 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+.goods-image-placeholder {
+  width: 100%;
+  height: 100%;
+  background-color: #f5f5f5;
+}
+
+.goods-badge {
+  position: absolute;
+  top: 16rpx;
+  right: 16rpx;
+  padding: 6rpx 16rpx;
+  border-radius: 24rpx;
+  font-size: 22rpx;
+  font-weight: 500;
+  background-color: #000000;
+  color: #ffffff;
+  z-index: 10;
+}
+
+/* 透明占位符，保持布局一致 */
+.goods-badge-placeholder {
+  position: absolute;
+  top: 16rpx;
+  right: 16rpx;
+  width: 0;
+  height: 0;
+  visibility: hidden;
 }
 
 .goods-info {
@@ -48,10 +79,27 @@
   white-space: nowrap;
 }
 
+.goods-price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 12rpx;
+  flex-wrap: wrap;
+}
+
 .goods-price {
   font-size: 28rpx;
   font-weight: 600;
   color: #000000;
+}
+
+.goods-price.special-price {
+  color: #ff3b30;
+}
+
+.goods-original-price {
+  font-size: 24rpx;
+  color: #999999;
+  text-decoration: line-through;
 }
 
 .goods-stock {

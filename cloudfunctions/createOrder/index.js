@@ -13,7 +13,7 @@ exports.main = async (event, context) => {
 
   try {
     // 接收订单参数
-    const { openid, goods, address, totalPrice, remark, pickupCode } = event;
+    const { openid, goods, customerInfo, totalPrice, remark, pickupCode } = event;
 
     // 验证必要参数
     if (!openid) {
@@ -35,47 +35,59 @@ exports.main = async (event, context) => {
     // 生成订单号
     const orderNo = 'ORD' + Date.now() + Math.floor(Math.random() * 10000).toString().padStart(4, '0');
 
-    // 获取用户的取货码
+    // 获取用户信息和取货码
     let orderPickupCode = pickupCode;
+    let userInfo = {};
+
+    const userResult = await db.collection('users').where({ openid }).get();
+    if (userResult.data.length > 0) {
+      const user = userResult.data[0];
+      // 获取用户信息
+      userInfo = {
+        avatarUrl: user.avatarUrl || '',
+        name: user.nickname || '',
+        phone: user.phoneNumber || ''
+      };
+      // 获取用户的取货码
+      if (!orderPickupCode && user.pickupCode) {
+        orderPickupCode = user.pickupCode;
+      }
+    }
+
+    // 如果用户没有取货码，生成一个新的
     if (!orderPickupCode) {
-      const userResult = await db.collection('users').where({ openid }).get();
-      if (userResult.data.length > 0 && userResult.data[0].pickupCode) {
-        orderPickupCode = userResult.data[0].pickupCode;
-      } else {
-        // 如果用户没有取货码，生成一个新的
-        let hash = 0;
-        for (let i = 0; i < openid.length; i++) {
-          const char = openid.charCodeAt(i);
-          hash = ((hash << 5) - hash) + char;
-          hash = hash & hash;
-        }
-        orderPickupCode = (Math.abs(hash) % 900000 + 100000).toString();
+      let hash = 0;
+      for (let i = 0; i < openid.length; i++) {
+        const char = openid.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash;
+      }
+      orderPickupCode = (Math.abs(hash) % 900000 + 100000).toString();
 
-        // 更新用户的取货码
-        let retryCount = 0
-        const maxRetries = 3
-        let success = false
+      // 更新用户的取货码
+      let retryCount = 0
+      const maxRetries = 3
+      let success = false
 
-        while (retryCount < maxRetries && !success) {
-          try {
-            await db.collection('users').where({ openid }).update({
-              data: {
-                pickupCode: orderPickupCode
-              }
-            });
-            success = true
-          } catch (err) {
-            retryCount++
-            console.error(`更新用户取货码失败 (尝试 ${retryCount}/${maxRetries})`, err)
-            if (retryCount < maxRetries) {
-              await new Promise(resolve => setTimeout(resolve, 500 * retryCount))
+      while (retryCount < maxRetries && !success) {
+        try {
+          await db.collection('users').where({ openid }).update({
+            data: {
+              pickupCode: orderPickupCode
             }
+          });
+          success = true
+        } catch (err) {
+          retryCount++
+          console.error(`更新用户取货码失败 (尝试 ${retryCount}/${maxRetries})`, err)
+          if (retryCount < maxRetries) {
+            await new Promise(resolve => setTimeout(resolve, 500 * retryCount))
           }
         }
+      }
 
-        if (!success) {
-          console.error('更新用户取货码最终失败，超过最大重试次数')
-        }
+      if (!success) {
+        console.error('更新用户取货码最终失败，超过最大重试次数')
       }
     }
 
@@ -85,10 +97,11 @@ exports.main = async (event, context) => {
       openid: openid,
       pickupCode: orderPickupCode,
       goods: goods,
-      address: address || {},
+      customerInfo: { ...userInfo, ...customerInfo },
       totalPrice: totalPrice || 0,
       remark: remark || '',
-      status: 'pending', // pending, paid, delivered, completed, cancelled
+      status: '待取货', // 未到货、待取货、已取货
+      paytime: new Date(),
       createdAt: new Date(),
       updatedAt: new Date(),
     };

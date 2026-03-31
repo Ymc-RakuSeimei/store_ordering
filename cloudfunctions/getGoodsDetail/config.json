@@ -3,8 +3,8 @@
     "openapi": [],
     "db": [
       {
-        "collection": "pickupCodes",
-        "actions": ["get", "add"]
+        "collection": "goods",
+        "actions": ["get"]
       }
     ],
     "cloud": []

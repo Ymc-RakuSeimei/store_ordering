@@ -86,10 +86,11 @@
   background-color: #ffffff;
   border-radius: 20rpx;
   overflow: hidden;
-  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.04);
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.08);
   width: 100%;
   box-sizing: border-box;
   border: 1rpx solid #f0f0f0;
+  transition: all 0.3s ease;
 }
 
 .goods-image-wrapper {

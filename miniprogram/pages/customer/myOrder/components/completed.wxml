@@ -13,20 +13,20 @@
         <view class="order-number">{{index + 1}}</view>
         
         <!-- 商品图片 -->
-        <image class="order-image" src="{{item.image}}" mode="aspectFill"></image>
+        <image class="order-image" src="{{item.image || '/images/placeholder.png'}}" mode="aspectFill"></image>
         
         <!-- 商品信息 -->
         <view class="order-info">
-          <text class="order-name">{{item.name}}</text>
+          <view class="name-quantity">
+            <text class="order-name">{{item.name}}</text>
+            <text class="order-quantity">x{{item.quantity}}</text>
+          </view>
           <text class="order-price">¥{{item.price}}</text>
         </view>
         
-        <!-- 右侧状态和操作 -->
-        <view class="order-status-area">
-          <text class="status-completed-text">已完成</text>
-          <view class="evaluate-btn" bindtap="handleEvaluate" data-id="{{item.id}}">
-            去评价
-          </view>
+        <!-- 右侧状态按钮 -->
+        <view class="status-btn status-completed">
+          已完成
         </view>
       </view>
     </block>

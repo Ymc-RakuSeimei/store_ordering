@@ -2,7 +2,7 @@
   <!-- 顶部导航栏 -->
   <view class="nav-bar">
     <view class="nav-back" bindtap="goBack">
-      <text class="back-icon"></text>
+      <text class="back-icon">←</text>
     </view>
     <view class="nav-title">确认订单</view>
     <view class="nav-placeholder"></view>
@@ -41,6 +41,21 @@
         <text class="info-label">实付金额</text>
         <text class="info-value total-price">¥{{totalPrice}}</text>
       </view>
+    </view>
+
+    <!-- 订单备注 -->
+    <view class="remark-section">
+      <view class="remark-title">订单备注</view>
+      <textarea 
+        class="remark-input" 
+        placeholder="选填，有什么想对商家说的？" 
+        placeholder-class="remark-placeholder"
+        value="{{remark}}"
+        bindinput="onRemarkInput"
+        maxlength="100"
+        auto-height
+      />
+      <view class="remark-count">{{remark.length}}/100</view>
     </view>
 
     <!-- 底部占位，给固定按钮留空间 -->

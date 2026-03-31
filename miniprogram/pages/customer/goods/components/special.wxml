@@ -6,7 +6,8 @@
           <image wx:if="{{item.image}}" class="goods-image" src="{{item.image}}" mode="aspectFill"></image>
           <view wx:else class="goods-image-placeholder"></view>
           <!-- 角标：有文字才显示，无文字不显示任何东西 -->
-          <view class="goods-badge {{item.badgeClass}}" wx:if="{{item.badgeText}}">{{item.badgeText}}</view>
+          <!-- 强制特价标签：特价处理 + 橙色 -->
+<view class="goods-badge special">特价处理</view>
         </view>
         <view class="goods-info">
           <text class="goods-name">{{item.name}}</text>

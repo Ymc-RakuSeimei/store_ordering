@@ -1,8 +1,7 @@
-
 /* pages/customer/newgoods/newgoods.wxss */
 
 .container {
-  background-color: #ffffff;
+  background-color: #f5f5f5;
   min-height: 100vh;
   padding-bottom: 140rpx;
 }
@@ -14,7 +13,7 @@
   justify-content: space-between;
   height: 100rpx;
   padding: 0 32rpx;
-  background-color: #ffffff;
+  background-color: transparent;
   position: relative;
 }
 
@@ -73,13 +72,15 @@
   color: #999999;
 }
 
-/* 商品列表 - 2列网格 */
+/* 商品列表 - 2列网格 【已修复宽度】 */
 .goods-list {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 20rpx;
   padding: 0 24rpx;
   padding-bottom: 20rpx;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .goods-card {
@@ -112,6 +113,7 @@
   background-color: #f5f5f5;
 }
 
+/* 角标统一样式 */
 .goods-badge {
   position: absolute;
   top: 16rpx;
@@ -120,16 +122,33 @@
   border-radius: 24rpx;
   font-size: 22rpx;
   font-weight: 500;
-}
-
-.goods-badge.preorder {
-  background-color: #000000;
+  z-index: 10;
   color: #ffffff;
 }
 
+/* 角标占位符，保持布局一致 */
+.goods-badge-placeholder {
+  position: absolute;
+  top: 16rpx;
+  right: 16rpx;
+  width: 0;
+  height: 0;
+  visibility: hidden;
+}
+
+/* 1. 现货订购 → 黑色背景（和其他页面统一） */
 .goods-badge.spot {
+  background-color: #000000;
+}
+
+/* 2. 接龙预定 → 红色背景（和其他页面统一） */
+.goods-badge.preorder {
   background-color: #ff3b30;
-  color: #ffffff;
+}
+
+/* 3. 特价处理 → 橙色背景（和其他页面统一，非红非黑） */
+.goods-badge.special {
+  background-color: #ff9500;
 }
 
 .goods-info {
@@ -148,13 +167,30 @@
   white-space: nowrap;
 }
 
+.goods-price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 12rpx;
+  flex-wrap: wrap;
+}
+
 .goods-price {
   font-size: 28rpx;
   font-weight: 600;
   color: #000000;
 }
 
-.goods-status {
+.goods-price.special-price {
+  color: #ff3b30;
+}
+
+.goods-original-price {
+  font-size: 24rpx;
+  color: #999999;
+  text-decoration: line-through;
+}
+
+.goods-stock {
   font-size: 24rpx;
   color: #999999;
 }
@@ -191,7 +227,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 20rpx 32rpx;
-  padding-bottom: calc(20rpx + env(safe-area-inset-bottom));
+  padding-bottom: 20rpx;
   box-shadow: 0 -4rpx 20rpx rgba(0, 0, 0, 0.08);
   z-index: 20;
 }

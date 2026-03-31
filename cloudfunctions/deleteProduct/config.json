@@ -4,15 +4,11 @@
     "db": [
       {
         "collection": "users",
-        "actions": ["get", "update"]
+        "actions": ["get"]
       },
       {
         "collection": "goods",
-        "actions": ["get", "update"]
-      },
-      {
-        "collection": "orders",
-        "actions": ["add", "get"]
+        "actions": ["get", "remove"]
       }
     ],
     "cloud": []

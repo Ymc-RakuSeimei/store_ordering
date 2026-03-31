@@ -45,7 +45,17 @@
           <text wx:else class="img-placeholder"></text>
         </view>
       </view>
-      <view class="button-group"><button bindtap="closeEdit">取消</button><button type="primary" bindtap="saveEdit">确认更改</button></view>
+      <!--
+        编辑商品弹窗的操作区：
+        1. 按你的要求改成竖向排列的三个按钮块
+        2. 当前只完成前端展示和点击占位
+        3. 删除商品按钮后续可直接绑定真实删除逻辑
+      -->
+      <view class="edit-action-stack">
+        <button class="edit-action-btn edit-action-btn--confirm" type="primary" bindtap="saveEdit">确认修改</button>
+        <button class="edit-action-btn edit-action-btn--danger" bindtap="deleteProduct">删除商品</button>
+        <button class="edit-action-btn edit-action-btn--cancel" bindtap="closeEdit">取消</button>
+      </view>
     </view>
   </view>
 

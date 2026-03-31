@@ -8,7 +8,7 @@ page {
 
 /* 边距容器 */
 .container {
-  padding: 26rpx 26rpx 190rpx;       /* 页面内边距（底部预留tab栏高度） */
+  padding: 30rpx;       /* 页面内边距（底部预留tab栏高度） */
   box-sizing: border-box;              /* 盒模型 */
 }
 

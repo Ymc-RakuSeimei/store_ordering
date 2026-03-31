@@ -131,15 +131,93 @@ Page({
   },
 
   // 联系售后/商家
-  contactService() {
+  async contactService() {
+    console.log('contactService函数被调用')
+    const that = this
     wx.showActionSheet({
-      itemList: ['联系电话', '意见反馈'],
-      success(res) {
+      itemList: ['联系商家', '售后反馈'],
+      success: async (res) => {
+        console.log('选择了选项:', res.tapIndex)
         if (res.tapIndex === 0) {
-          wx.makePhoneCall({ phoneNumber: '400-123-4567' })
+          console.log('开始联系商家流程')
+          wx.showLoading({ title: '获取商家微信...' })
+          try {
+            console.log('用户信息:', that.data.userInfo)
+            
+            // 1. 获取当前用户的订单列表
+            console.log('开始调用getOrderList')
+            const orderRes = await wx.cloud.callFunction({
+              name: 'getOrderList',
+              data: {
+                openid: that.data.userInfo.openid
+              }
+            })
+            console.log('getOrderList返回结果:', orderRes)
+            
+            if (!orderRes.result || orderRes.result.code !== 0 || !orderRes.result.data || orderRes.result.data.length === 0) {
+              wx.hideLoading()
+              wx.showToast({ title: '暂无订单信息', icon: 'none' })
+              return
+            }
+            
+            // 2. 从订单中获取店名（取第一个订单的store字段）
+            const firstOrder = orderRes.result.data[0]
+            const storeName = firstOrder.store || 'MC_store' // 默认店名
+            console.log('店名:', storeName)
+            
+            // 3. 调用云函数获取对应商家信息
+            console.log('开始调用getUserInfo获取商家')
+            const merchantRes = await wx.cloud.callFunction({
+              name: 'getUserInfo',
+              data: { role: 'merchant', store: storeName }
+            })
+            console.log('getUserInfo返回结果:', merchantRes)
+            
+            wx.hideLoading()
+            
+            // 直接显示弹窗
+            console.log('准备显示弹窗')
+            if (merchantRes.result && merchantRes.result.success && merchantRes.result.user) {
+              const merchantUser = merchantRes.result.user
+              const wechat = merchantUser.wechat || 'wechat_ymc123456'
+              console.log('商家微信:', wechat)
+              
+              wx.showModal({
+                title: `${storeName} 商家微信`,
+                content: `商家微信号：${wechat}\n\n请复制微信号添加商家`,
+                showCancel: false,
+                confirmText: '确定',
+                success: (modalRes) => {
+                  console.log('弹窗确认被点击')
+                  if (modalRes.confirm) {
+                    wx.setClipboardData({
+                      data: wechat,
+                      success: () => {
+                        wx.showToast({ title: '微信号已复制', icon: 'success' })
+                      }
+                    })
+                  }
+                },
+                fail: (err) => {
+                  console.log('弹窗失败:', err)
+                }
+              })
+              console.log('wx.showModal已调用')
+            } else {
+              wx.showToast({ title: '暂未获取到商家微信', icon: 'none' })
+            }
+          } catch (err) {
+            wx.hideLoading()
+            console.error('获取商家微信失败', err)
+            wx.showToast({ title: '获取失败，请重试', icon: 'none' })
+          }
         } else if (res.tapIndex === 1) {
+          // 售后反馈
           wx.navigateTo({ url: '/pages/customer/feedback/feedback' })
         }
+      },
+      fail: (err) => {
+        console.log('showActionSheet失败:', err)
       }
     })
   }

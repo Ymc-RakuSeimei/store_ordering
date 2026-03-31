@@ -22,7 +22,18 @@
         <view class="goods-image-wrapper">
           <image wx:if="{{item.image}}" class="goods-image" src="{{item.image}}" mode="aspectFill"></image>
           <view wx:else class="goods-image-placeholder"></view>
-          <view class="goods-badge {{item.badgeClass}}" wx:if="{{item.badgeText}}">{{item.badgeText}}</view>
+          
+          <!-- 统一角标逻辑：和其他页面完全对齐 -->
+          <!-- 1. 特价商品：强制显示「特价处理」+橙色 -->
+          <view class="goods-badge special" wx:if="{{item.type === 'special'}}">特价处理</view>
+          <!-- 2. 预定商品：强制显示「接龙预定」+红色 -->
+          <view class="goods-badge preorder" wx:elif="{{item.type === 'preorder'}}">接龙预定</view>
+          <!-- 3. 现货商品：强制显示「现货订购」+黑色 -->
+          <view class="goods-badge spot" wx:elif="{{item.type === 'spot'}}">现货订购</view>
+          <!-- 4. 兜底：其他类型按原数据显示 -->
+          <view class="goods-badge {{item.badgeClass}}" wx:elif="{{item.badgeText}}">{{item.badgeText}}</view>
+          <!-- 5. 无角标时占位，保持布局一致 -->
+          <view class="goods-badge-placeholder" wx:else></view>
         </view>
         <view class="goods-info">
           <text class="goods-name">{{item.name}}</text>

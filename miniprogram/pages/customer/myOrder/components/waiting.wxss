@@ -1,125 +1,299 @@
+/* 等待状态组件样式 */
 .waiting-container {
-  background-color: #ffffff;
+  background-color: #f5f5f5;
   min-height: 100vh;
+  padding: 24rpx;
+  position: relative;
 }
 
-/* 身份核销码区域 */
-.qrcode-section {
+/* 加载遮罩 */
+.loading-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.loading-content {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   background-color: #ffffff;
-  border: 1rpx solid #e5e5e5;
-  border-radius: 12px;
-  padding: 60rpx 0;
-  margin: 24rpx 0 16rpx 0;
-  gap: 24rpx;
+  border-radius: 12rpx;
+  padding: 40rpx;
+  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.16);
+}
+
+.loading-spinner {
+  width: 60rpx;
+  height: 60rpx;
+  border: 4rpx solid #f0f0f0;
+  border-top-color: #007AFF;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16rpx;
+}
+
+.loading-text {
+  font-size: 28rpx;
+  color: #666666;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* 取货码区域 */
+.qrcode-section {
+  background-color: #ffffff;
+  border-radius: 16rpx;
+  padding: 40rpx;
+  margin-bottom: 24rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.08);
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+/* 二维码头部 */
+.qrcode-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24rpx;
+}
+
+.qrcode-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  text-align: center;
+  color: #333333;
+  flex: 1;
+}
+
+.refresh-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 50%;
+  background-color: #f0f0f0;
+  border: none;
+  padding: 0;
+}
+
+.refresh-icon {
+  font-size: 28rpx;
+  color: #666666;
+}
+
+/* 二维码内容区域 */
+.qrcode-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 32rpx;
+  min-height: 320rpx;
+  padding: 32rpx;
 }
 
 .qrcode-image {
-  width: 320rpx;
-  height: 320rpx;
-  background-color: #f5f5f5;
+  width: 420rpx;
+  height: 420rpx;
+  background-color: #fafafa;
+  border-radius: 8rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
 }
 
-.qrcode-text {
+/* 二维码底部 */
+.qrcode-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 24rpx;
+  border-top: 1rpx solid #f0f0f0;
+}
+
+.qrcode-number {
   font-size: 32rpx;
-  font-weight: 500;
+  font-weight: 600;
+  color: #1f1f1f;
+  flex: 1;
+  margin-right: 16rpx;
+}
+
+.copy-btn {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  padding: 12rpx 24rpx;
+  border-radius: 24rpx;
+  background-color: #f0f0f0;
+  border: none;
+  font-size: 24rpx;
   color: #666666;
+}
+
+.copy-icon {
+  font-size: 20rpx;
+}
+
+/* 保底文本区域 */
+.fallback {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16rpx;
+  padding: 24rpx;
+  background-color: #fff3cd;
+  border-radius: 8rpx;
+  border: 1rpx solid #ffeaa7;
+}
+
+.fallback-text {
+  font-size: 24rpx;
+  color: #856404;
+  word-break: break-all;
+  text-align: center;
 }
 
 /* 统计信息 */
 .statistics {
-  padding: 24rpx 0 32rpx 0;
-  border-bottom: 1rpx solid #f0f0f0;
+  background-color: #ffffff;
+  border-radius: 12rpx;
+  padding: 24rpx;
+  margin-bottom: 24rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.08);
+  animation: fadeIn 0.3s ease-in-out 0.1s both;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
 }
 
-.stat-text {
-  font-size: 26rpx;
-  font-weight: 400;
-  color: #999999;
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.stat-number {
+  font-size: 32rpx;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.stat-number.arrived {
+  color: #07c160;
+}
+
+.stat-number.waiting {
+  color: #ff9500;
+}
+
+.stat-number.total {
+  color: #333333;
+}
+
+.stat-label {
+  font-size: 24rpx;
+  color: #666666;
+}
+
+.stat-divider {
+  width: 1rpx;
+  height: 40rpx;
+  background-color: #f0f0f0;
 }
 
 /* 订单列表 */
 .order-list {
-  display: flex;
-  flex-direction: column;
-  gap: 24rpx;
-  padding: 24rpx 0;
+  margin-bottom: 24rpx;
 }
 
-/* 单个订单卡片 */
 .order-item {
-  background-color: #ffffff;
-  border: 1rpx solid #e5e5e5;
-  border-radius: 12px;
-  padding: 28rpx 24rpx;
   display: flex;
   align-items: center;
-  gap: 28rpx;
-  box-sizing: border-box;
-  width: 100%;
+  background-color: #ffffff;
+  border-radius: 12rpx;
+  padding: 24rpx;
+  margin-bottom: 16rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.08);
+  animation: fadeIn 0.3s ease-in-out;
 }
 
-/* 序号 */
 .order-number {
-  width: 56rpx;
-  font-size: 36rpx;
-  font-weight: 700;
-  color: #000000;
-  text-align: center;
+  width: 40rpx;
+  height: 40rpx;
+  border-radius: 50%;
+  background-color: #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24rpx;
+  font-weight: 600;
+  color: #666666;
+  margin-right: 16rpx;
   flex-shrink: 0;
 }
 
-/* 商品图片 */
 .order-image {
-  width: 140rpx;
-  height: 140rpx;
-  border-radius: 8px;
-  background-color: #f5f5f5;
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 8rpx;
+  margin-right: 16rpx;
   flex-shrink: 0;
 }
 
-/* 商品信息区域 */
 .order-info {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 12rpx;
+  gap: 8rpx;
 }
 
 .order-name {
-  font-size: 32rpx;
-  font-weight: 700;
-  color: #000000;
-  line-height: 1.3;
+  font-size: 28rpx;
+  color: #333333;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .order-price {
-  font-size: 28rpx;
-  font-weight: 400;
-  color: #000000;
+  font-size: 26rpx;
+  color: #ff6b6b;
+  font-weight: 500;
 }
 
-/* 右侧状态区域 */
 .order-status-area {
   display: flex;
-  flex-direction: column;
   align-items: flex-end;
-  gap: 12rpx;
-  flex-shrink: 0;
-  min-width: 120rpx;
+  flex-direction: column;
+  gap: 8rpx;
 }
 
 /* 状态按钮通用样式 */
 .status-btn {
-  padding: 10rpx 24rpx;
-  border-radius: 30rpx;
-  font-size: 26rpx;
-  font-weight: 700;
-  text-align: center;
-  min-width: 110rpx;
+  padding: 8rpx 16rpx;
+  border-radius: 20rpx;
+  font-size: 22rpx;
+  font-weight: 500;
 }
 
 /* 已到货按钮 */
@@ -136,8 +310,65 @@
 
 /* 空状态 */
 .empty-state {
-  text-align: center;
-  padding: 120rpx 0;
-  color: #999999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 120rpx 40rpx;
+  background-color: #ffffff;
+  border-radius: 12rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.08);
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.empty-icon {
+  width: 120rpx;
+  height: 120rpx;
+  margin-bottom: 24rpx;
+  opacity: 0.6;
+}
+
+.empty-text {
   font-size: 28rpx;
+  color: #666666;
+  margin-bottom: 12rpx;
+  font-weight: 500;
+}
+
+.empty-subtext {
+  font-size: 24rpx;
+  color: #999999;
+  text-align: center;
+  line-height: 1.4;
+}
+
+/* 动画效果 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(12rpx);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 响应式设计 */
+@media (min-width: 768px) {
+  .waiting-container {
+    max-width: 720rpx;
+    margin: 0 auto;
+  }
+
+  .order-image {
+    width: 140rpx;
+    height: 140rpx;
+  }
+
+  .qrcode-image {
+    width: 360rpx;
+    height: 360rpx;
+  }
 }

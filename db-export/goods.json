@@ -1,0 +1,3 @@
+{"_id":"3bef321d69c5297d01b75d1b3268e313","specs":"规格，如一包(10个)","totalBooked":12.0,"images":["图一","图二"],"name":"名称","stock":23.0,"type":"现货/预定/特价","updatedAt":{"$date":"2026-03-26T12:41:13.402Z"},"cost":20.0,"createdAt":{"$date":"2026-03-26T12:41:06.47Z"},"description":"描述","price":25.0,"goodsId":"","status":"已到货/待到货(现货和特价默认已到货)"}
+{"_id":"9f5d149069c89c8002055dd15622edd7","status":"已到货","stock":33.0,"totalBooked":0.0,"type":"spot","images":[],"name":"珊迪氧气罩","specs":"0.5kg","description":"高品质氧气罩，适合水下活动","price":99.0}
+{"_id":"9f5d149069c89d5202056ac71384c503","type":"preorder","description":"限量版捕鱼网，海绵宝宝同款","status":"待到货","images":[],"name":"海绵宝宝捕鱼网","price":129.0,"specs":"1.0kg","stock":0.0,"totalBooked":56.0}

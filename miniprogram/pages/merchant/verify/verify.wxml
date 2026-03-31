@@ -1,0 +1,79 @@
+<!-- pages/merchant/verify/verify.wxml -->
+<view class="container">
+  <!-- 页面标题 -->
+  <view class="page-header">
+    <text class="page-title">订单详情</text>
+  </view>
+  
+  <!-- 加载中 -->
+  <view class="loading-container" wx:if="{{loading}}">
+    <view class="loading-spinner"></view>
+    <text class="loading-text">加载中...</text>
+  </view>
+  
+  <!-- 错误提示 -->
+  <view class="error-container" wx:if="{{!loading && errorMsg}}">
+    <text class="error-text">{{errorMsg}}</text>
+    <button class="retry-btn" bindtap="onRetry">重新加载</button>
+  </view>
+  
+  <!-- 主内容区 -->
+  <view class="content" wx:if="{{!loading && !errorMsg}}">
+    <!-- 顾客信息卡片 -->
+    <view class="customer-card" wx:if="{{customerInfo}}">
+      <view class="customer-header">
+        <text class="customer-label">顾客</text>
+        <text class="customer-name">{{customerInfo.name || '未知用户'}}</text>
+        <text class="customer-label">的订单</text>
+      </view>
+      <view class="customer-phone" wx:if="{{customerInfo.phone}}">联系电话:{{customerInfo.phone}}</view>
+    </view>
+    
+    <!-- 可取货区域 -->
+    <view class="section pickup-section" wx:if="{{pickupGoods.length > 0}}">
+      <view class="section-header">
+        <text class="section-title pickup-title">可取货</text>
+      </view>
+      <view class="goods-list">
+        <view class="goods-item" wx:for="{{pickupGoods}}" wx:key="id">
+          <view class="goods-info">
+            <text class="goods-index">{{index + 1}}.</text>
+            <text class="goods-name">{{item.name}}</text>
+          </view>
+          <view class="goods-action">
+            <text class="goods-qty">×{{item.quantity}}</text>
+            <button class="pickup-btn" bindtap="onPickupItem" data-id="{{item.id}}">取</button>
+          </view>
+        </view>
+      </view>
+    </view>
+    
+    <!-- 待到货区域 -->
+    <view class="section waiting-section" wx:if="{{waitingGoods.length > 0}}">
+      <view class="section-header">
+        <text class="section-title waiting-title">待到货</text>
+      </view>
+      <view class="goods-list">
+        <view class="goods-item" wx:for="{{waitingGoods}}" wx:key="id">
+          <view class="goods-info">
+            <text class="goods-index">{{index + 1}}.</text>
+            <text class="goods-name">{{item.name}}</text>
+          </view>
+          <view class="goods-action">
+            <text class="goods-qty">×{{item.quantity}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+    
+    <!-- 空状态 -->
+    <view class="empty-state" wx:if="{{pickupGoods.length === 0 && waitingGoods.length === 0}}">
+      <text class="empty-text">该顾客暂无待取货物</text>
+    </view>
+  </view>
+  
+  <!-- 一键取货按钮 -->
+  <view class="bottom-action" wx:if="{{!loading && !errorMsg && pickupGoods.length > 0}}">
+    <button class="pickup-all-btn" bindtap="onPickupAll">一键取货</button>
+  </view>
+</view>

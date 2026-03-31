@@ -1,19 +1,16 @@
-<!-- 买家端我的页面 - 纯页面结构 -->
+<!-- 我的页面 -->
 <view class="container">
-
-<!-- 顶部用户信息区 -->
-<view class="header">
-  <view class="greeting">
-    <text class="greeting-title">Hello, 派大星</text>
-    <text class="greeting-subtitle">Wish you a happy shopping!</text>
-  </view>
-  <view class="right-area">
+  <!-- 顶部用户信息区 -->
+  <view class="header">
+    <view class="greeting" bindtap="handleLogin">
+      <text class="greeting-title">Hello, {{userInfo.nickName}}</text>
+      <text class="greeting-subtitle">Wish you a happy shopping!</text>
+    </view>
     <image class="qrcode" src="/images/二维码.png" mode="aspectFill"></image>
-    <image class="avatar" src="/images/avatar.png" mode="aspectFill"></image>
+    <image class="avatar" src="{{userInfo.avatarUrl}}" mode="aspectFill" bindtap="handleLogin"></image>
   </view>
-</view>
 
-  <!-- 功能列表区（白色圆角卡片） -->
+  <!-- 功能列表卡片 -->
   <view class="function-card">
     <!-- 订单中心 -->
     <view class="list-item" bindtap="goToOrderCenter">
@@ -25,12 +22,12 @@
     </view>
     <view class="divider"></view>
 
-    <!-- 派大星（用户名） -->
+    <!-- 用户名 -->
     <view class="list-item">
       <image class="item-icon" src="/images/名片.png" mode="aspectFit"></image>
       <view class="item-content">
-        <text class="item-title">用户名</text>
-        <text class="item-subtitle">派大星</text>
+        <text class="item-title">{{userInfo.nickName}}</text>
+        <text class="item-subtitle">用户名</text>
       </view>
     </view>
     <view class="divider"></view>
@@ -49,7 +46,7 @@
     <view class="list-item">
       <image class="item-icon" src="/images/电话.png" mode="aspectFit"></image>
       <view class="item-content">
-        <text class="item-phone">12334562345</text>
+        <text class="item-phone">{{userInfo.phoneNumber || '点击绑定'}}</text>
       </view>
     </view>
     <view class="divider"></view>

@@ -10,6 +10,7 @@
     "pages/merchant/preorder/create/create",
     "pages/merchant/my/my",
     "pages/merchant/notification/notification",
+    "pages/merchant/verify/verify",
     "pages/customer/index/index",
     "pages/customer/goods/goods",
     "pages/customer/goods/newgoods/newgoods",

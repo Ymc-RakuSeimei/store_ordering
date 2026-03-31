@@ -13,7 +13,10 @@ Page({
       customer: [],
       feedback: []
     },
-    loading: true
+    loading: true,
+    // 取货码快捷入口相关
+    pickupCode: '',
+    isPickupCodeValid: false
   },
 
   onLoad() {
@@ -138,14 +141,74 @@ Page({
 
   onTabTap(e) {
     const tab = e.currentTarget.dataset.tab;
-    // 当前页为订单处理，不跳转
-    if (tab === 'order') return;
     const map = {
       home: '/pages/merchant/index/index',
       product: '/pages/merchant/product/product',
-      order: '/pages/merchant/order/order',
+      my: '/pages/merchant/my/my',
     };
     const url = map[tab];
     if (url) wx.navigateTo({ url });
+  },
+
+
+  // 取货码输入处理
+  onPickupCodeInput(e) {
+    const pickupCode = e.detail.value;
+    // 实时验证输入是否为6位数字
+    const isPickupCodeValid = /^\d{6}$/.test(pickupCode);
+    this.setData({
+      pickupCode,
+      isPickupCodeValid
+    });
+  },
+
+  // 验证取货码并跳转到核销页面
+  async onVerifyPickupCode() {
+    const { pickupCode } = this.data;
+    
+    // 再次验证取货码格式
+    if (!/^\d{6}$/.test(pickupCode)) {
+      wx.showToast({ title: '请输入6位数字取货码', icon: 'none' });
+      return;
+    }
+    
+    try {
+      this.setData({ loading: true });
+      
+      // 模拟验证取货码是否存在
+      // 实际项目中应该调用后端API验证取货码
+      await new Promise(resolve => setTimeout(resolve, 500)); // 模拟网络请求延迟
+      
+      // 假设取货码验证成功，跳转到核销页面
+      wx.navigateTo({
+        url: `/pages/merchant/verify/verify?code=${pickupCode}`
+      });
+    } catch (error) {
+      console.error('验证取货码失败:', error);
+      wx.showToast({ title: '取货码验证失败，请重试', icon: 'none' });
+    } finally {
+      this.setData({ loading: false });
+    }
+  },
+
+  // 扫码取货
+  onScanPickup() {
+    wx.scanCode({
+      success: (res) => {
+        // 假设扫码结果是取货码
+        const pickupCode = res.result;
+        if (/^\d{6}$/.test(pickupCode)) {
+          wx.navigateTo({
+            url: `/pages/merchant/verify/verify?code=${pickupCode}`
+          });
+        } else {
+          wx.showToast({ title: '扫码结果不是有效的取货码', icon: 'none' });
+        }
+      },
+      fail: (error) => {
+        console.error('扫码失败:', error);
+        wx.showToast({ title: '扫码失败，请重试', icon: 'none' });
+      }
+    });
   }
 });

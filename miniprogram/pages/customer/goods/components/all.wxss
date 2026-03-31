@@ -16,6 +16,7 @@
   overflow: hidden;
   box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.08);
   width: 100%;
+  min-width: 0;
   box-sizing: border-box;
   border: 1rpx solid #f0f0f0;
 }
@@ -50,16 +51,10 @@
   background-color: #000000;
   color: #ffffff;
   z-index: 10;
-}
-
-/* 透明占位符，保持布局一致 */
-.goods-badge-placeholder {
-  position: absolute;
-  top: 16rpx;
-  right: 16rpx;
-  width: 0;
-  height: 0;
-  visibility: hidden;
+  max-width: 140rpx;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .goods-info {
@@ -67,6 +62,8 @@
   display: flex;
   flex-direction: column;
   gap: 8rpx;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .goods-name {

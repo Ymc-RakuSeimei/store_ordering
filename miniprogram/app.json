@@ -8,7 +8,6 @@
     "pages/merchant/datacenter/datacenter",
     "pages/merchant/preorder/preorder",
     "pages/merchant/preorder/create/create",
-    "pages/merchant/preorder/detail/detail",
     "pages/merchant/my/my",
     "pages/merchant/notification/notification",
     "pages/merchant/verify/verify",

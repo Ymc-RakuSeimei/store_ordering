@@ -1,1 +1,27 @@
-page{background:#f6f6f8;font-family:PingFang SC,Helvetica Neue,Arial,sans-serif;color:#333}.page{padding:20rpx;min-height:100vh}.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14rpx}.back{color:#007AFF;font-size:30rpx}.title{flex:1;text-align:center;font-size:30rpx;font-weight:600}.placeholder{width:30rpx}.order-info{background:#fff;border-radius:16rpx;padding:14rpx 16rpx;box-shadow:0 6rpx 12rpx rgba(0,0,0,.08);margin-bottom:12rpx}.customer{font-size:26rpx;font-weight:600;color:#222}.phone{font-size:20rpx;color:#666;margin-top:6rpx}.section{background:#fff;border-radius:16rpx;padding:14rpx 16rpx;box-shadow:0 6rpx 12rpx rgba(0,0,0,.08);margin-bottom:10rpx}.section-title{font-size:24rpx;font-weight:700;color:#24b24d;margin-bottom:8rpx}.line{display:flex;justify-content:space-between;align-items:center;margin-bottom:10rpx}.deal-btn{background:#24b24d;color:#fff;border:none;border-radius:10rpx;padding:4rpx 14rpx;font-size:20rpx}.primary-btn{width:100%;background:#24b24d;color:#fff;border:none;border-radius:14rpx;height:56rpx;font-size:28rpx;font-weight:700;margin-top:12rpx}
+page{background:#f6f6f8;font-family:PingFang SC,Helvetica Neue,Arial,sans-serif;color:#333}
+.page{padding:20rpx;min-height:100vh}
+.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20rpx}
+.back{color:#007AFF;font-size:30rpx}
+.title{flex:1;text-align:center;font-size:32rpx;font-weight:600}
+.placeholder{width:60rpx}
+
+/* 订单卡片 */
+.order-card{background:#fff;border-radius:20rpx;padding:24rpx;box-shadow:0 6rpx 16rpx rgba(0,0,0,.08);margin-bottom:20rpx}
+.order-card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12rpx}
+.customer-title{font-size:30rpx;font-weight:700;color:#222}
+.order-status{font-size:28rpx;font-weight:600;color:#34c759;background:#f6ffed;padding:6rpx 16rpx;border-radius:8rpx}
+.phone{font-size:26rpx;color:#666;display:block;margin-top:8rpx}
+.order-no{font-size:24rpx;color:#999;display:block;margin-top:6rpx}
+.order-price{font-size:28rpx;color:#ff4d4f;font-weight:600;display:block;margin-top:8rpx}
+.pickup-code{font-size:26rpx;color:#1890ff;font-weight:600;display:block;margin-top:6rpx}
+.remark{font-size:24rpx;color:#666;display:block;margin-top:8rpx;padding-top:8rpx;border-top:1rpx solid #f0f0f0}
+
+.section{background:#fff;border-radius:20rpx;padding:24rpx;box-shadow:0 6rpx 16rpx rgba(0,0,0,.08);margin-bottom:16rpx}
+.section-title{font-size:28rpx;font-weight:700;margin-bottom:16rpx;display:block}
+.section-title.pickable{color:#34c759}
+.section-title.pending{color:#999}
+.line{display:flex;justify-content:space-between;align-items:center;margin-bottom:14rpx}
+.item-name{font-size:28rpx;color:#333;flex:1}
+.item-qty{font-size:26rpx;color:#666;margin-right:16rpx}
+.deal-btn{background:#34c759;color:#fff;border:none;border-radius:12rpx;padding:8rpx 20rpx;font-size:24rpx;font-weight:600}
+.primary-btn{width:100%;background:#34c759;color:#fff;border:none;border-radius:16rpx;height:88rpx;line-height:88rpx;font-size:32rpx;font-weight:700;margin-top:20rpx}

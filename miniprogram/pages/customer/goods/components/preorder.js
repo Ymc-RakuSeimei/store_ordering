@@ -1,38 +1,81 @@
 // pages/customer/goods/components/preorder/preorder.js
 Component({
+  properties: {
+    searchKeyword: {
+      type: String,
+      value: '',
+      observer: function(newVal) {
+        this.filterGoods();
+      }
+    },
+    goodsList: {
+      type: Array,
+      value: [],
+      observer: function(newVal) {
+        this.setData({ originalList: newVal });
+        this.filterGoods();
+      }
+    }
+  },
+
   data: {
-    goodsList: []
+    originalList: [],
+    displayList: []
   },
 
   lifetimes: {
     attached() {
-      this.loadGoods();
+      this.setData({ originalList: this.properties.goodsList });
+      this.filterGoods();
     }
   },
 
   methods: {
-    loadGoods() {
-      // TODO: 替换为真实接口 - 只获取预定商品
-      this.setData({
-        goodsList: [
-          {
-            id: '2',
-            name: '珊迪氧气罩',
-            price: 99,
-            preordered: 33,
-            spec: '0.5kg',
-            image: '/images/goods_sample.png'
-          },
-          {
-            id: '5',
-            name: '蟹堡王秘方',
-            price: 299,
-            preordered: 56,
-            spec: '限量版',
-            image: '/images/goods_sample.png'
-          }
-        ]
-      });
+    // 格式化商品数据
+    formatGoodsItem(item) {
+      let imageUrl = '';
+      if (item.images && item.images.length > 0 && item.images[0]) {
+        imageUrl = item.images[0];
+      }
+      if (imageUrl && (imageUrl === '图一' || imageUrl === '图二')) {
+        imageUrl = '';
+      }
+      
+      return {
+        // 优先使用 goodsId 作为业务索引；老数据没有 goodsId 时回退到 _id。
+        id: item.goodsId || item._id,
+        name: item.name || '商品名称',
+        price: item.price || 0,
+        originalPrice: null,
+        statusText: `已预定${item.totalBooked || 0}件`,
+        spec: item.specs || '无规格',
+        image: imageUrl,
+        badgeText: '接龙预定',
+        badgeClass: 'preorder',
+        priceClass: '',
+        actionText: '参与接龙',
+        actionType: 'joinGroup',
+        type: item.type
+      };
+    },
+
+    // 筛选商品
+    filterGoods() {
+      let list = [...this.data.originalList];
+      
+      // 格式化数据
+      list = list.map(item => this.formatGoodsItem(item));
+      
+      // 关键词筛选
+      const keyword = this.properties.searchKeyword;
+      if (keyword && keyword.trim()) {
+        const lowerKeyword = keyword.toLowerCase().trim();
+        list = list.filter(item => 
+          item.name.toLowerCase().includes(lowerKeyword)
+        );
+      }
+      
+      this.setData({ displayList: list });
     },
 
     onJoinGroup(e) {

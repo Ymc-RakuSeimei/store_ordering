@@ -36,16 +36,17 @@ Page({
   loadAllOrders() {
     this.setData({ loading: true });
 
-    const statusMap = { pickup: '待取货', arrival: '待到货', customer: '顾客订单', feedback: '售后反馈' };
-    const promises = Object.keys(statusMap).map(key =>
-      this.fetchOrderListFromServer(statusMap[key]).then(list => ({ key, list }))
-    );
-
-    Promise.all(promises)
-      .then(results => {
-        const orderData = { pickup: [], arrival: [], customer: [], feedback: [] };
-        results.forEach(item => { orderData[item.key] = item.list || []; });
-        this.setData({ orderData, loading: false });
+    Promise.all([
+      this.fetchGoodsListFromServer('pickup'),    // 待取货 - goods表
+      this.fetchGoodsListFromServer('arrival'),   // 待到货 - goods表
+      this.fetchCustomerOrdersFromServer(),          // 顾客订单 - orders表
+      this.fetchFeedbackListFromServer()           // 售后反馈
+    ])
+      .then(([pickup, arrival, customer, feedback]) => {
+        this.setData({
+          orderData: { pickup, arrival, customer, feedback },
+          loading: false
+        });
       })
       .catch(err => {
         console.error('loadAllOrders error', err);
@@ -73,28 +74,63 @@ Page({
       });
   },
 
-  fetchOrderListFromServer(status) {
-    // TODO：后端实现，wxml已调用
-    // 示例后端调用：wx.cloud.callFunction({ name: 'fetchOrderList', data: { status }});
-    // 这里先提供本地占位数据，后端可直接替换为真实接口。
+  /**
+   * 获取商品列表（待取货/待到货）
+   * @param {string} type - 'pickup' 待取货 / 'arrival' 待到货
+   * @returns {Promise<Array>}
+   */
+  fetchGoodsListFromServer(type) {
+    // TODO：后端实现，从 goods 表查询
+    // 待取货：pickupStatus === '待取货'
+    // 待到货：pickupStatus === '未到货'
+    return Promise.resolve([]);
+  },
 
-    const placeholder = {
-      '待取货': [
-        { _id: 'o001', name: '派大星手套', qty: 5, left: 2, spec: '50个/袋' }
-      ],
-      '待到货': [
-        { _id: 'o002', name: '海绵宝宝领带', qty: 20, left: 10, spec: '1条' }
-      ],
-      '顾客订单': [
-        { _id: 'o003', name: '蟹黄堡秘方', qty: 3, spec: '500g', left: 2 }
-      ],
-      '售后反馈': [
-        { _id: 'f001', name: '蟹黄堡过期', qty: 1, spec: '食品变质', left: '待处理' },
-        { _id: 'f002', name: '派大星手套破损', qty: 2, spec: '质量问题', left: '已处理' }
-      ]
-    };
+  /**
+   * 获取顾客订单列表
+   * @returns {Promise<Array>} 从 orders 表查询
+   * 返回数据结构：
+   * [{
+   *   _id: String,
+   *   orderNo: String,
+   *   customerName: String,      // customerInfo.name
+   *   totalQty: Number,          // goods 数组总数量
+   *   pickableQty: Number,       // goods 中 pickupStatus === '待取货' 的数量
+   *   arrivalStatus: String,     // 'partial' 部分到货 / 'all' 全部到货
+   *   status: String
+   * }]
+   */
+  fetchCustomerOrdersFromServer() {
+    // TODO：后端实现，从 orders 表查询
+    return Promise.resolve([
+      {
+        _id: 'o003',
+        orderNo: 'ORD202603270001',
+        customerName: 'YMC',
+        totalQty: 5,
+        pickableQty: 4,
+        arrivalStatus: 'partial',
+        status: '待取货'
+      },
+      {
+        _id: 'o004',
+        orderNo: 'ORD202603270002',
+        customerName: 'YMCA',
+        totalQty: 5,
+        pickableQty: 5,
+        arrivalStatus: 'all',
+        status: '待取货'
+      }
+    ]);
+  },
 
-    return Promise.resolve(placeholder[status] || []);
+  /**
+   * 获取售后反馈列表
+   * @returns {Promise<Array>}
+   */
+  fetchFeedbackListFromServer() {
+    // TODO：后端实现
+    return Promise.resolve([]);
   },
 
   pushOrderReminder() {

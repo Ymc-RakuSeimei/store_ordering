@@ -64,12 +64,28 @@ Page({
   // ----------------- 后端接口占位 -----------------
   fetchOrderDetailFromServer(orderId) {
     // TODO: 后端实现，返回 Promise(resolve(order))
+    // 数据库字段映射：
+    // - customerInfo.name -> customerName
+    // - customerInfo.phone -> phone
+    // - goods 数组拆分：
+    //   arrivedtime 有值 -> pendingPickup
+    //   arrivedtime 无值 -> pendingArrival
     return Promise.resolve({
       _id: orderId,
+      orderNo: 'ORD202603270001',
       customerName: 'YMC',
       phone: '123456789',
-      pendingPickup: [{ id: '1', name: '珊迪氧气罩', qty: 1, spec: '0.5kg' }, { id: '2', name: '派大星扁担', qty: 3, spec: '0.5kg' }],
-      pendingArrival: [{ id: '3', name: '蟹黄堡秘方', qty: 1, spec: '0.5kg' }]
+      status: '可取货',
+      totalPrice: 166.5,
+      pickupCode: '633116',
+      remark: '测试订单，用于取货核销页面测试',
+      pendingPickup: [
+        { id: '1', name: '珊迪氧气罩', qty: 1, spec: '0.5kg' },
+        { id: '2', name: '派大星的扁担', qty: 3, spec: '0.5kg' }
+      ],
+      pendingArrival: [
+        { id: '3', name: '蟹黄堡秘方', qty: 1, spec: '0.5kg' }
+      ]
     });
   },
   updateOrderItemStatus(payload) {

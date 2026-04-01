@@ -264,3 +264,42 @@ page {
   background: #33c266; /* 绿色背景 */
   color: #fff; /* 白色文字 */
 }
+
+/* ==================== 编辑商品弹窗 - 竖排操作按钮 ==================== */
+/* 这个区域只给“修改商品信息”弹窗使用。
+   如果你后面想继续微调成别的视觉风格，优先改这一组类名即可。 */
+.edit-action-stack {
+  display: flex;
+  flex-direction: column; /* 竖向排列三个按钮块 */
+  gap: 16rpx; /* 每个按钮之间留出固定间距 */
+  margin-top: 18rpx;
+}
+
+/* 三个操作按钮共用的基础样式 */
+.edit-action-btn {
+  width: 100%;
+  height: 78rpx;
+  line-height: 78rpx;
+  border-radius: 14rpx;
+  font-size: 28rpx;
+  font-weight: 600;
+}
+
+/* 确认修改：沿用原来的主操作绿色 */
+.edit-action-btn--confirm {
+  background: #33c266;
+  color: #fff;
+}
+
+/* 删除商品：先做成明显的危险操作色，便于后面继续细调 */
+.edit-action-btn--danger {
+  background: #e14d4d;
+  color: #fff;
+}
+
+/* 取消：保留轻量、次级操作的视觉 */
+.edit-action-btn--cancel {
+  background: #f7f7f7;
+  color: #444;
+  border: 1rpx solid #d9d9d9;
+}

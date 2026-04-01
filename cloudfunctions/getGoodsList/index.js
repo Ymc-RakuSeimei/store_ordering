@@ -1,4 +1,4 @@
-// 云函数：getGoodsList
+﻿// 云函数：getGoodsList
 // 目的：返回商品列表，支持分类、筛选、分页
 const cloud = require('wx-server-sdk');
 
@@ -47,6 +47,27 @@ exports.main = async (event, context) => {
       .limit(limit)
       .get();
 
+    // 预定商品只在“接龙进行中”时展示给顾客。
+    // 已截单商品仍保留在 goods 集合，但不再继续出现在买家端预定区。
+    const visibleGoods = (items.data || []).filter((item) => {
+      if (item.type !== 'preorder') {
+        return true;
+      }
+
+      if (item.preorderState === 'closed') {
+        return false;
+      }
+
+      if (item.closeType === 'timed' && item.closeAt) {
+        const closeAt = new Date(item.closeAt).getTime();
+        if (!Number.isNaN(closeAt) && closeAt <= Date.now()) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+
     // count 仅当 page===0 时可读; page>0 可直接按 list 返回，避免重复调用 count API
     let total = -1;
     if (page === 0) {
@@ -62,7 +83,7 @@ exports.main = async (event, context) => {
     return {
       code: 0,
       message: 'ok',
-      data: items.data || [],
+      data: visibleGoods,
       page,
       limit,
       total,

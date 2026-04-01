@@ -48,10 +48,10 @@
       </view>
     </view>
     
-    <!-- 待到货区域 -->
+    <!-- 未到货区域 -->
     <view class="section waiting-section" wx:if="{{waitingGoods.length > 0}}">
       <view class="section-header">
-        <text class="section-title waiting-title">待到货</text>
+        <text class="section-title waiting-title">未到货</text>
       </view>
       <view class="goods-list">
         <view class="goods-item" wx:for="{{waitingGoods}}" wx:key="id">

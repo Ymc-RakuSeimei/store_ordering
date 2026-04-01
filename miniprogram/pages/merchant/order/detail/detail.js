@@ -1,95 +1,93 @@
+const STATUS_PENDING_PICKUP = '\u5f85\u53d6\u8d27';
+const STATUS_PICKED = '\u5df2\u53d6\u8d27';
+const STATUS_COMPLETED = '\u5df2\u5b8c\u6210';
+
+function decorateOrderDetail(order = null) {
+  if (!order || !Array.isArray(order.orders)) {
+    return order;
+  }
+
+  return {
+    ...order,
+    orders: order.orders.map((orderItem) => ({
+      ...orderItem,
+      goods: Array.isArray(orderItem.goods)
+        ? orderItem.goods.map((goodsItem) => ({
+            ...goodsItem,
+            statusClass: getStatusClass(goodsItem.pickupStatus)
+          }))
+        : []
+    }))
+  };
+}
+
+function getStatusClass(status = '') {
+  if (status === STATUS_PENDING_PICKUP) {
+    return 'goods-status--pickup';
+  }
+
+  if (status === STATUS_PICKED || status === STATUS_COMPLETED) {
+    return 'goods-status--picked';
+  }
+
+  return 'goods-status--default';
+}
+
 Page({
   data: {
-    orderId: '',
+    customerKey: '',
     order: null,
     loading: true
   },
 
   onLoad(options) {
-    const orderId = options.orderId;
-    this.setData({ orderId });
-    wx.setNavigationBarTitle({ title: '订单详情' });
-    this.loadOrderDetail(orderId);
+    const customerKey = decodeURIComponent(options.customerKey || '');
+    this.setData({ customerKey });
+    wx.setNavigationBarTitle({ title: '顾客订单详情' });
+
+    if (!customerKey) {
+      wx.showToast({ title: '缺少顾客标识', icon: 'none' });
+      this.setData({ loading: false });
+      return;
+    }
+
+    this.loadOrderDetail(customerKey);
   },
 
-  // 返回上一页
   onBack() {
     wx.navigateBack();
   },
 
-  // 加载订单详情（后端接口）
-  loadOrderDetail(orderId) {
-    this.fetchOrderDetailFromServer(orderId)
-      .then(order => {
-        this.setData({ order, loading: false });
+  loadOrderDetail(customerKey) {
+    this.setData({ loading: true });
+
+    this.fetchOrderDetailFromServer(customerKey)
+      .then((order) => {
+        this.setData({
+          order: decorateOrderDetail(order),
+          loading: false
+        });
       })
-      .catch(err => {
+      .catch((err) => {
         console.error('fetchOrderDetailFromServer error', err);
-        wx.showToast({ title: '加载失败', icon: 'none' });
+        wx.showToast({ title: err.message || '加载失败', icon: 'none' });
         this.setData({ loading: false });
       });
   },
 
-  // 取货操作(单个商品)
-  pickSingleItem(e) {
-    const row = e.currentTarget.dataset.row;
-    this.updateOrderItemStatus({
-      orderId: this.data.orderId,
-      itemId: row.id,
-      status: 'picked'
-    }).then(() => {
-      wx.showToast({ title: '取货成功', icon: 'success' });
-      this.loadOrderDetail(this.data.orderId);
-    }).catch(err => {
-      console.error('updateOrderItemStatus error', err);
-      wx.showToast({ title: '取货失败', icon: 'none' });
+  fetchOrderDetailFromServer(customerKey) {
+    return wx.cloud.callFunction({
+      name: 'getMerchantOrderGoods',
+      data: {
+        type: 'customerDetail',
+        customerKey
+      }
+    }).then((res) => {
+      const result = res.result || {};
+      if (result.code !== 0) {
+        throw new Error(result.message || '获取顾客订单详情失败');
+      }
+      return result.data || null;
     });
-  },
-
-  // 一键取货
-  pickAll() {
-    this.updateOrderItemStatus({
-      orderId: this.data.orderId,
-      status: 'picked',
-      all: true
-    }).then(() => {
-      wx.showToast({ title: '已全部取货', icon: 'success' });
-      this.loadOrderDetail(this.data.orderId);
-    }).catch(err => {
-      console.error('pickAll error', err);
-      wx.showToast({ title: '操作失败', icon: 'none' });
-    });
-  },
-
-  // ----------------- 后端接口占位 -----------------
-  fetchOrderDetailFromServer(orderId) {
-    // TODO: 后端实现，返回 Promise(resolve(order))
-    // 数据库字段映射：
-    // - customerInfo.name -> customerName
-    // - customerInfo.phone -> phone
-    // - goods 数组拆分：
-    //   arrivedtime 有值 -> pendingPickup
-    //   arrivedtime 无值 -> pendingArrival
-    return Promise.resolve({
-      _id: orderId,
-      orderNo: 'ORD202603270001',
-      customerName: 'YMC',
-      phone: '123456789',
-      status: '可取货',
-      totalPrice: 166.5,
-      pickupCode: '633116',
-      remark: '测试订单，用于取货核销页面测试',
-      pendingPickup: [
-        { id: '1', name: '珊迪氧气罩', qty: 1, spec: '0.5kg' },
-        { id: '2', name: '派大星的扁担', qty: 3, spec: '0.5kg' }
-      ],
-      pendingArrival: [
-        { id: '3', name: '蟹黄堡秘方', qty: 1, spec: '0.5kg' }
-      ]
-    });
-  },
-  updateOrderItemStatus(payload) {
-    // TODO: 后端实现，返回 Promise
-    return Promise.resolve();
   }
 });

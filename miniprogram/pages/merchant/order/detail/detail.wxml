@@ -1,42 +1,51 @@
 <view class="page">
   <view class="header">
-    <text class="back" bindtap="onBack">← 返回</text>
-    <text class="title">订单详情</text>
+    <text class="back" bindtap="onBack">返回</text>
+    <text class="title">顾客订单详情</text>
     <text class="placeholder"></text>
   </view>
 
-  <view class="order-card" wx:if="{{order}}">
-    <view class="order-card-header">
-      <text class="customer-title">顾客 {{order.customerName}} 的订单</text>
-      <text class="order-status" wx:if="{{order.status}}">{{order.status}}</text>
+  <view class="customer-card" wx:if="{{order}}">
+    <view class="customer-top">
+      <text class="customer-name">{{order.customerName}}</text>
+      <text class="customer-count">共{{order.orderCount}}笔</text>
     </view>
-    <text class="phone" wx:if="{{order.phone}}">联系电话：{{order.phone}}</text>
-    <text class="order-no" wx:if="{{order.orderNo}}">订单号：{{order.orderNo}}</text>
-    <text class="order-price" wx:if="{{order.totalPrice}}">订单金额：¥{{order.totalPrice}}</text>
-    <text class="pickup-code" wx:if="{{order.pickupCode}}">取货码：{{order.pickupCode}}</text>
-    <text class="remark" wx:if="{{order.remark}}">备注：{{order.remark}}</text>
+    <text class="customer-meta" wx:if="{{order.phone}}">联系电话：{{order.phone}}</text>
+    <text class="customer-meta" wx:if="{{order.pickupCode}}">取货码：{{order.pickupCode}}</text>
+    <text class="customer-meta" wx:if="{{order.latestOrderTimeText}}">最近下单：{{order.latestOrderTimeText}}</text>
+    <text class="customer-meta">累计商品：{{order.totalQty}}件</text>
+    <text class="customer-meta">累计金额：¥{{order.totalPrice}}</text>
   </view>
 
-  <view class="section" wx:if="{{order && order.pendingPickup && order.pendingPickup.length}}">
-    <text class="section-title pickable">可取货</text>
-    <block wx:for="{{order.pendingPickup}}" wx:key="id">
-      <view class="line">
-        <text class="item-name">{{index+1}}.{{item.name}}</text>
-        <text class="item-qty">×{{item.qty}}</text>
-        <button class="deal-btn" bindtap="pickSingleItem" data-row="{{item}}">取</button>
+  <block wx:if="{{order && order.orders && order.orders.length}}">
+    <block wx:for="{{order.orders}}" wx:key="orderId" wx:for-item="orderItem">
+      <view class="order-card">
+        <view class="order-card-header">
+          <text class="order-no">{{orderItem.orderNo}}</text>
+          <text class="order-time">{{orderItem.orderTimeText}}</text>
+        </view>
+        <text class="order-meta" wx:if="{{orderItem.pickupCode}}">取货码：{{orderItem.pickupCode}}</text>
+        <text class="order-meta">订单金额：¥{{orderItem.totalPrice}}</text>
+        <text class="order-meta" wx:if="{{orderItem.remark}}">备注：{{orderItem.remark}}</text>
+
+        <block wx:for="{{orderItem.goods}}" wx:key="id" wx:for-item="goodsItem">
+          <view class="goods-row">
+            <image class="goods-img" src="{{goodsItem.img}}" mode="aspectFill" />
+            <view class="goods-info">
+              <text class="goods-name">{{goodsItem.name}}</text>
+              <text class="goods-spec" wx:if="{{goodsItem.spec}}">规格：{{goodsItem.spec}}</text>
+              <text class="goods-meta">数量：{{goodsItem.qty}}件</text>
+              <text class="goods-meta">单价：¥{{goodsItem.price}}</text>
+            </view>
+            <view class="goods-right">
+              <text class="goods-subtotal">¥{{goodsItem.subtotal}}</text>
+              <text class="goods-status {{goodsItem.statusClass}}">{{goodsItem.pickupStatus}}</text>
+            </view>
+          </view>
+        </block>
       </view>
     </block>
-  </view>
+  </block>
 
-  <view class="section" wx:if="{{order && order.pendingArrival && order.pendingArrival.length}}">
-    <text class="section-title pending">待到货</text>
-    <block wx:for="{{order.pendingArrival}}" wx:key="id">
-      <view class="line">
-        <text class="item-name">{{index+1}}.{{item.name}}</text>
-        <text class="item-qty">×{{item.qty}}</text>
-      </view>
-    </block>
-  </view>
-
-  <button class="primary-btn" wx:if="{{order && order.pendingPickup && order.pendingPickup.length}}" bindtap="pickAll">一键取货</button>
+  <view wx:elif="{{!loading}}" class="empty-state">暂无顾客订单详情</view>
 </view>

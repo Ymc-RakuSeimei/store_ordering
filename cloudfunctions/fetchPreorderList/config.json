@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "openapi": [],
+    "db": [
+      {
+        "collection": "users",
+        "actions": ["get"]
+      },
+      {
+        "collection": "goods",
+        "actions": ["get", "update"]
+      }
+    ],
+    "cloud": []
+  }
+}

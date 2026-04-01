@@ -1,3 +1,9 @@
+/* 全局样式 */
+page {
+  background-color: #ffffff;
+  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Helvetica Neue', Arial, sans-serif;
+}
+
 .container {
   background-color: #ffffff;
   min-height: 100vh;
@@ -50,12 +56,13 @@
 /* Tab栏 - 标签根据内容自适应宽度 */
 .tab-bar {
   display: flex;
-  padding: 0 32rpx;
   border-bottom: 1rpx solid #f0f0f0;
-  gap: 60rpx;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .tab-item {
+  flex: 1;
   text-align: center;
   font-size: 32rpx;
   color: #999999;

@@ -37,7 +37,7 @@
           </view>
           
           <!-- 已完成状态 -->
-          <view class="status-btn status-completed" wx:if="{{item.status === '已完成' || item.status === '已取货'}}">
+          <view class="status-btn status-completed" wx:if="{{item.status === '已取货'}}">
             已完成
           </view>
         </view>

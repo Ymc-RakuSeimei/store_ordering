@@ -1,55 +1,78 @@
 <view class="page">
-  <!-- 顶部头部 -->
   <view class="header">
     <text class="title">预售订货</text>
   </view>
 
-  <!-- 正在接龙区域 -->
   <view class="panel">
     <view class="panel-head">
       <text class="panel-title" style="color: #34c759;">正在接龙</text>
     </view>
+
     <block wx:for="{{currentDragons}}" wx:key="id">
       <view class="item-card">
-        <!-- 商品图片 -->
         <image class="item-img" src="{{item.img}}" mode="aspectFill" />
+
         <view class="item-left">
           <text class="item-name">{{item.name}}</text>
           <text class="item-spec">规格：{{item.spec}}</text>
         </view>
+
         <view class="item-right">
-          <text class="item-qty">×{{item.totalQty}}</text>
+          <text class="item-qty">x{{item.totalQty}}</text>
+
           <view class="btn-group">
-            <button class="btn-handle" data-id="{{item.id}}" data-item="{{item}}" open-type="share">转发</button>
-            <button class="btn-stop" bindtap="onStopCurrent" data-id="{{item.id}}" catchtap="true">截止</button>
+            <button
+              class="btn-handle"
+              data-id="{{item.id}}"
+              data-item="{{item}}"
+              open-type="share"
+            >
+              转发
+            </button>
+
+            <!-- 这里要么用 bindtap，要么用 catchtap + 方法名。
+                 之前写成 catchtap="true"，框架会去找名为 true 的方法，所以控制台报错。 -->
+            <button
+              class="btn-stop"
+              catchtap="onStopCurrent"
+              data-id="{{item.id}}"
+            >
+              截止
+            </button>
           </view>
         </view>
       </view>
     </block>
-    <view wx:if="{{!currentDragons || currentDragons.length===0}}" class="empty-state">暂无正在接龙数据</view>
+
+    <view wx:if="{{!currentDragons || currentDragons.length === 0}}" class="empty-state">
+      暂无正在接龙数据
+    </view>
   </view>
 
-  <!-- 已截单区域 -->
   <view class="panel">
     <view class="panel-head">
-      <text class="panel-title" style="color: #ff3b30;">已截单</text>
+      <text class="panel-title" style="color: #ff3b30;">已截止</text>
     </view>
+
     <block wx:for="{{completedDragons}}" wx:key="id">
       <view class="item-card simple">
-        <!-- 商品图片 -->
         <image class="item-img" src="{{item.img}}" mode="aspectFill" />
+
         <view class="item-left">
           <text class="item-name">{{item.name}}</text>
           <text class="item-spec">规格：{{item.spec}}</text>
         </view>
+
         <view class="item-right">
-          <text class="item-qty">×{{item.totalQty}}</text>
+          <text class="item-qty">x{{item.totalQty}}</text>
         </view>
       </view>
     </block>
-    <view wx:if="{{!completedDragons || completedDragons.length===0}}" class="empty-state">暂无已截单数据</view>
+
+    <view wx:if="{{!completedDragons || completedDragons.length === 0}}" class="empty-state">
+      暂无已截止数据
+    </view>
   </view>
 
-  <!-- 底部创建接龙按钮 -->
   <button class="big-btn" bindtap="toCreatePreorder">创建接龙</button>
 </view>

@@ -24,6 +24,7 @@
   ],
   "window": {
     "backgroundTextStyle": "light",
+    "enablePullDownRefresh": true,
     "navigationBarBackgroundColor": "#ffffff",
     "navigationBarTitleText": "MC_store",
     "navigationBarTextStyle": "black"

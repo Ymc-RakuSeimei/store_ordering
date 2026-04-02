@@ -87,7 +87,7 @@
       <text class="tabbar-text">首页</text>
     </view>
     <view class="tabbar-item tabbar-item--active" data-tab="product" bindtap="onTabTap">
-      <image class="tabbar-icon" src="/images/icon_order.png" />
+      <image class="tabbar-icon" src="/images/icon_order_active.png" />
       <text class="tabbar-text">商品</text>
     </view>
     <view class="tabbar-item" data-tab="my" bindtap="onTabTap">

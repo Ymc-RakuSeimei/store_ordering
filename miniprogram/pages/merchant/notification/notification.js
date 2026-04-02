@@ -16,7 +16,12 @@ Page({
   },
 
   onBack() {
-    wx.navigateBack();
+    wx.navigateBack({
+      delta: 1,
+      fail: function () {
+        wx.redirectTo({ url: '/pages/merchant/index/index' });
+      }
+    });
   },
 
   // tab 切换

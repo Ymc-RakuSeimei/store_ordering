@@ -51,7 +51,7 @@ Page({
 
       if (res.result && res.result.code === 0) {
         const allGoods = res.result.data;
-        
+
         const spotList = allGoods.filter(item => item.type === 'spot');
         const preorderList = allGoods.filter(item => item.type === 'preorder');
         const specialList = allGoods.filter(item => item.type === 'special');
@@ -105,17 +105,17 @@ Page({
     }
 
     const lowerKeyword = keyword.toLowerCase().trim();
-    
-    const filteredAll = this.data.originalGoodsData.all.filter(item => 
+
+    const filteredAll = this.data.originalGoodsData.all.filter(item =>
       item.name && item.name.toLowerCase().includes(lowerKeyword)
     );
-    const filteredSpot = this.data.originalGoodsData.spot.filter(item => 
+    const filteredSpot = this.data.originalGoodsData.spot.filter(item =>
       item.name && item.name.toLowerCase().includes(lowerKeyword)
     );
-    const filteredPreorder = this.data.originalGoodsData.preorder.filter(item => 
+    const filteredPreorder = this.data.originalGoodsData.preorder.filter(item =>
       item.name && item.name.toLowerCase().includes(lowerKeyword)
     );
-    const filteredSpecial = this.data.originalGoodsData.special.filter(item => 
+    const filteredSpecial = this.data.originalGoodsData.special.filter(item =>
       item.name && item.name.toLowerCase().includes(lowerKeyword)
     );
 
@@ -141,7 +141,7 @@ Page({
   },
 
   // 阻止事件冒泡
-  stopPropagation() {},
+  stopPropagation() { },
 
   // 显示购物车详情
   showCartDetail() {
@@ -267,18 +267,18 @@ Page({
     console.log('=== 合并结算按钮被点击 ===');
     console.log('购物车商品数量:', this.data.cartList.length);
     console.log('购物车总价:', this.data.cartTotalPrice);
-    
+
     if (this.data.cartList.length === 0) {
-      wx.showToast({ 
-        title: '购物车是空的', 
+      wx.showToast({
+        title: '购物车是空的',
         icon: 'none',
-        duration: 2000 
+        duration: 2000
       });
       return;
     }
 
     this.setData({ showCartModal: false });
-    
+
     console.log('准备跳转到支付页面...');
     wx.navigateTo({
       url: '/pages/customer/checkout/checkout?total=' + this.data.cartTotalPrice,

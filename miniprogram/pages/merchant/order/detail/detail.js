@@ -13,9 +13,9 @@ function decorateOrderDetail(order = null) {
       ...orderItem,
       goods: Array.isArray(orderItem.goods)
         ? orderItem.goods.map((goodsItem) => ({
-            ...goodsItem,
-            statusClass: getStatusClass(goodsItem.pickupStatus)
-          }))
+          ...goodsItem,
+          statusClass: getStatusClass(goodsItem.pickupStatus)
+        }))
         : []
     }))
   };
@@ -55,7 +55,12 @@ Page({
   },
 
   onBack() {
-    wx.navigateBack();
+    wx.navigateBack({
+      delta: 1,
+      fail: function () {
+        wx.redirectTo({ url: '/pages/merchant/order/order' });
+      }
+    });
   },
 
   loadOrderDetail(customerKey) {

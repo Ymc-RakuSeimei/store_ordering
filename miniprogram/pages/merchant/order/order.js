@@ -156,19 +156,6 @@ Page({
     return Promise.resolve();
   },
 
-  onTabTap(e) {
-    const tab = e.currentTarget.dataset.tab;
-    const map = {
-      home: '/pages/merchant/index/index',
-      product: '/pages/merchant/product/product',
-      my: '/pages/merchant/my/my'
-    };
-    const url = map[tab];
-    if (url) {
-      wx.navigateTo({ url });
-    }
-  },
-
   onPickupCodeInput(e) {
     const pickupCode = e.detail.value;
     const isPickupCodeValid = /^\d{6}$/.test(pickupCode);

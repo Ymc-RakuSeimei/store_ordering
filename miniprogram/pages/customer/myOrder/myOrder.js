@@ -13,9 +13,12 @@ Page({
   },
 
   // 返回上一页
-  goBack() {
+  onBack() {
     wx.navigateBack({
-      delta: 1
+      delta: 1,
+      fail: function() {
+        wx.redirectTo({ url: '/pages/customer/my/my' });
+      }
     });
   },
 

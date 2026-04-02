@@ -58,6 +58,6 @@ Page({
       my: '/pages/merchant/my/my',
     };
     const url = map[tab];
-    if (url) wx.navigateTo({ url });
+    if (url) wx.redirectTo({ url });
   }
 });

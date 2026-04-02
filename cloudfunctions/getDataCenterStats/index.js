@@ -159,13 +159,25 @@ async function fetchAll(collectionName) {
   return pages.flatMap((page) => page.data || []);
 }
 
+function normalizeId(value) {
+  return String(value || '').trim().toLowerCase();
+}
+
 function buildGoodsInfoMap(goodsList) {
   return goodsList.reduce((map, item) => {
-    if (!item || !item._id) return map;
-    map[String(item._id)] = {
+    if (!item) return map;
+
+    const goodsInfo = {
       cost: Number(item.costPrice ?? item.cost) || 0,
       type: String(item.type || '')
     };
+
+    [item._id, item.goodsId].forEach((candidateId) => {
+      const normalizedId = normalizeId(candidateId);
+      if (!normalizedId) return;
+      map[normalizedId] = goodsInfo;
+    });
+
     return map;
   }, {});
 }
@@ -184,18 +196,17 @@ function locateBucket(date, buckets) {
   return buckets.findIndex((bucket) => timestamp >= bucket.start.getTime() && timestamp < bucket.end.getTime());
 }
 
-function calculateOrderMetrics(order, goodsCostMap) {
-  const goodsList = Array.isArray(order.goods) ? order.goods : [];
+function resolveGoodsInfo(item, goodsInfoMap) {
+  const candidateIds = [item && item.goodsId, item && item.goodsDocId, item && item._id];
 
-  return goodsList.reduce((result, item) => {
-    const quantity = Number(item.quantity) || 0;
-    const price = Number(item.price) || 0;
-    const cost = Number(goodsCostMap[item.goodsId]) || 0;
+  for (const candidateId of candidateIds) {
+    const normalizedId = normalizeId(candidateId);
+    if (normalizedId && goodsInfoMap[normalizedId]) {
+      return goodsInfoMap[normalizedId];
+    }
+  }
 
-    result.revenue += price * quantity;
-    result.cost += cost * quantity;
-    return result;
-  }, { revenue: 0, cost: 0 });
+  return null;
 }
 
 exports.main = async (event) => {
@@ -222,8 +233,7 @@ exports.main = async (event) => {
       goods.forEach((item) => {
         if (!item) return;
 
-        const goodsId = String(item.goodsId || '');
-        const goodsInfo = goodsInfoMap[goodsId] || {};
+        const goodsInfo = resolveGoodsInfo(item, goodsInfoMap) || {};
         const goodsType = goodsInfo.type || '';
         const goodsTypeNormalized = String(goodsType).toLowerCase();
         const unitCost = Number(goodsInfo.cost || 0) || 0;

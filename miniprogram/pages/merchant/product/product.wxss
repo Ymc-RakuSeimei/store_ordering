@@ -5,7 +5,7 @@
 
 /* 页面整体样式 */
 page {
-  background: #f6f6f8; /* 页面背景色，浅灰色 */
+  background-color: #F5F7FA; /* 页面背景色，浅灰色 */
   font-family: PingFang SC, Helvetica Neue, Arial, sans-serif; /* 使用系统字体，保证跨平台一致性 */
   color: #333; /* 默认文字颜色，深灰色 */
 }
@@ -15,7 +15,7 @@ page {
   min-height: 100vh; /* 最小高度占满整个视口 */
   padding: 20rpx 20rpx 190rpx; /* 内边距，底部留出空间给自定义tabbar */
   box-sizing: border-box; /* 盒模型，padding不会增加总宽度 */
-  background: #f6f6f8; /* 背景色 */
+  background-color: #F5F7FA; /* 背景色 */
 }
 
 /* 顶部头部区域 */

@@ -36,7 +36,12 @@ Page({
   },
 
   onBack() {
-    wx.navigateBack();
+    wx.navigateBack({
+      delta: 1,
+      fail: function() {
+        wx.redirectTo({ url: '/pages/merchant/preorder/preorder' });
+      }
+    });
   },
 
   // 选择商品图片。
@@ -139,7 +144,12 @@ Page({
         wx.hideLoading();
         wx.showToast({ title: '创建成功', icon: 'success' });
         setTimeout(() => {
-          wx.navigateBack();
+          wx.navigateBack({
+            delta: 1,
+            fail: function() {
+              wx.redirectTo({ url: '/pages/merchant/preorder/preorder' });
+            }
+          });
         }, 1200);
       })
       .catch((err) => {
@@ -150,7 +160,12 @@ Page({
   },
 
   onCancel() {
-    wx.navigateBack();
+    wx.navigateBack({
+      delta: 1,
+      fail: function() {
+        wx.redirectTo({ url: '/pages/merchant/preorder/preorder' });
+      }
+    });
   },
 
   // 上传接龙商品图片到云存储。

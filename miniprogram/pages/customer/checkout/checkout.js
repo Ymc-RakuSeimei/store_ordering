@@ -17,7 +17,12 @@ Page({
   },
 
   goBack() {
-    wx.navigateBack();
+    wx.navigateBack({
+      delta: 1,
+      fail: function () {
+        wx.redirectTo({ url: '/pages/customer/goods/goods' });
+      }
+    });
   },
 
   onRemarkInput(e) {
@@ -78,12 +83,16 @@ Page({
 
         setTimeout(() => {
           wx.navigateBack({
+            delta: 1,
             success: () => {
               const pages = getCurrentPages();
               const prevPage = pages[pages.length - 2];
               if (prevPage && prevPage.loadCartFromStorage) {
                 prevPage.loadCartFromStorage();
               }
+            },
+            fail: function () {
+              wx.redirectTo({ url: '/pages/customer/goods/goods' });
             }
           });
         }, 2000);

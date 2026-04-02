@@ -70,7 +70,12 @@ Page({
   },
 
   onBack() {
-    wx.navigateBack();
+    wx.navigateBack({
+      delta: 1,
+      fail: function () {
+        wx.redirectTo({ url: '/pages/merchant/index/index' });
+      }
+    });
   },
 
   // 切换“现货 / 特价处理”两个 tab。
@@ -451,7 +456,7 @@ Page({
     const url = map[tab];
 
     if (url) {
-      wx.navigateTo({ url });
+      wx.redirectTo({ url });
     }
   }
 });

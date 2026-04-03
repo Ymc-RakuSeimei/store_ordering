@@ -55,7 +55,7 @@
   <view class="cart-bar" bindtap="showCartDetail">
     <view class="cart-left">
       <view class="cart-icon-wrapper">
-        <image class="cart-icon" src="/images/icon_shop.png" mode="aspectFit"></image>
+        <image class="cart-icon" src="cloud://cloud1-2gltiqs6a2c5cd76.636c-cloud1-2gltiqs6a2c5cd76-1411302136/icons/icon_shop.png" mode="aspectFit"></image>
         <view class="cart-badge" wx:if="{{cartTotalCount > 0}}">{{cartTotalCount}}</view>
       </view>
       <view class="cart-info">

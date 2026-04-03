@@ -3,7 +3,7 @@ Page({
   data: {
     userInfo: {
       nickName: '游客',
-      avatarUrl: '/images/avatar.png',
+      avatarUrl: 'cloud://cloud1-2gltiqs6a2c5cd76.636c-cloud1-2gltiqs6a2c5cd76-1411302136/icons/avatar.png',
       phoneNumber: '',
       role: ''
     },
@@ -26,13 +26,13 @@ Page({
         name: 'getUserInfo'
       })
       console.log('getUserInfo 返回结果:', res)
-      
+
       if (res.result.success && res.result.user) {
         console.log('用户数据:', res.result.user)
         this.setData({
           userInfo: {
             nickName: res.result.user.nickName || '微信用户',
-            avatarUrl: res.result.user.avatarUrl || '/images/avatar.png',
+            avatarUrl: res.result.user.avatarUrl || 'cloud://cloud1-2gltiqs6a2c5cd76.636c-cloud1-2gltiqs6a2c5cd76-1411302136/icons/avatar.png',
             phoneNumber: res.result.user.phoneNumber || '',
             role: res.result.user.role || 'customer',
             openid: res.result.user.openid
@@ -43,7 +43,7 @@ Page({
         this.setData({
           userInfo: {
             nickName: '游客',
-            avatarUrl: '/images/avatar.png',
+            avatarUrl: 'cloud://cloud1-2gltiqs6a2c5cd76.636c-cloud1-2gltiqs6a2c5cd76-1411302136/icons/avatar.png',
             phoneNumber: '',
             role: ''
           }
@@ -143,7 +143,7 @@ Page({
           wx.showLoading({ title: '获取商家微信...' })
           try {
             console.log('用户信息:', that.data.userInfo)
-            
+
             // 1. 获取当前用户的订单列表
             console.log('开始调用getOrderList')
             const orderRes = await wx.cloud.callFunction({
@@ -153,18 +153,18 @@ Page({
               }
             })
             console.log('getOrderList返回结果:', orderRes)
-            
+
             if (!orderRes.result || orderRes.result.code !== 0 || !orderRes.result.data || orderRes.result.data.length === 0) {
               wx.hideLoading()
               wx.showToast({ title: '暂无订单信息', icon: 'none' })
               return
             }
-            
+
             // 2. 从订单中获取店名（取第一个订单的store字段）
             const firstOrder = orderRes.result.data[0]
             const storeName = firstOrder.store || 'MC_store' // 默认店名
             console.log('店名:', storeName)
-            
+
             // 3. 调用云函数获取对应商家信息
             console.log('开始调用getUserInfo获取商家')
             const merchantRes = await wx.cloud.callFunction({
@@ -172,16 +172,16 @@ Page({
               data: { role: 'merchant', store: storeName }
             })
             console.log('getUserInfo返回结果:', merchantRes)
-            
+
             wx.hideLoading()
-            
+
             // 直接显示弹窗
             console.log('准备显示弹窗')
             if (merchantRes.result && merchantRes.result.success && merchantRes.result.user) {
               const merchantUser = merchantRes.result.user
               const wechat = merchantUser.wechat || 'wechat_ymc123456'
               console.log('商家微信:', wechat)
-              
+
               wx.showModal({
                 title: `${storeName} 商家微信`,
                 content: `商家微信号：${wechat}\n\n请复制微信号添加商家`,

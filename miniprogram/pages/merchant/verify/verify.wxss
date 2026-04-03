@@ -131,7 +131,8 @@ page {
 /* 主内容区 */
 .content {
   flex: 1;
-  padding: 24rpx;
+  padding: 32rpx;
+  width:80%;
   animation: fadeIn 0.4s ease-out;
 }
 

@@ -2,14 +2,14 @@
 Page({
   data: {
     userName: '店长ymc',
-    avatar: '/images/avatar.png',
+    avatar: 'cloud://cloud1-2gltiqs6a2c5cd76.636c-cloud1-2gltiqs6a2c5cd76-1411302136/icons/avatar.png',
     cardGroup: [
-      { id: 'product', title: '商品管理', subtitle: '上架新品、编辑库存', icon: '/images/icon_product.png' },
-      { id: 'order', title: '订单处理', subtitle: '顾客订单、售后提醒', icon: '/images/icon_ord.png' },
-      { id: 'data', title: '数据中心', subtitle: '销售统计、营收查看', icon: '/images/icon_data.png' },
-      { id: 'preorder', title: '预售订货', subtitle: '设置群接龙、统计进货', icon: '/images/icon_preord.png' }
+      { id: 'product', title: '商品管理', subtitle: '上架新品、编辑库存', icon: 'cloud://cloud1-2gltiqs6a2c5cd76.636c-cloud1-2gltiqs6a2c5cd76-1411302136/icons/icon_product.png' },
+      { id: 'order', title: '订单处理', subtitle: '顾客订单、售后提醒', icon: 'cloud://cloud1-2gltiqs6a2c5cd76.636c-cloud1-2gltiqs6a2c5cd76-1411302136/icons/icon_ord.png' },
+      { id: 'data', title: '数据中心', subtitle: '销售统计、营收查看', icon: 'cloud://cloud1-2gltiqs6a2c5cd76.636c-cloud1-2gltiqs6a2c5cd76-1411302136/icons/icon_data.png' },
+      { id: 'preorder', title: '预售订货', subtitle: '设置群接龙、统计进货', icon: 'cloud://cloud1-2gltiqs6a2c5cd76.636c-cloud1-2gltiqs6a2c5cd76-1411302136/icons/icon_preord.png' }
     ],
-    notify: { id: 'notify', title: '系统通知', subtitle: '库存、订单、预售提醒', icon: '/images/icon_notice.png' }
+    notify: { id: 'notify', title: '系统通知', subtitle: '库存、订单、预售提醒', icon: 'cloud://cloud1-2gltiqs6a2c5cd76.636c-cloud1-2gltiqs6a2c5cd76-1411302136/icons/icon_notice.png' }
   },
 
   onLoad() {

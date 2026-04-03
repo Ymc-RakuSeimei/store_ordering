@@ -1,7 +1,7 @@
 const cloud = require('wx-server-sdk');
 
 const ENV_ID = 'cloud1-2gltiqs6a2c5cd76';
-const DEFAULT_PRODUCT_IMAGE = '/images/goods_sample.png';
+const DEFAULT_PRODUCT_IMAGE = 'cloud://cloud1-2gltiqs6a2c5cd76.636c-cloud1-2gltiqs6a2c5cd76-1411302136/icons/placeholder.png';
 const PAGE_SIZE = 100;
 
 const TXT_WAITING = '\u672a\u5230\u8d27';

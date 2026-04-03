@@ -3,7 +3,7 @@ Page({
   data: {
     userInfo: {
       nickName: '派大星',
-      avatarUrl: '/images/avatar.png'
+      avatarUrl: 'cloud://cloud1-2gltiqs6a2c5cd76.636c-cloud1-2gltiqs6a2c5cd76-1411302136/icons/avatar.png'
     }
   },
 
@@ -25,7 +25,7 @@ Page({
         this.setData({
           userInfo: {
             nickName: res.result.user.nickName || '派大星',
-            avatarUrl: res.result.user.avatarUrl || '/images/avatar.png'
+            avatarUrl: res.result.user.avatarUrl || 'cloud://cloud1-2gltiqs6a2c5cd76.636c-cloud1-2gltiqs6a2c5cd76-1411302136/icons/avatar.png'
           }
         })
       } else {
@@ -33,7 +33,7 @@ Page({
         this.setData({
           userInfo: {
             nickName: '派大星',
-            avatarUrl: '/images/avatar.png'
+            avatarUrl: 'cloud://cloud1-2gltiqs6a2c5cd76.636c-cloud1-2gltiqs6a2c5cd76-1411302136/icons/avatar.png'
           }
         })
       }
@@ -42,7 +42,7 @@ Page({
       this.setData({
         userInfo: {
           nickName: '派大星',
-          avatarUrl: '/images/avatar.png'
+          avatarUrl: 'cloud://cloud1-2gltiqs6a2c5cd76.636c-cloud1-2gltiqs6a2c5cd76-1411302136/icons/avatar.png'
         }
       })
     }
@@ -62,7 +62,7 @@ Page({
 
   // 扫码取货 - 跳转到我的订单页面，并选中"待取货"Tab
   goToFeedback() {
-    wx.navigateTo({ 
+    wx.navigateTo({
       url: '/pages/customer/myOrder/myOrder?tab=waiting'
     })
   },

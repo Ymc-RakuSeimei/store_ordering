@@ -8,43 +8,37 @@
     </view>
     <image class="avatar" src="{{userInfo.avatarUrl}}" mode="aspectFill"></image>
   </view>
-
   <!-- 功能卡片区域 -->
   <view class="card-container">
     <view class="card-item" bindtap="goToNewGoods">
-      <image class="card-icon" src="/images/icon_new.png"></image>
+      <image class="card-icon" src="cloud://cloud1-2gltiqs6a2c5cd76.636c-cloud1-2gltiqs6a2c5cd76-1411302136/icons/icon_new.png"></image>
       <text class="card-title">今日上新</text>
       <text class="card-subtitle">货品更新、新品发售</text>
       <view class="new-tag">●</view>
     </view>
-
     <view class="card-item" bindtap="goToShopList">
-      <image class="card-icon" src="/images/icon_shop.png"></image>
+      <image class="card-icon" src="cloud://cloud1-2gltiqs6a2c5cd76.636c-cloud1-2gltiqs6a2c5cd76-1411302136/icons/icon_shop.png"></image>
       <text class="card-title">进店选购</text>
       <text class="card-subtitle">买点儿什么？</text>
     </view>
-
     <view class="card-item" bindtap="goToMyOrder">
-      <image class="card-icon" src="/images/icon_order.png"></image>
+      <image class="card-icon" src="cloud://cloud1-2gltiqs6a2c5cd76.636c-cloud1-2gltiqs6a2c5cd76-1411302136/icons/icon_order.png"></image>
       <text class="card-title">我的订单</text>
       <text class="card-subtitle">货品总览、到货情况、取货码</text>
     </view>
-
     <view class="card-item" bindtap="goToFeedback">
-      <image class="card-icon" src="/images/二维码.png"></image>
+      <image class="card-icon" src="cloud://cloud1-2gltiqs6a2c5cd76.636c-cloud1-2gltiqs6a2c5cd76-1411302136/icons/二维码.png"></image>
       <text class="card-title">扫码取货</text>
       <text class="card-subtitle">出示身份核验码</text>
     </view>
   </view>
-
   <!-- 消息中心长卡片 -->
   <view class="long-card" bindtap="goToMessage">
     <view class="center-box">
-      <image class="long-icon" src="/images/icon_msg.png"></image>
+      <image class="long-icon" src="cloud://cloud1-2gltiqs6a2c5cd76.636c-cloud1-2gltiqs6a2c5cd76-1411302136/icons/icon_msg.png"></image>
       <text class="long-title">消息中心</text>
     </view>
   </view>
-
   <!-- 底部标语 -->
   <text class="bottom-text">Wish you a happy shopping!</text>
 </view>

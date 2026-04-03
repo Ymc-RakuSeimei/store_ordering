@@ -94,7 +94,7 @@ exports.main = async (event, context) => {
             name: item.name || '商品',
             quantity: item.quantity || 1,
             price: item.price || 0,
-            image: item.images?.[0] || item.image || '/images/goods_sample.png'
+            image: item.images?.[0] || item.image || 'cloud://cloud1-2gltiqs6a2c5cd76.636c-cloud1-2gltiqs6a2c5cd76-1411302136/icons/placeholder.png'
           }
 
           // 根据状态分类

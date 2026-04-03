@@ -1,7 +1,7 @@
-﻿const cloud = require('wx-server-sdk');
+const cloud = require('wx-server-sdk');
 
 const ENV_ID = 'cloud1-2gltiqs6a2c5cd76';
-const DEFAULT_PRODUCT_IMAGE = '/images/goods_sample.png';
+const DEFAULT_PRODUCT_IMAGE = 'cloud://cloud1-2gltiqs6a2c5cd76.636c-cloud1-2gltiqs6a2c5cd76-1411302136/icons/placeholder.png';
 
 cloud.init({ env: ENV_ID });
 
@@ -22,7 +22,7 @@ function isUsableImage(value) {
   if (typeof value !== 'string') return false;
   const image = value.trim();
   if (!image) return false;
-  return image.startsWith('cloud://') || image.startsWith('http://') || image.startsWith('https://') || image.startsWith('/images/');
+  return image.startsWith('cloud://') || image.startsWith('http://') || image.startsWith('https://');
 }
 
 function toTimestamp(value) {

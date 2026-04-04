@@ -144,16 +144,74 @@ Page({
   },
 
   oneKeyReminder() {
-    this.pushOrderReminder()
-      .then(() => wx.showToast({ title: '提醒已发送', icon: 'success' }))
-      .catch((err) => {
-        console.error('pushOrderReminder error', err);
-        wx.showToast({ title: '提醒失败', icon: 'none' });
-      });
+    wx.showModal({
+      title: '一键提醒',
+      content: '确定要给所有待取货的顾客发送提醒吗？',
+      success: (res) => {
+        if (res.confirm) {
+          wx.showLoading({ title: '发送中...' });
+          this.pushOrderReminder()
+            .then((totalCount) => {
+              wx.hideLoading();
+              wx.showModal({
+                title: '提醒成功',
+                content: `已提醒 ${totalCount} 位顾客`,
+                showCancel: false
+              });
+            })
+            .catch((err) => {
+              wx.hideLoading();
+              console.error('pushOrderReminder error', err);
+              wx.showModal({
+                title: '提醒失败',
+                content: '发送提醒时出错，请稍后重试',
+                showCancel: false
+              });
+            });
+        }
+      }
+    });
   },
 
   pushOrderReminder() {
-    return Promise.resolve();
+    return new Promise(async (resolve, reject) => {
+      try {
+        // 获取待取货商品列表
+        const pickupGoods = this.data.orderData.pickup || [];
+        
+        if (pickupGoods.length === 0) {
+          resolve(0);
+          return;
+        }
+        
+        let totalCount = 0;
+        
+        // 为每个待取货商品发送提醒
+        for (const goods of pickupGoods) {
+          try {
+            const res = await wx.cloud.callFunction({
+              name: 'sendPickupReminder',
+              data: {
+                goodsId: goods.id || goods._id,
+                goodsName: goods.name,
+                stock: goods.stock
+              }
+            });
+            
+            if (res.result.code === 0) {
+              totalCount += res.result.userCount || 0;
+            }
+          } catch (err) {
+            console.error(`发送提醒失败 for ${goods.name}:`, err);
+            // 继续处理其他商品
+          }
+        }
+        
+        resolve(totalCount);
+      } catch (err) {
+        reject(err);
+      }
+    });
   },
 
   onPickupCodeInput(e) {

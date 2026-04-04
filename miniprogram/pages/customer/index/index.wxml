@@ -35,7 +35,10 @@
   <!-- 消息中心长卡片 -->
   <view class="long-card" bindtap="goToMessage">
     <view class="center-box">
-      <image class="long-icon" src="cloud://cloud1-2gltiqs6a2c5cd76.636c-cloud1-2gltiqs6a2c5cd76-1411302136/icons/icon_msg.png"></image>
+      <view class="icon-container">
+        <image class="long-icon" src="cloud://cloud1-2gltiqs6a2c5cd76.636c-cloud1-2gltiqs6a2c5cd76-1411302136/icons/icon_msg.png"></image>
+        <view wx:if="{{unreadMessageCount > 0}}" class="unread-badge">{{unreadMessageCount > 99 ? '99+' : unreadMessageCount}}</view>
+      </view>
       <text class="long-title">消息中心</text>
     </view>
   </view>

@@ -21,8 +21,18 @@ exports.main = async (event, context) => {
       };
     }
 
-    // 查询商品详情
-    const result = await db.collection('goods').doc(goodsId).get();
+    // 根据 goodsId 字段查询
+    const queryResult = await db.collection('goods').where({ goodsId: goodsId }).get();
+    
+    if (!queryResult.data || queryResult.data.length === 0) {
+      return {
+        code: -1,
+        message: '商品不存在',
+        data: null,
+      };
+    }
+    
+    const result = { data: queryResult.data[0] };
 
     if (!result.data) {
       return {

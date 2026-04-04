@@ -122,12 +122,20 @@ Page({
             .then((result) => {
               wx.hideLoading();
               const count = result && result.userCount ? result.userCount : 0;
-              wx.showToast({ title: `已提醒 ${count} 位顾客`, icon: 'success' });
+              wx.showModal({
+                title: '提醒成功',
+                content: `已提醒 ${count} 位顾客`,
+                showCancel: false
+              });
             })
             .catch(err => {
               wx.hideLoading();
               console.error('requestNotificationReminder error', err);
-              wx.showToast({ title: '提醒失败', icon: 'none' });
+              wx.showModal({
+                title: '提醒失败',
+                content: '发送提醒时出错，请稍后重试',
+                showCancel: false
+              });
             });
         }
       }

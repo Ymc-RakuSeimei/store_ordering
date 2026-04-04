@@ -32,6 +32,8 @@ Page({
   onShow() {
     // 每次显示页面时刷新购物车数据（确保从其他页面返回时更新）
     this.loadCartFromStorage();
+    // 直接更新商品列表中的购物车数量，避免重新加载
+    this.updateAllGoodsCartQuantity();
   },
 
   // 加载所有商品数据
@@ -165,6 +167,66 @@ Page({
     wx.setStorageSync('shoppingCart', cart);
   },
 
+  // 更新商品列表中的购物车数量
+  updateGoodsCartQuantity(goodsId) {
+    const updatedGoodsData = JSON.parse(JSON.stringify(this.data.goodsData));
+    const updatedOriginalData = JSON.parse(JSON.stringify(this.data.originalGoodsData));
+    
+    const updateQuantity = (goodsList) => {
+      return goodsList.map(item => {
+        const itemId = item.id || item.goodsId || item._id;
+        if (itemId === goodsId) {
+          const cartItem = this.data.cartList.find(cartItem => cartItem.id === goodsId);
+          return {
+            ...item,
+            cartQuantity: cartItem ? cartItem.quantity : 0
+          };
+        }
+        return item;
+      });
+    };
+    
+    // 更新所有商品类型的列表
+    Object.keys(updatedGoodsData).forEach(key => {
+      updatedGoodsData[key] = updateQuantity(updatedGoodsData[key]);
+      updatedOriginalData[key] = updateQuantity(updatedOriginalData[key]);
+    });
+    
+    this.setData({
+      goodsData: updatedGoodsData,
+      originalGoodsData: updatedOriginalData
+    });
+  },
+
+  // 更新所有商品的购物车数量
+  updateAllGoodsCartQuantity() {
+    const updatedGoodsData = JSON.parse(JSON.stringify(this.data.goodsData));
+    const updatedOriginalData = JSON.parse(JSON.stringify(this.data.originalGoodsData));
+    
+    const updateQuantity = (goodsList) => {
+      return goodsList.map(item => {
+        // 匹配商品 ID，使用与组件相同的逻辑
+        const goodsId = item.id || item.goodsId || item._id;
+        const cartItem = this.data.cartList.find(cartItem => cartItem.id === goodsId);
+        return {
+          ...item,
+          cartQuantity: cartItem ? cartItem.quantity : 0
+        };
+      });
+    };
+    
+    // 更新所有商品类型的列表
+    Object.keys(updatedGoodsData).forEach(key => {
+      updatedGoodsData[key] = updateQuantity(updatedGoodsData[key]);
+      updatedOriginalData[key] = updateQuantity(updatedOriginalData[key]);
+    });
+    
+    this.setData({
+      goodsData: updatedGoodsData,
+      originalGoodsData: updatedOriginalData
+    });
+  },
+
   // 更新购物车数据
   updateCartData(cart) {
     let totalCount = 0;
@@ -201,6 +263,8 @@ Page({
     }
 
     this.updateCartData(cart);
+    // 直接更新商品列表中的购物车数量，避免重新加载
+    this.updateGoodsCartQuantity(id);
     wx.showToast({ title: '已加入购物车', icon: 'success', duration: 1500 });
   },
 
@@ -229,6 +293,8 @@ Page({
           }
 
           this.updateCartData(cart);
+          // 直接更新商品列表中的购物车数量，避免重新加载
+          this.updateGoodsCartQuantity(id);
           wx.showToast({ title: '已加入接龙', icon: 'success', duration: 1500 });
         }
       }
@@ -243,6 +309,8 @@ Page({
     if (item) {
       item.quantity += 1;
       this.updateCartData(cart);
+      // 直接更新商品列表中的购物车数量，避免重新加载
+      this.updateGoodsCartQuantity(id);
     }
   },
 
@@ -255,11 +323,46 @@ Page({
       if (cart[itemIndex].quantity > 1) {
         cart[itemIndex].quantity -= 1;
         this.updateCartData(cart);
+        // 直接更新商品列表中的购物车数量，避免重新加载
+        this.updateGoodsCartQuantity(id);
       } else {
         cart.splice(itemIndex, 1);
         this.updateCartData(cart);
+        // 直接更新商品列表中的购物车数量，避免重新加载
+        this.updateGoodsCartQuantity(id);
       }
     }
+  },
+
+  // 更新数量（从商品卡片组件触发）
+  onUpdateQuantity(e) {
+    const { id, quantity } = e.detail;
+    let cart = [...this.data.cartList];
+    const itemIndex = cart.findIndex(item => item.id === id);
+    
+    if (itemIndex !== -1) {
+      cart[itemIndex].quantity += quantity;
+      if (cart[itemIndex].quantity <= 0) {
+        cart.splice(itemIndex, 1);
+      }
+    } else if (quantity > 0) {
+      // 如果商品不在购物车中且是增加数量，则添加到购物车
+      const goods = this.data.originalGoodsData.all.find(goods => goods.goodsId === id || goods._id === id);
+      if (goods) {
+        cart.push({
+          id: goods.goodsId || goods._id,
+          name: goods.name,
+          price: goods.specialPrice || goods.price,
+          image: goods.images && goods.images.length > 0 ? goods.images[0] : '',
+          type: goods.type || 'spot',
+          quantity: 1
+        });
+      }
+    }
+    
+    this.updateCartData(cart);
+    // 直接更新商品列表中的购物车数量，避免重新加载
+    this.updateGoodsCartQuantity(id);
   },
 
   // 合并结算

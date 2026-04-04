@@ -13,6 +13,7 @@
     "pages/merchant/verify/verify",
     "pages/customer/index/index",
     "pages/customer/goods/goods",
+    "pages/customer/goods/detail/detail",
     "pages/customer/goods/newgoods/newgoods",
     "pages/customer/my/my",
     "pages/customer/feedback/feedback",

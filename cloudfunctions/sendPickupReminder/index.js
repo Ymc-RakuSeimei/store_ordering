@@ -74,8 +74,8 @@ exports.main = async (event, context) => {
             goodsName: goodsName || '',
             stock: stock || 0
           },
-          isread: false,
-          createAt: now
+          isRead: false,
+          createdAt: now
         }
       })
     })

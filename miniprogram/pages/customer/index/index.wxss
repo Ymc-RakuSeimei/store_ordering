@@ -100,13 +100,19 @@ page {
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
+}
+
+/* 图标容器 */
+.icon-container {
+  position: relative;
+  margin-right: 40rpx;
 }
 
 /* 图标 */
 .long-icon {
   width: 60rpx;
   height: 60rpx;
-  margin-right: 40rpx;
 }
 
 /* 文字 */
@@ -114,6 +120,25 @@ page {
   font-size: 34rpx;
   font-weight: bold;
   color: #333;
+}
+
+/* 未读消息小红点 */
+.unread-badge {
+  position: absolute;
+  top: -15rpx;
+  right: -15rpx;
+  background-color: #ff3b30;
+  color: white;
+  font-size: 20rpx;
+  font-weight: bold;
+  min-width: 40rpx;
+  height: 40rpx;
+  border-radius: 20rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 10rpx;
+  box-shadow: 0 2rpx 8rpx rgba(255, 59, 48, 0.3);
 }
 
 /* 底部文字 */

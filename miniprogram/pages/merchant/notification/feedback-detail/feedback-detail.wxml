@@ -1,0 +1,82 @@
+<view class="page">
+  <view class="header">
+    <text class="back" bindtap="onBack">← 返回</text>
+    <text class="title">反馈详情</text>
+    <view class="placeholder"></view>
+  </view>
+
+  <view wx:if="{{loading}}" class="loading-state">
+    <text>加载中...</text>
+  </view>
+
+  <view wx:elif="{{!feedback}}" class="empty-state">
+    <text>获取详情失败</text>
+  </view>
+
+  <view wx:else class="content">
+    <!-- 反馈基本信息 -->
+    <view class="card">
+      <view class="card-header">
+        <text class="feedback-type">{{feedback.type}}</text>
+        <text class="feedback-status status-{{feedback.status === '待处理' ? 'red' : 'green'}}">{{feedback.status}}</text>
+      </view>
+
+      <view class="info-row">
+        <text class="info-label">商品名称</text>
+        <text class="info-value">{{feedback.goodsName || '-'}}</text>
+      </view>
+
+      <view class="info-row" wx:if="{{feedback.orderNo}}">
+        <text class="info-label">订单号</text>
+        <text class="info-value">{{feedback.orderNo}}</text>
+      </view>
+
+      <view class="info-row" wx:if="{{feedback.afterSaleType}}">
+        <text class="info-label">售后类型</text>
+        <text class="info-value">{{feedback.afterSaleType}}</text>
+      </view>
+
+      <view class="info-row" wx:if="{{feedback.reason}}">
+        <text class="info-label">售后原因</text>
+        <text class="info-value">{{feedback.reason}}</text>
+      </view>
+
+      <view class="info-row" wx:if="{{feedback.content && !feedback.reason}}">
+        <text class="info-label">反馈内容</text>
+        <text class="info-value">{{feedback.content}}</text>
+      </view>
+
+      <view class="info-row" wx:if="{{feedback.rating > 0}}">
+        <text class="info-label">评分</text>
+        <text class="info-value">{{feedback.rating}}星</text>
+      </view>
+
+      <view class="info-row">
+        <text class="info-label">提交时间</text>
+        <text class="info-value">{{feedback.createdAt}}</text>
+      </view>
+
+      <view class="info-row" wx:if="{{feedback.updatedAt && feedback.updatedAt !== feedback.createdAt}}">
+        <text class="info-label">更新时间</text>
+        <text class="info-value">{{feedback.updatedAt}}</text>
+      </view>
+    </view>
+
+    <!-- 图片区域 -->
+    <view class="card" wx:if="{{feedback.images && feedback.images.length > 0}}">
+      <view class="card-title">反馈图片</view>
+      <view class="image-list">
+        <image
+          wx:for="{{feedback.images}}"
+          wx:key="*this"
+          class="feedback-image"
+          src="{{item}}"
+          mode="aspectFill"
+          bindtap="onPreviewImage"
+          data-url="{{item}}"
+          data-urls="{{feedback.images}}"
+        />
+      </view>
+    </view>
+  </view>
+</view>

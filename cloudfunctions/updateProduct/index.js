@@ -77,6 +77,7 @@ function sanitizeUpdatePayload(event = {}, currentProduct = {}) {
   const sellPrice = Number(event.sellPrice);
   const costPrice = Number(event.costPrice);
   const stock = Number(event.stock);
+  const description = String(event.description || '').trim();
   const currentImages = Array.isArray(currentProduct.images) ? currentProduct.images.filter(isUsableImage) : [];
   const image = isUsableImage(event.img)
     ? event.img.trim()
@@ -100,6 +101,7 @@ function sanitizeUpdatePayload(event = {}, currentProduct = {}) {
       price: sellPrice,
       cost: costPrice,
       stock,
+      description,
       images: [image],
       updatedAt: new Date()
     }

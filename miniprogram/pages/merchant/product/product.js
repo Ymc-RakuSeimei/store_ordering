@@ -58,6 +58,7 @@ Page({
     editCostPrice: '',
     editStock: '',
     editImg: '',
+    editDescription: '',
 
     // 新增商品弹窗相关状态。
     showAddDialog: false,
@@ -88,7 +89,8 @@ Page({
       editSellPrice: item.sellPrice === undefined || item.sellPrice === null ? '' : String(item.sellPrice),
       editCostPrice: item.costPrice === undefined || item.costPrice === null ? '' : String(item.costPrice),
       editStock: item.stock === undefined || item.stock === null ? '' : String(item.stock),
-      editImg: item.img || DEFAULT_PRODUCT_IMAGE
+      editImg: item.img || DEFAULT_PRODUCT_IMAGE,
+      editDescription: item.description === undefined || item.description === null ? '' : String(item.description)
     });
   },
 
@@ -159,6 +161,7 @@ Page({
     if (key === 'sellPrice') this.setData({ editSellPrice: value });
     if (key === 'costPrice') this.setData({ editCostPrice: value });
     if (key === 'stock') this.setData({ editStock: value });
+    if (key === 'description') this.setData({ editDescription: value });
   },
 
   // 给编辑中的商品重新选图并上传到云存储。
@@ -227,6 +230,7 @@ Page({
     const sellPriceText = String(this.data.editSellPrice).trim();
     const costPriceText = String(this.data.editCostPrice).trim();
     const stockText = String(this.data.editStock).trim();
+    const description = String(this.data.editDescription || '').trim();
     const sellPrice = Number(sellPriceText);
     const costPrice = Number(costPriceText);
     const stock = Number(stockText);
@@ -253,13 +257,14 @@ Page({
       sellPrice,
       costPrice,
       stock,
-      img
+      img,
+      description
     }).then((serverProduct) => {
       const key = this.data.activeTab === 'stock' ? 'stockList' : 'specialList';
       const list = this.data[key].map((currentItem, index) => {
         if ((currentItem._id || currentItem.id) === (item._id || item.id)) {
           return normalizeProductItem(
-            serverProduct || { ...currentItem, sellPrice, costPrice, stock, img },
+            serverProduct || { ...currentItem, sellPrice, costPrice, stock, img, description },
             index
           );
         }

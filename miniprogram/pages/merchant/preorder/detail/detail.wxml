@@ -1,0 +1,134 @@
+<view class="page">
+  <view class="header">
+    <text class="back" bindtap="onBack">← 返回</text>
+    <text class="title">接龙详情</text>
+    <view class="placeholder"></view>
+  </view>
+
+  <view wx:if="{{loading}}" class="loading-state">
+    <text>加载中...</text>
+  </view>
+
+  <view wx:elif="{{!goods}}" class="empty-state">
+    <text>获取详情失败</text>
+  </view>
+
+  <view wx:else class="content">
+    <!-- 商品基本信息 -->
+    <view class="card">
+      <view class="goods-header">
+        <image class="goods-img" src="{{goods.img}}" mode="aspectFill" />
+        <view class="goods-info">
+          <text class="goods-name">{{goods.name}}</text>
+          <text class="goods-spec">规格：{{goods.spec}}</text>
+          <text wx:if="{{goods.description}}" class="goods-desc">{{goods.description}}</text>
+        </view>
+      </view>
+
+      <view class="goods-meta">
+        <view class="meta-row">
+          <text class="meta-label">售价</text>
+          <text class="meta-value">¥{{goods.salePrice}}</text>
+        </view>
+        <view class="meta-row">
+          <text class="meta-label">进价</text>
+          <text class="meta-value">¥{{goods.costPrice}}</text>
+        </view>
+        <view class="meta-row" wx:if="{{goods.stock}}">
+          <text class="meta-label">库存</text>
+          <text class="meta-value">{{goods.stock}}</text>
+        </view>
+        <view class="meta-row" wx:if="{{goods.limitPerPerson}}">
+          <text class="meta-label">每人限购</text>
+          <text class="meta-value">{{goods.limitPerPerson}}件</text>
+        </view>
+      </view>
+
+      <view class="goods-meta">
+        <view class="meta-row" wx:if="{{goods.arrivalDate}}">
+          <text class="meta-label">预计到货</text>
+          <text class="meta-value">{{goods.arrivalDate}}</text>
+        </view>
+        <view class="meta-row" wx:if="{{goods.closeType === 'timed' && goods.closeTimeStr}}">
+          <text class="meta-label">截单时间</text>
+          <text class="meta-value">{{goods.closeTimeStr}}</text>
+        </view>
+        <view class="meta-row" wx:if="{{goods.closedAt}}">
+          <text class="meta-label">实际截止</text>
+          <text class="meta-value">{{goods.closedAt}}</text>
+        </view>
+        <view class="meta-row" wx:if="{{goods.arrivalTime}}">
+          <text class="meta-label">到货时间</text>
+          <text class="meta-value">{{goods.arrivalTime}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 统计信息 -->
+    <view class="card stats-card">
+      <view class="stats-title">接龙统计</view>
+      <view class="stats-row">
+        <view class="stat-item">
+          <text class="stat-number">{{goods.participantCount}}</text>
+          <text class="stat-label">参与人数</text>
+        </view>
+        <view class="stat-divider"></view>
+        <view class="stat-item">
+          <text class="stat-number">{{goods.totalQty}}</text>
+          <text class="stat-label">总订件数</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 订单列表 -->
+    <view class="card">
+      <view class="orders-title">
+        订单明细
+        <text class="orders-count">({{orders.length}}条)</text>
+      </view>
+
+      <view wx:if="{{!orders || orders.length === 0}}" class="empty-orders">
+        暂无订单数据
+      </view>
+
+      <block wx:else>
+        <view class="order-item" wx:for="{{orders}}" wx:key="orderId">
+          <view class="order-header">
+            <view class="customer-info">
+              <image wx:if="{{item.avatarUrl}}" class="customer-avatar" src="{{item.avatarUrl}}" mode="aspectFill" />
+              <view wx:else class="customer-avatar placeholder-avatar">
+                <text class="avatar-text">{{item.customerName.charAt(0)}}</text>
+              </view>
+              <text class="customer-name">{{item.customerName}}</text>
+            </view>
+            <text class="order-time">{{item.orderTime}}</text>
+          </view>
+
+          <view class="order-detail">
+            <view class="qty-info">
+              <text class="qty-label">订购数量</text>
+              <text class="qty-value">{{item.quantity}}件</text>
+            </view>
+            <view class="status-badge status-{{item.statusClass}}">
+              {{item.pickupStatus || '未到货'}}
+            </view>
+          </view>
+
+          <view wx:if="{{item.phone}}" class="order-phone">
+            <text class="phone-label">联系电话：</text>
+            <text class="phone-value">{{item.phone}}</text>
+          </view>
+
+          <view wx:if="{{item.remark}}" class="order-remark">
+            <text class="remark-label">备注：</text>
+            <text class="remark-value">{{item.remark}}</text>
+          </view>
+
+          <view wx:if="{{item.orderNo}}" class="order-no">
+            订单号：{{item.orderNo}}
+          </view>
+        </view>
+      </block>
+    </view>
+  </view>
+</view>

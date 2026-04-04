@@ -12,9 +12,37 @@
   </view>
 
   <view class="notice-list">
-    <block wx:for="{{notifications}}" wx:key="id">
-      <block wx:if="{{activeTab==='all' || item.type===activeTab}}">
-        <view class="notice-card type-{{item.type}}">
+    <!-- 售后反馈 tab（单独显示） -->
+    <block wx:if="{{activeTab === 'feedback'}}">
+      <block wx:for="{{feedbackList}}" wx:key="id">
+        <view class="notice-card type-feedback" bindtap="onViewFeedbackDetail" data-item="{{item}}">
+          <view class="notice-content">
+            <text class="notice-title">{{item.type}}：{{item.goodsName || item.name || item.orderName}}</text>
+            <text class="notice-sub">{{item.reason || item.content || item.createdAt}}</text>
+          </view>
+          <view class="feedback-status-mini status-{{item.status === '待处理' ? 'red' : 'green'}}">{{item.status}}</view>
+        </view>
+      </block>
+
+      <view wx:if="{{!feedbackList || feedbackList.length === 0}}" class="empty-state">
+        暂无售后反馈
+      </view>
+    </block>
+
+    <!-- 全部 tab - 使用合并排序后的列表 -->
+    <block wx:elif="{{activeTab === 'all'}}">
+      <block wx:for="{{allNotifications}}" wx:key="item.id">
+        <!-- 售后反馈类型 -->
+        <view wx:if="{{item.isFeedback}}" class="notice-card type-feedback" bindtap="onViewFeedbackDetail" data-item="{{item}}">
+          <view class="notice-content">
+            <text class="notice-title">{{item.type}}：{{item.goodsName || item.name || item.orderName}}</text>
+            <text class="notice-sub">{{item.reason || item.content || item.createdAt}}</text>
+          </view>
+          <view class="feedback-status-mini status-{{item.status === '待处理' ? 'red' : 'green'}}">{{item.status}}</view>
+        </view>
+
+        <!-- 库存提醒和滞留预警类型 -->
+        <view wx:else class="notice-card type-{{item.type}}">
           <view class="notice-content">
             <text class="notice-title">{{item.text}}</text>
             <text class="notice-sub" wx:if="{{item.subText}}">{{item.subText}}</text>
@@ -22,10 +50,29 @@
           <button wx:if="{{item.showRemindAction}}" class="notice-btn" data-item="{{item}}" bindtap="onRemind">提醒</button>
         </view>
       </block>
+
+      <view wx:if="{{!allNotifications || allNotifications.length === 0}}" class="empty-state">
+        暂无通知
+      </view>
     </block>
 
-    <view wx:if="{{!notifications || notifications.length===0}}" class="empty-state">
-      暂无通知
-    </view>
+    <!-- 其他单独 tab（库存提醒/滞留预警） -->
+    <block wx:else>
+      <block wx:for="{{notifications}}" wx:key="item.id">
+        <block wx:if="{{item.type === activeTab}}">
+          <view class="notice-card type-{{item.type}}">
+            <view class="notice-content">
+              <text class="notice-title">{{item.text}}</text>
+              <text class="notice-sub" wx:if="{{item.subText}}">{{item.subText}}</text>
+            </view>
+            <button wx:if="{{item.showRemindAction}}" class="notice-btn" data-item="{{item}}" bindtap="onRemind">提醒</button>
+          </view>
+        </block>
+      </block>
+
+      <view wx:if="{{!notifications || notifications.length === 0}}" class="empty-state">
+        暂无通知
+      </view>
+    </block>
   </view>
 </view>

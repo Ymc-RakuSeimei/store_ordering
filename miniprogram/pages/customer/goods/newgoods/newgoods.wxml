@@ -1,13 +1,5 @@
 <!-- 今日上新页面 -->
 <view class="container">
-  <!-- 顶部导航栏 -->
-  <view class="nav-bar">
-    <view class="nav-back" bindtap="goBack">
-      <text class="back-icon"></text>
-    </view>
-    <view class="nav-title">今日上新</view>
-    <view class="nav-placeholder"></view>
-  </view>
 
   <!-- 标签与统计区 -->
   <view class="stats-area">

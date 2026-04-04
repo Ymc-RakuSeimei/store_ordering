@@ -16,7 +16,7 @@ Page({
   onBack() {
     wx.navigateBack({
       delta: 1,
-      fail: function() {
+      fail: function () {
         wx.redirectTo({ url: '/pages/customer/my/my' });
       }
     });

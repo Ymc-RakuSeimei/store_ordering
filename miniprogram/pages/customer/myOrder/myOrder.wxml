@@ -1,13 +1,5 @@
 <!-- 我的订单主容器页面 -->
 <view class="container">
-  <!-- 顶部导航栏 -->
-  <view class="nav-bar">
-    <view class="nav-back" bindtap="goBack">
-      <text class="back-icon"></text>
-    </view>
-    <view class="nav-title"></view>
-    <view class="nav-placeholder">我的订单</view>
-  </view>
 
   <!-- Tab栏 -->
   <view class="tab-bar">

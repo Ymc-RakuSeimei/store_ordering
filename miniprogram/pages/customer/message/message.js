@@ -13,10 +13,10 @@ Page({
   },
 
   // 返回上一页
-  onBack() {
+  goBack() {
     wx.navigateBack({
       delta: 1,
-      fail: function() {
+      fail: function () {
         wx.redirectTo({ url: '/pages/customer/index/index' });
       }
     });

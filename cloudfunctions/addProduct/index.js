@@ -7,6 +7,15 @@ cloud.init({ env: ENV_ID });
 
 const db = cloud.database();
 
+// 生成商品业务唯一标识。
+// 设计原则：
+// 1. goodsId 是业务侧索引，不替代数据库 _id
+// 2. 基于数据库 _id 生成，天然唯一
+// 3. 增加 GD_ 前缀，便于和其他集合的标识区分
+function buildGoodsId(docId = '') {
+  return `GD_${String(docId).toUpperCase()}`;
+}
+
 // 判断图片地址是否可以直接给前端显示。
 function isUsableImage(value) {
   if (typeof value !== 'string') return false;
@@ -128,6 +137,15 @@ exports.main = async (event) => {
         ...payload,
         createdAt: now,
         updatedAt: now
+      }
+    });
+
+    // goodsId 需要以数据库真实 _id 为基础生成，因此新增后再回写一次。
+    const generatedGoodsId = buildGoodsId(addRes._id);
+    await db.collection('goods').doc(addRes._id).update({
+      data: {
+        goodsId: generatedGoodsId,
+        updatedAt: new Date()
       }
     });
 

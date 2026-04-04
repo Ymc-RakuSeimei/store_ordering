@@ -1,5 +1,5 @@
 page {
-  background: #f2f2f5; /* 和商家其他页面统一背景色 */
+  background-color: #F5F7FA;
   font-family: PingFang SC, Helvetica Neue, Arial, sans-serif;
   color: #333;
 }
@@ -13,12 +13,12 @@ page {
   margin-bottom: 16rpx;
 }
 .back {
-  color: #333; /* 黑色返回文字 */
+  color: #333;
   font-size: 30rpx;
   font-weight: 500;
 }
 .placeholder {
-  width: 60rpx; /* 占位元素，保证标题居中 */
+  width: 60rpx;
 }
 .title {
   flex: 1;
@@ -38,9 +38,9 @@ page {
 }
 .tab {
   flex: 1;
-  padding: 8rpx 0;
+  padding: 10rpx 0;
   text-align: center;
-  font-size: 24rpx;
+  font-size: 26rpx;
   color: #666;
   border-radius: 14rpx;
   margin-right: 8rpx;
@@ -49,41 +49,58 @@ page {
   background: #333;
   color: #fff;
 }
-.delete-all {
-  color: #ff3b30;
-  font-weight: bold;
-  font-size: 22rpx;
-}
 .notice-list {
   padding-bottom: 40rpx;
 }
 .notice-card {
   background: #fff;
-  border-radius: 18rpx; /* 统一圆角风格 */
-  padding: 24rpx 20rpx; /* 加大内边距，容器变大 */
-  margin-bottom: 16rpx; /* 增加卡片间距，更宽松 */
-  min-height: 100rpx; /* 固定最小高度，所有容器大小一致 */
+  border-radius: 18rpx;
+  padding: 24rpx 20rpx;
+  margin-bottom: 16rpx;
+  min-height: 120rpx;
   display: flex;
   justify-content: space-between;
   align-items: center;
   box-shadow: 0 6rpx 12rpx rgba(0, 0, 0, 0.05);
+  border-left: 8rpx solid #ddd;
 }
-.notice-text {
-  font-size: 28rpx; /* 通知文字放大 */
-  color: #333;
+.notice-card.type-inventory {
+  border-left-color: #ff9500;
+}
+.notice-card.type-retention {
+  border-left-color: #ff3b30;
+}
+.notice-content {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.notice-title {
+  font-size: 28rpx;
+  color: #333;
+  font-weight: 600;
+  margin-bottom: 6rpx;
+}
+.notice-sub {
+  font-size: 24rpx;
+  color: #999;
 }
 .notice-btn {
-  background: #00c853;
+  background: #007AFF;
   color: #fff;
   border: none;
   border-radius: 14rpx;
-  padding: 10rpx 16rpx; /* 按钮加大 */
-  font-size: 24rpx; /* 按钮文字放大 */
+  padding: 12rpx 20rpx;
+  font-size: 24rpx;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+.notice-btn::after {
+  border: none;
 }
 .empty-state {
   text-align: center;
   color: #999;
-  font-size: 24rpx;
-  margin-top: 80rpx;
+  font-size: 26rpx;
+  margin-top: 100rpx;
 }

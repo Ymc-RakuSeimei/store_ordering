@@ -13,11 +13,14 @@
         <view class="order-number">{{index + 1}}</view>
         
         <!-- 商品图片 -->
-        <image class="order-image" src="{{item.image || '/images/placeholder.png'}}" mode="aspectFill"></image>
+        <image class="order-image" src="{{item.image || 'cloud://cloud1-2gltiqs6a2c5cd76.636c-cloud1-2gltiqs6a2c5cd76-1411302136/icons/placeholder.png'}}" mode="aspectFill"></image>
         
         <!-- 商品信息 -->
         <view class="order-info">
-          <text class="order-name">{{item.name}}</text>
+          <view class="name-quantity">
+            <text class="order-name">{{item.name}}</text>
+            <text class="order-quantity">x{{item.quantity}}</text>
+          </view>
           <text class="order-price">¥{{item.price}}</text>
         </view>
         

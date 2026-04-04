@@ -1,79 +1,115 @@
-<!-- 订单处理页面主容器 -->
 <view class="page">
-  <!-- 页面头部：包含标题和扫码取货按钮 -->
   <view class="header">
-    <!-- 页面标题 -->
     <text class="title">订单处理</text>
-    <!-- 扫码取货按钮：绑定扫码事件（需在JS中实现onScanPickup方法） -->
     <button class="scan-btn" bindtap="onScanPickup">扫码取货</button>
   </view>
-  <!-- 取货码快捷入口 -->
+
   <view class="pickup-code-entry">
-    <input class="pickup-code-input" type="number" placeholder="请输入6位取货码" bindinput="onPickupCodeInput" value="{{pickupCode}}" maxlength="6" />
+    <input
+      class="pickup-code-input"
+      type="number"
+      placeholder="请输入6位取货码"
+      bindinput="onPickupCodeInput"
+      value="{{pickupCode}}"
+      maxlength="6"
+    />
     <button class="verify-btn" bindtap="onVerifyPickupCode" disabled="{{!isPickupCodeValid || loading}}">
       {{loading ? '验证中...' : '核销'}}
     </button>
   </view>
-  <!-- 订单状态标签栏：显示待取货、待到货、顾客订单、售后反馈四个tab -->
+
   <view class="tabbar">
-    <!-- 循环渲染tab列表，每个tab绑定点击事件切换状态 -->
     <block wx:for="{{tabs}}" wx:key="id">
-      <!-- tab项：根据activeTab判断是否激活，点击切换activeTab -->
-      <text class="tab {{activeTab===item.id?'active':''}}" bindtap="switchTab" data-tab="{{item.id}}">
-        {{item.label}}
-      </text>
-    </block>
-  </view>
-  <!-- 订单列表区域：根据当前activeTab显示对应订单 -->
-  <view class="order-list">
-    <!-- 循环渲染当前tab的订单数据 -->
-    <block wx:for="{{orderData[activeTab]}}" wx:key="id">
-      <!-- 订单卡片：点击跳转到详情页，传递订单数据 -->
-      <view class="order-card" data-item="{{item}}" bindtap="openOrderDetail">
-        <!-- 订单标题：显示序号和订单名称 -->
-        <text class="order-title">{{index+1}}. {{item.name || item.orderName}}</text>
-        <!-- 订单数量：显示商品数量 -->
-        <text class="order-qty">×{{item.qty || item.count}}</text>
-        <!-- 订单元信息：售后反馈和其他tab区分展示 -->
-        <text class="order-meta" wx:if="{{activeTab === 'feedback' && item.left}}" style="display:block;">
-          <text class="meta-label">处理状态：</text>
-          <text class="status-{{item.left === '待处理' ? 'red' : 'green'}}">{{item.left}}</text>
-        </text>
-        <text class="order-meta" wx:if="{{activeTab === 'feedback' && item.spec}}" style="display:block;">
-          <text class="meta-label">反馈内容：</text>
-          {{item.spec}}
-        </text>
-        <text class="order-meta" wx:if="{{activeTab !== 'feedback' && item.left}}">
-          <text class="meta-label">剩余</text>
-          <text class="status-{{item.left > 0 ? 'red' : 'green'}}">{{item.left}}</text>
-          <text class="meta-label">件未取</text>
-        </text>
-        <text class="order-meta" wx:if="{{activeTab !== 'feedback' && item.spec}}">
-          <text class="meta-label">规格：</text>
-          {{item.spec}}
-        </text>
+      <view class="tab {{activeTab === item.id ? 'active' : ''}}" bindtap="switchTab" data-tab="{{item.id}}">
+        <text class="tab-label">{{item.label}}</text>
       </view>
     </block>
-    <!-- 空状态提示：当当前tab无订单时显示 -->
-    <view wx:if="{{!orderData[activeTab] || orderData[activeTab].length===0}}" class="empty-state">
+  </view>
+
+  <view class="order-list">
+    <block wx:if="{{activeTab === 'customer'}}">
+      <block wx:for="{{orderData.customer}}" wx:key="_id">
+        <view class="customer-order-card" bindtap="openCustomerDetail" data-customer-key="{{item.customerKey}}">
+          <view class="customer-order-header">
+            <text class="customer-name">{{item.customerName}}的订单</text>
+            <text class="order-no">{{item.orderNo}}</text>
+          </view>
+          <view class="customer-order-info">
+            <text class="info-item">共{{item.totalQty}}件，待取{{item.pickableQty}}件，未到货{{item.waitingQty}}件</text>
+            <text class="arrival-status arrival-{{item.arrivalStatus}}">
+              {{item.arrivalStatus === 'all' ? '全部到货' : '部分到货'}}
+            </text>
+          </view>
+          <text class="customer-extra" wx:if="{{item.latestOrderTimeText}}">最近下单：{{item.latestOrderTimeText}}</text>
+          <text class="customer-extra" wx:if="{{item.phone}}">联系电话：{{item.phone}}</text>
+          <text class="customer-extra" wx:if="{{item.pickupCode}}">取货码：{{item.pickupCode}}</text>
+          <text class="customer-extra" wx:if="{{item.goodsPreviewText}}">商品：{{item.goodsPreviewText}}</text>
+        </view>
+      </block>
+    </block>
+
+    <block wx:elif="{{activeTab === 'arrival' || activeTab === 'pickup'}}">
+      <block wx:for="{{orderData[activeTab]}}" wx:key="id">
+        <!-- 这里沿用商品管理页的卡片结构：左图、右文案、右侧操作 -->
+        <view class="goods-card goods-card--{{activeTab}}">
+          <image class="goods-img" src="{{item.img}}" mode="aspectFill" />
+
+          <view class="goods-info">
+            <text class="name">{{item.name}}</text>
+            <text class="spec" wx:if="{{item.spec}}">规格：{{item.spec}}</text>
+
+            <text class="summary" wx:if="{{activeTab === 'arrival'}}">
+              未到货：{{item.waitingQty}}件
+            </text>
+
+            <text class="summary" wx:if="{{activeTab === 'pickup'}}">
+              待取货：{{item.pickupQty}}件
+            </text>
+
+            <text class="summary" wx:if="{{item.arrivalDate}}">
+              预计到货：{{item.arrivalDate}}
+            </text>
+          </view>
+
+          <view class="goods-action-area">
+            <button
+              wx:if="{{activeTab === 'arrival'}}"
+              class="arrive-btn"
+              catchtap="onMarkArrived"
+              data-id="{{item.id}}"
+              data-name="{{item.name}}"
+            >
+              到货
+            </button>
+
+            <view wx:elif="{{activeTab === 'pickup'}}" class="pickup-badge">
+              待取货
+            </view>
+          </view>
+        </view>
+      </block>
+    </block>
+
+    <block wx:else>
+      <block wx:for="{{orderData.feedback}}" wx:key="id">
+        <view class="order-card">
+          <text class="order-title">{{item.name || item.orderName}}</text>
+          <text class="order-meta" wx:if="{{item.left}}">
+            <text class="meta-label">处理状态：</text>
+            <text class="status-{{item.left === '待处理' ? 'red' : 'green'}}">{{item.left}}</text>
+          </text>
+          <text class="order-meta" wx:if="{{item.spec}}">
+            <text class="meta-label">反馈内容：</text>
+            {{item.spec}}
+          </text>
+        </view>
+      </block>
+    </block>
+
+    <view wx:if="{{!orderData[activeTab] || orderData[activeTab].length === 0}}" class="empty-state">
       暂无订单
     </view>
   </view>
-  <!-- 一键提醒按钮：点击发送提醒给所有待处理订单 -->
-  <button class="action-btn" bindtap="oneKeyReminder">一键提醒</button>
-  <!-- 自定义底部tab栏（3按钮：首页/商品/我的） -->
-  <view class="merchant-tabbar">
-    <view class="tabbar-item" data-tab="home" bindtap="onTabTap">
-      <image class="tabbar-icon" src="/images/icon_home.png" />
-      <text class="tabbar-text">首页</text>
-    </view>
-    <view class="tabbar-item" data-tab="product" bindtap="onTabTap">
-      <image class="tabbar-icon" src="/images/icon_order.png" />
-      <text class="tabbar-text">商品</text>
-    </view>
-    <view class="tabbar-item" data-tab="my" bindtap="onTabTap">
-      <image class="tabbar-icon" src="/images/icon_mine.png" />
-      <text class="tabbar-text">我的</text>
-    </view>
-  </view>
+
+  <button wx:if="{{activeTab === 'pickup'}}" class="action-btn" bindtap="oneKeyReminder">一键提醒</button>
 </view>

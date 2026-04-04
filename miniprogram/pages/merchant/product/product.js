@@ -1,11 +1,11 @@
-const DEFAULT_PRODUCT_IMAGE = '/images/goods_sample.png';
+const DEFAULT_PRODUCT_IMAGE = 'cloud://cloud1-2gltiqs6a2c5cd76.636c-cloud1-2gltiqs6a2c5cd76-1411302136/icons/placeholder.png';
 
 // 页面上展示图片时，只接受这些常见可访问路径。
 const isUsableImage = (value) => {
   if (typeof value !== 'string') return false;
   const image = value.trim();
   if (!image) return false;
-  return image.startsWith('cloud://') || image.startsWith('http://') || image.startsWith('https://') || image.startsWith('/images/');
+  return image.startsWith('cloud://') || image.startsWith('http://') || image.startsWith('https://');
 };
 
 // 新增商品弹窗的初始值统一放在一个函数里，便于重置表单。
@@ -70,7 +70,12 @@ Page({
   },
 
   onBack() {
-    wx.navigateBack();
+    wx.navigateBack({
+      delta: 1,
+      fail: function () {
+        wx.redirectTo({ url: '/pages/merchant/index/index' });
+      }
+    });
   },
 
   // 切换“现货 / 特价处理”两个 tab。
@@ -96,6 +101,58 @@ Page({
     this.setData({
       showEditDialog: false,
       editItem: null
+    });
+  },
+
+  // 删除商品。
+  // 流程：
+  // 1. 先弹确认框，避免误删
+  // 2. 调用 deleteProduct 云函数删除数据库记录
+  // 3. 前端本地列表同步移除已删除商品
+  deleteProduct() {
+    const item = this.data.editItem || {};
+    const productName = item.name || '当前商品';
+    const productId = item._id || item.id;
+
+    wx.showModal({
+      title: '删除商品',
+      content: `确认删除“${productName}”吗？删除后当前商品将从商品列表中移除。`,
+      confirmColor: '#e14d4d',
+      success: (res) => {
+        if (!res.confirm) return;
+
+        if (!productId) {
+          wx.showToast({ title: '商品ID异常', icon: 'none' });
+          return;
+        }
+
+        wx.showLoading({ title: '删除中...' });
+
+        this.deleteProductOnServer({ id: productId })
+          .then(() => {
+            // 优先根据商品自身分类决定从哪个本地列表中移除，
+            // 避免后续页面交互调整后只依赖 activeTab 带来误删风险。
+            const listKey = item.special || item.type === 'special' ? 'specialList' : 'stockList';
+            const nextList = (this.data[listKey] || []).filter(
+              (currentItem) => (currentItem._id || currentItem.id) !== productId
+            );
+
+            this.setData({
+              [listKey]: nextList,
+              showEditDialog: false,
+              editItem: null
+            });
+
+            wx.showToast({ title: '删除成功', icon: 'success' });
+          })
+          .catch((err) => {
+            console.error('deleteProductOnServer失败', err);
+            wx.showToast({ title: '删除失败', icon: 'none' });
+          })
+          .finally(() => {
+            wx.hideLoading();
+          });
+      }
     });
   },
 
@@ -353,6 +410,20 @@ Page({
     });
   },
 
+  // 删除商品。
+  deleteProductOnServer(payload) {
+    return wx.cloud.callFunction({
+      name: 'deleteProduct',
+      data: payload
+    }).then((res) => {
+      const result = res.result || {};
+      if (result.code !== 0) {
+        throw new Error(result.message || '删除商品失败');
+      }
+      return result.data || null;
+    });
+  },
+
   // 页面初始化时拉取商品列表，并按现货 / 特价拆分到本地状态。
   loadGoods() {
     this.fetchGoodsFromServer().then((res) => {
@@ -385,7 +456,7 @@ Page({
     const url = map[tab];
 
     if (url) {
-      wx.navigateTo({ url });
+      wx.redirectTo({ url });
     }
   }
 });

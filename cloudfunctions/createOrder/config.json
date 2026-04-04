@@ -3,6 +3,14 @@
     "openapi": [],
     "db": [
       {
+        "collection": "users",
+        "actions": ["get", "update"]
+      },
+      {
+        "collection": "goods",
+        "actions": ["get", "update"]
+      },
+      {
         "collection": "orders",
         "actions": ["add", "get"]
       }

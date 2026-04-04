@@ -1,6 +1,6 @@
 Page({
   data: {
-    avatarUrl: '/images/avatar.png',
+    avatarUrl: 'cloud://cloud1-2gltiqs6a2c5cd76.636c-cloud1-2gltiqs6a2c5cd76-1411302136/icons/avatar.png',
     helloName: 'ymc',
     scanText: '扫码取货',
     profile: {
@@ -112,7 +112,7 @@ Page({
   getMerchantProfileFromDB() {
     // TODO: 后端补充数据库查询逻辑，包含avatarUrl字段
     return Promise.resolve({
-      avatarUrl: '/images/avatar.png', // 商家头像地址
+      avatarUrl: 'cloud://cloud1-2gltiqs6a2c5cd76.636c-cloud1-2gltiqs6a2c5cd76-1411302136/icons/avatar.png', // 商家头像地址
       storeName: 'MC_Store',
       address: 'A市B区C街D号',
       wechat: 'wxzh123',
@@ -159,6 +159,6 @@ Page({
       my: '/pages/merchant/my/my'
     };
     const url = map[tab];
-    if (url) wx.navigateTo({ url });
+    if (url) wx.redirectTo({ url });
   }
 });

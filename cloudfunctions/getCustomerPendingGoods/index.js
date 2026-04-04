@@ -21,7 +21,7 @@ exports.main = async (event, context) => {
         name: 'getPickupCode',
         data: { pickupCode }
       })
-      
+
       if (pickupCodeResult && pickupCodeResult.result && pickupCodeResult.result.code === 0) {
         openid = pickupCodeResult.result.data.openid
       }
@@ -33,7 +33,7 @@ exports.main = async (event, context) => {
     const filter = {
       status: '待取货'
     }
-    
+
     if (openid) {
       filter.openid = openid
     } else {
@@ -46,7 +46,7 @@ exports.main = async (event, context) => {
       .get()
 
     // 如果使用openid查询，可能需要进一步筛选pickupCode
-    const filteredOrders = openid ? 
+    const filteredOrders = openid ?
       orders.data.filter(order => order.pickupCode === pickupCode) :
       orders.data
 
@@ -73,11 +73,11 @@ exports.main = async (event, context) => {
     }
 
     filteredOrders.forEach(order => {
-      // 获取顾客信息（取地址信息）
-      if (order.address) {
+      // 获取顾客信息
+      if (order.customerInfo) {
         customerInfo = {
-          name: order.address.name || '顾客',
-          phone: order.address.phone || ''
+          name: order.customerInfo.name || '顾客',
+          phone: order.customerInfo.phone || ''
         }
       }
 
@@ -94,13 +94,13 @@ exports.main = async (event, context) => {
             name: item.name || '商品',
             quantity: item.quantity || 1,
             price: item.price || 0,
-            image: item.images?.[0] || item.image || '/images/goods_sample.png'
+            image: item.images?.[0] || item.image || 'cloud://cloud1-2gltiqs6a2c5cd76.636c-cloud1-2gltiqs6a2c5cd76-1411302136/icons/placeholder.png'
           }
 
           // 根据状态分类
-          if (item.pickupStatus === '已到货') {
+          if (item.pickupStatus === '待取货') {
             pickupGoods.push(goodsItem)
-          } else if (item.pickupStatus === '待到货') {
+          } else if (item.pickupStatus === '未到货') {
             waitingGoods.push(goodsItem)
           }
           // 已取货的商品不显示

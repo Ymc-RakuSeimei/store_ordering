@@ -3,8 +3,6 @@
   min-height: 100vh;
   padding-bottom: 140rpx;
   padding-top: 20rpx;
-  padding-left: 0;
-  padding-right: 0;
 }
 
 /* 顶部导航栏 */
@@ -65,21 +63,23 @@
   background-color: #ffffff;
   border-radius: 60rpx;
   padding: 20rpx 28rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0,0,0,0.04);
   width: 100%;
   box-sizing: border-box;
-  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.04);
 }
 
 .search-icon {
   width: 36rpx;
   height: 36rpx;
   margin-right: 16rpx;
+  flex-shrink: 0;
 }
 
 .search-input {
   flex: 1;
   font-size: 28rpx;
   color: #333333;
+  width: 100%;
 }
 
 .search-placeholder {
@@ -102,7 +102,7 @@
   font-weight: 500;
   color: #666666;
   background-color: #ffffff;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
+  box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.04);
 }
 
 .tab-item.active {
@@ -110,9 +110,11 @@
   color: #ffffff;
 }
 
-/* 组件容器 - 统一内边距，确保商品卡片左右对齐 */
+/* 组件容器 - 修复宽度 */
 .component-container {
-  padding: 0 24rpx;
+  padding: 0;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* 底部购物车栏 */
@@ -126,8 +128,8 @@
   align-items: center;
   justify-content: space-between;
   padding: 20rpx 32rpx;
-  padding-bottom: calc(20rpx + env(safe-area-inset-bottom));
-  box-shadow: 0 -4rpx 20rpx rgba(0, 0, 0, 0.08);
+  padding-bottom: 20rpx;
+  box-shadow: 0 -4rpx 20rpx rgba(0,0,0,0.08);
   z-index: 20;
 }
 
@@ -199,7 +201,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0,0,0,0.5);
   z-index: 100;
   display: flex;
   align-items: flex-end;

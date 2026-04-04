@@ -10,13 +10,13 @@
 
 /* 页面背景 */
 page {
-  background: #f2f2f5;
+  background-color: #F5F7FA;
 }
 
 /* 页面整体容器 - 最小高度占满视口，灰色背景，底部预留tab栏空间 */
 .page {
   min-height: 100vh;
-  background: #f2f2f5;
+  background-color: #F5F7FA;
   box-sizing: border-box;
   padding: 26rpx 24rpx 180rpx;
 }
@@ -32,10 +32,12 @@ page {
 
 /* 商家头像 - 圆角矩形设计 */
 .avatar {
-  width: 86rpx;
-  height: 86rpx;
+  width: 100rpx;
+  height: 100rpx;
   border-radius: 22rpx; /* 圆角 */
   margin-right: 18rpx;
+  margin-left: 20rpx;
+  margin-top: 40rpx;
 }
 
 /* 欢迎文字 - 大字体突出显示商家名称 */
@@ -43,6 +45,8 @@ page {
   font-size: 50rpx;
   color: #1a1a1a;
   font-weight: 500;
+  margin-left: 20rpx;
+  margin-top: 60rpx;
 }
 
 /* 扫码按钮容器 - 右上角绝对定位 */
@@ -57,8 +61,8 @@ page {
 
 /* 扫码图标 */
 .scan-icon {
-  width: 58rpx;
-  height: 58rpx;
+  width: 100rpx;
+  height: 100rpx;
 }
 
 /* 扫码文字说明 */
@@ -70,7 +74,7 @@ page {
 
 /* 卡片容器 - 浅灰色圆角，带阴影效果 */
 .card {
-  background: #ffffff;
+  background: #ffffffbb;
   border-radius: 20rpx;
   box-shadow: 0 8rpx 20rpx rgba(0, 0, 0, 0.12);
   overflow: hidden;

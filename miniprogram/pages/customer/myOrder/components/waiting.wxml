@@ -6,7 +6,6 @@
       <text class="loading-text">加载中...</text>
     </view>
   </view>
-
   <!-- 取货码区域 -->
   <view class="qrcode-section" wx:if="{{pickupCode}}">
     <view class="qrcode-header">
@@ -32,7 +31,6 @@
       </button>
     </view>
   </view>
-
   <!-- 统计信息 -->
   <view class="statistics" wx:if="{{statistics}}">
     <view class="stat-item">
@@ -42,7 +40,7 @@
     <view class="stat-divider"></view>
     <view class="stat-item">
       <text class="stat-number waiting">{{statistics.waitingCount}}</text>
-      <text class="stat-label">待到货</text>
+      <text class="stat-label">未到货</text>
     </view>
     <view class="stat-divider"></view>
     <view class="stat-item">
@@ -50,26 +48,27 @@
       <text class="stat-label">总计</text>
     </view>
   </view>
-
   <!-- 订单列表 -->
   <view class="order-list">
     <block wx:for="{{orderList}}" wx:key="id">
-      <view class="order-item {{item.pickupStatus === '已到货' ? 'arrived' : 'waiting'}}" animation="{{item.animation}}">
+      <view class="order-item {{item.pickupStatus === '待取货' ? 'arrived' : 'waiting'}}" animation="{{item.animation}}">
         <view class="order-number">{{index + 1}}</view>
-        <image class="order-image" src="{{item.image || '/images/placeholder.png'}}" mode="aspectFill"></image>
+        <image class="order-image" src="{{item.image || 'cloud://cloud1-2gltiqs6a2c5cd76.636c-cloud1-2gltiqs6a2c5cd76-1411302136/icons/placeholder.png'}}" mode="aspectFill"></image>
         <view class="order-info">
-          <text class="order-name">{{item.name}}</text>
+          <view class="name-quantity">
+            <text class="order-name">{{item.name}}</text>
+            <text class="order-quantity">x{{item.quantity}}</text>
+          </view>
           <text class="order-price">¥{{item.price}}</text>
         </view>
         <view class="order-status-area">
           <view class="status-btn status-arrived" wx:if="{{item.pickupStatus === '待取货'}}">待取货</view>
-          <view class="status-btn status-waiting" wx:if="{{item.pickupStatus === '待到货'}}">待到货</view>
-
+          <view class="status-btn status-waiting" wx:if="{{item.pickupStatus === '未到货'}}">未到货</view>
         </view>
       </view>
     </block>
     <view class="empty-state" wx:if="{{orderList.length === 0 && !loading}}">
-      <image src="/images/icon_order.png" class="empty-icon"></image>
+      <image src="cloud://cloud1-2gltiqs6a2c5cd76.636c-cloud1-2gltiqs6a2c5cd76-1411302136/icons/icon_order.png" class="empty-icon"></image>
       <text class="empty-text">暂无待取货订单</text>
       <text class="empty-subtext">您可以去商品页面浏览更多商品</text>
     </view>

@@ -16,7 +16,7 @@
   <view wx:elif="{{dragon}}" class="content">
     <!-- 商品卡片 -->
     <view class="product-card">
-      <image class="product-img" src="{{dragon.img || '/images/avatar.png'}}" mode="aspectFill"></image>
+      <image class="product-img" src="{{dragon.img || 'cloud://cloud1-2gltiqs6a2c5cd76.636c-cloud1-2gltiqs6a2c5cd76-1411302136/icons/avatar.png'}}" mode="aspectFill"></image>
       <view class="product-info">
         <view class="product-name">{{dragon.name}}</view>
         <view class="product-spec">规格：{{dragon.spec}}</view>
@@ -87,7 +87,7 @@
       </view>
       <view class="participant-list">
         <view wx:for="{{participants}}" wx:key="userId" class="participant-item">
-          <image class="participant-avatar" src="{{item.avatarUrl || '/images/avatar.png'}}" mode="aspectFill"></image>
+          <image class="participant-avatar" src="{{item.avatarUrl || 'cloud://cloud1-2gltiqs6a2c5cd76.636c-cloud1-2gltiqs6a2c5cd76-1411302136/icons/avatar.png'}}" mode="aspectFill"></image>
           <view class="participant-info">
             <view class="participant-name">{{item.userName}}</view>
             <view class="participant-time">{{item.joinTime}}</view>

@@ -1,41 +1,82 @@
-<!-- 数据中心页面 -->
 <view class="page">
-  <view class="header">
-    <text class="title">数据中心</text>
-  </view>
+  <view class="page-shell">
+    <view class="hero-card">
+      <view class="hero-orb hero-orb--left"></view>
+      <view class="hero-orb hero-orb--right"></view>
+      <view class="hero-meta">
+        <text class="hero-eyebrow">DATA CENTER</text>
+        <text class="hero-period">{{chartMeta.periodLabel}}</text>
+      </view>
 
-  <!-- 营收统计卡片 -->
-  <view class="card stats-card">
-    <view class="stats-header">
-      <text class="stats-period">本月</text>
-      <text class="stats-arrow">▼</text>
+      <view class="hero-copy">
+        <text class="hero-title">数据中心</text>
+        <text class="hero-subtitle">查看门店经营数据</text>
+      </view>
+
+      <view class="hero-divider"></view>
+
+      <view class="period-panel">
+        <text class="section-kicker">时间维度</text>
+        <view class="period-tabs">
+          <block wx:for="{{periods}}" wx:key="key">
+            <view
+              class="period-tab {{activePeriod === item.key ? 'period-tab--active' : ''}}"
+              data-period="{{item.key}}"
+              bindtap="onPeriodChange"
+            >
+              {{item.label}}
+            </view>
+          </block>
+        </view>
+      </view>
     </view>
 
-    <view class="stats-row">
-      <view class="stats-item gauge">
-        <text class="stats-label">总收入</text>
-        <text class="stats-value">{{stats.totalRevenue.toFixed(2)}}</text>
+    <view class="content-section">
+      <view class="section-header">
+        <text class="section-title">核心概览</text>
       </view>
-      <view class="stats-item gauge">
-        <text class="stats-label">总成本</text>
-        <text class="stats-value value-cost">{{stats.totalCost.toFixed(2)}}</text>
-      </view>
-      <view class="stats-item gauge">
-        <text class="stats-label">净利润</text>
-        <text class="stats-value value-profit">{{stats.netProfit.toFixed(2)}}</text>
+
+      <view class="summary-grid">
+        <block wx:for="{{summaryCards}}" wx:key="key">
+          <view class="summary-card">
+            <view class="summary-accent" style="background: {{item.color}};"></view>
+            <view class="summary-topline">
+              <view class="summary-dot" style="background: {{item.color}};"></view>
+              <text class="summary-label">{{item.label}}</text>
+            </view>
+            <text class="summary-value" style="color: {{item.color}};">{{item.value}}</text>
+          </view>
+        </block>
       </view>
     </view>
-  </view>
 
-  <!-- 订单状态卡片 -->
-  <view class="card order-card">
-    <text class="order-title">订单状态</text>
-    <view class="order-list">
-      <view class="order-row"><text class="order-label">已到货</text><text class="order-count">{{orderSummary.delivered}}件</text></view>
-      <view class="order-row"><text class="order-label">已取货</text><text class="order-count">{{orderSummary.pickedUp}}件</text></view>
-      <view class="order-row pending"><text class="order-label">待取货</text><text class="order-count">{{orderSummary.pendingPickup}}件</text></view>
+    <view class="chart-card">
+      <view class="chart-orb"></view>
+      <view class="chart-header">
+        <view>
+          <text class="section-kicker section-kicker--english">TREND</text>
+          <text class="chart-title">趋势分析</text>
+          <text class="chart-subtitle">横轴：{{chartMeta.xAxisTitle}}，纵轴：金额</text>
+        </view>
+      </view>
+
+      <view class="chart-legend">
+        <block wx:for="{{chartLegend}}" wx:key="key">
+          <view class="legend-item">
+            <view class="legend-dot" style="background: {{item.color}};"></view>
+            <text class="legend-text">{{item.label}}</text>
+          </view>
+        </block>
+      </view>
+
+      <view class="chart-body">
+        <canvas
+          id="trend-chart"
+          type="2d"
+          class="trend-canvas"
+        ></canvas>
+        <view wx:if="{{loading}}" class="chart-state">正在加载数据...</view>
+      </view>
     </view>
-
-    <button class="action-btn" bindtap="onOneKeyReminder">一键提醒</button>
   </view>
 </view>

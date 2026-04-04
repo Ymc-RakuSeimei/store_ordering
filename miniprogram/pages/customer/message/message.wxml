@@ -1,14 +1,5 @@
 <!-- 消息中心主容器页面 -->
 <view class="container">
-  <!-- 顶部导航栏 -->
-  <view class="nav-bar">
-    <view class="nav-back" bindtap="goBack">
-      <text class="back-icon"></text>
-    </view>
-    <view class="nav-title">消息中心</view>
-    <view class="nav-placeholder"></view>
-  </view>
-
   <!-- Tab栏 + 一键删除 -->
   <view class="tab-header">
     <view class="tab-bar">

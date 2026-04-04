@@ -1,13 +1,6 @@
 ﻿<!-- 商品列表主容器页面 -->
 <view class="container">
-  <!-- 顶部导航栏 -->
-  <view class="nav-bar">
-    <view class="nav-back" bindtap="goBack">
-      <text class="back-icon"></text>
-    </view>
-    <view class="nav-title">商品</view>
-    <view class="nav-placeholder"></view>
-  </view>
+
   <!-- 搜索栏 -->
   <view class="search-bar">
     <view class="search-box">

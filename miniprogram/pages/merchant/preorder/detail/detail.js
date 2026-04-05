@@ -34,6 +34,15 @@ Page({
     });
   },
 
+  onBack() {
+    wx.navigateBack({
+      delta: 1,
+      fail: function () {
+        wx.redirectTo({ url: '/pages/merchant/preorder/preorder' });
+      }
+    });
+  },
+
   getStatusClass(status) {
     const statusMap = {
       '未到货': 'waiting',
@@ -43,15 +52,6 @@ Page({
       '已完成': 'completed'
     };
     return statusMap[status] || 'waiting';
-  },
-
-  onBack() {
-    wx.navigateBack({
-      delta: 1,
-      fail: function() {
-        wx.redirectTo({ url: '/pages/merchant/preorder/preorder' });
-      }
-    });
   },
 
   async loadDetail() {

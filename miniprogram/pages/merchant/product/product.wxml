@@ -44,6 +44,10 @@
         <text>库存</text>
         <input data-key="stock" value="{{editStock}}" type="number" bindinput="bindEditChange" />
       </view>
+      <view class="dialog-row">
+        <text>描述</text>
+        <input data-key="description" value="{{editDescription}}" type="string" bindinput="bindEditChange" />
+      </view>
       <!-- 商品图片上传 -->
       <view class="dialog-img-row">
         <text class="img-label">商品图片</text>

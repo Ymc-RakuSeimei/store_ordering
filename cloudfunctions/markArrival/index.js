@@ -11,7 +11,7 @@ async function assertMerchant(openid) {
   const user = (userRes.data || [])[0];
 
   if (!user || user.role !== 'merchant') {
-    throw new Error('无权限截止接龙');
+    throw new Error('无权限标记到货');
   }
 
   return user;
@@ -24,37 +24,36 @@ exports.main = async (event = {}) => {
 
     const id = String(event.id || '').trim();
     if (!id) {
-      throw new Error('缺少接龙商品ID');
+      throw new Error('缺少商品ID');
     }
 
     const goodsRes = await db.collection('goods').doc(id).get();
     const goods = goodsRes.data;
 
     if (!goods || goods.type !== 'preorder') {
-      throw new Error('接龙商品不存在');
+      throw new Error('预售商品不存在');
     }
 
     await db.collection('goods').doc(id).update({
       data: {
-        preorderState: 'closed',
-        closedAt: new Date(),
-        status: '待到货',
+        status: '已到货',
+        arrivalTime: new Date(),
         updatedAt: new Date()
       }
     });
 
     return {
       code: 0,
-      message: '已截止',
+      message: '已标记到货',
       data: {
         id
       }
     };
   } catch (err) {
-    console.error('stopPreorder 云函数错误', err);
+    console.error('markArrival 云函数错误', err);
     return {
       code: -1,
-      message: err.message || '截止失败',
+      message: err.message || '标记失败',
       data: null
     };
   }

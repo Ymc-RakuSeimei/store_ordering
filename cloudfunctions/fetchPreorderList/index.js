@@ -53,7 +53,7 @@ function normalizePreorderItem(item = {}) {
     spec: item.specs || item.spec || '',
     totalQty: Number(item.totalBooked) || 0,
     arrivalDate: item.arrivalDate || '',
-    status: preorderState === 'closed' ? 'completed' : 'ongoing',
+    status: item.status || (preorderState === 'closed' ? '待到货' : 'ongoing'),
     preorderState,
     createdAt: item.createdAt,
     updatedAt: item.updatedAt

@@ -10,8 +10,7 @@ Page({
     orderData: {
       pickup: [],
       arrival: [],
-      customer: [],
-      feedback: []
+      customer: []
     },
     loading: true,
     pickupCode: '',

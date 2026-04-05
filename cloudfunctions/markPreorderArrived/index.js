@@ -84,6 +84,7 @@ exports.main = async (event = {}) => {
         status: '已到货',
         stock: nextStock,
         arrivedAt: now,
+        arrivalTime: now,
         updatedAt: now
       }
     });

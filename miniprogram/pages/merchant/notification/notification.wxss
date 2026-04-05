@@ -70,6 +70,9 @@ page {
 .notice-card.type-retention {
   border-left-color: #ff3b30;
 }
+.notice-card.type-feedback {
+  border-left-color: #ff3b30;
+}
 .notice-content {
   flex: 1;
   display: flex;
@@ -103,4 +106,23 @@ page {
   color: #999;
   font-size: 26rpx;
   margin-top: 100rpx;
+}
+
+/* 售后反馈小状态标签 */
+.feedback-status-mini {
+  font-size: 22rpx;
+  padding: 4rpx 12rpx;
+  border-radius: 8rpx;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.feedback-status-mini.status-red {
+  background: #fff5f5;
+  color: #ff3b30;
+}
+
+.feedback-status-mini.status-green {
+  background: #f0fff4;
+  color: #34c759;
 }

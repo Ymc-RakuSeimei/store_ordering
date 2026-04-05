@@ -4,9 +4,12 @@ Page({
     tabs: [
       { id: 'all', label: '全部' },
       { id: 'inventory', label: '库存提醒' },
-      { id: 'retention', label: '滞留预警' }
+      { id: 'retention', label: '滞留预警' },
+      { id: 'feedback', label: '售后反馈' }
     ],
     notifications: [],
+    feedbackList: [],
+    allNotifications: [],
     loading: true
   },
 
@@ -33,16 +36,51 @@ Page({
   // 加载通知列表
   loadNotifications() {
     this.setData({ loading: true });
-    this.fetchGoodsListFromServer()
-      .then(goodsList => {
+    Promise.all([
+      this.fetchGoodsListFromServer(),
+      this.fetchFeedbackListFromServer()
+    ])
+      .then(([goodsList, feedbackList]) => {
         const notifications = this.generateNotifications(goodsList);
-        this.setData({ notifications, loading: false });
+        const allNotifications = this.mergeAndSortNotifications(notifications, feedbackList);
+        this.setData({ notifications, feedbackList, allNotifications, loading: false });
       })
       .catch(err => {
         console.error('loadNotifications error', err);
         wx.showToast({ title: '通知加载失败', icon: 'none' });
         this.setData({ loading: false });
       });
+  },
+
+  // 合并并按时间排序所有通知
+  mergeAndSortNotifications(notifications, feedbackList) {
+    const now = Date.now();
+
+    // 给库存提醒和滞留预警添加时间戳
+    const notificationsWithTime = notifications.map(item => ({
+      ...item,
+      isFeedback: false,
+      timestamp: now // 这两类通知没有具体时间，用当前时间
+    }));
+
+    // 给售后反馈添加时间戳
+    const feedbackWithTime = feedbackList.map(item => ({
+      ...item,
+      isFeedback: true,
+      timestamp: this.parseTime(item.createdAt)
+    }));
+
+    // 合并并按时间倒序排列
+    return [...notificationsWithTime, ...feedbackWithTime]
+      .sort((a, b) => b.timestamp - a.timestamp);
+  },
+
+  // 解析时间字符串为时间戳
+  parseTime(timeStr) {
+    if (!timeStr) return 0;
+    const date = new Date(timeStr);
+    const ts = date.getTime();
+    return isNaN(ts) ? 0 : ts;
   },
 
   // 根据 goods 列表生成通知
@@ -198,6 +236,45 @@ Page({
         return res.result;
       }
       throw new Error(res.result.message || '发送失败');
+    });
+  },
+
+  /**
+   * 获取售后反馈列表
+   * @returns {Promise<Array>}
+   */
+  fetchFeedbackListFromServer() {
+    console.log('Calling fetchFeedbackList cloud function...');
+    return wx.cloud.callFunction({
+      name: 'fetchFeedbackList'
+    }).then(res => {
+      console.log('fetchFeedbackList response:', res);
+      const result = res.result || {};
+      console.log('fetchFeedbackList result:', result);
+      if (result.code === 0) {
+        const data = result.data || [];
+        console.log('Feedback data:', data);
+        return data;
+      }
+      throw new Error(result.message || '获取反馈列表失败');
+    }).catch(err => {
+      console.error('fetchFeedbackListFromServer error', err);
+      // 失败时返回空数组
+      return [];
+    });
+  },
+
+  /**
+   * 查看反馈详情
+   */
+  onViewFeedbackDetail(e) {
+    const item = e.currentTarget.dataset.item;
+    if (!item) return;
+
+    // 将数据编码后传递
+    const dataStr = encodeURIComponent(JSON.stringify(item));
+    wx.navigateTo({
+      url: `/pages/merchant/notification/feedback-detail/feedback-detail?id=${item.id}&data=${dataStr}`
     });
   }
 });

@@ -1,7 +1,7 @@
 <view class="all-container">
   <view class="goods-grid">
     <block wx:for="{{displayList}}" wx:key="id">
-      <view class="goods-card">
+      <view class="goods-card" bindtap="goToDetail" data-item="{{item}}">
         <view class="goods-image-wrapper">
           <image wx:if="{{item.image}}" class="goods-image" src="{{item.image}}" mode="aspectFill"></image>
           <view wx:else class="goods-image-placeholder"></view>
@@ -19,7 +19,13 @@
           <text class="goods-stock">{{item.statusText}}</text>
           <text class="goods-spec">规格:{{item.spec}}</text>
         </view>
-        <view class="goods-action" bindtap="onAction" data-item="{{item}}">
+        <!-- 购物车操作区域 -->
+        <view wx:if="{{item.cartQuantity > 0}}" class="goods-quantity-control">
+          <view class="quantity-btn minus" catchtap="decreaseQuantity" data-item="{{item}}">-</view>
+          <view class="quantity-input">{{item.cartQuantity}}</view>
+          <view class="quantity-btn plus" catchtap="increaseQuantity" data-item="{{item}}">+</view>
+        </view>
+        <view wx:else class="goods-action" catchtap="onAction" data-item="{{item}}">
           {{item.actionText}}
         </view>
       </view>

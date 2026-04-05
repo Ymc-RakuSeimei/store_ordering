@@ -186,6 +186,7 @@ App({
           if (result.code === 0) {
             this.globalData.userRole = result.role;
             this.globalData.userInfo = result.user;
+            this.globalData.openid = result.user.openid;
             resolve(result.role);
           } else {
             reject(new Error(result.message || '获取角色失败'));
@@ -225,8 +226,38 @@ App({
     });
   },
 
+  /**
+   * 获取用户openid
+   * @returns {Promise<string>} 用户openid
+   */
+  getOpenId() {
+    return new Promise((resolve, reject) => {
+      if (this.globalData.openid) {
+        resolve(this.globalData.openid);
+        return;
+      }
+
+      wx.cloud.callFunction({
+        name: 'getOpenId',
+        success: res => {
+          if (res.result && res.result.openid) {
+            this.globalData.openid = res.result.openid;
+            resolve(res.result.openid);
+          } else {
+            reject(new Error('获取openid失败'));
+          }
+        },
+        fail: err => {
+          console.error('获取openid失败', err);
+          reject(err);
+        }
+      });
+    });
+  },
+
   globalData: {
     userRole: null,
-    userInfo: null
+    userInfo: null,
+    openid: null
   }
 });

@@ -29,6 +29,7 @@
   display: flex;
   gap: 12rpx;
   flex-wrap: wrap;
+  align-items: center;
 }
 
 .message-number {
@@ -44,6 +45,16 @@
   color: #333333;
   line-height: 1.4;
   flex: 1;
+}
+
+/* 未读消息点 */
+.unread-dot {
+  width: 12rpx;
+  height: 12rpx;
+  border-radius: 6rpx;
+  background-color: #ff3b30;
+  flex-shrink: 0;
+  margin-left: 12rpx;
 }
 
 /* 查看按钮 */

@@ -13,26 +13,90 @@ Component({
   methods: {
     /**
      * 加载消息数据
-     * 【接口预留】后续对接后端时替换
      */
-    loadMessages() {
-      // TODO: 替换为真实接口调用
-      this.setData({
-        messageList: [
-          {
-            id: '1',
-            content: '你有n件商品到货，请及时取货',
-            type: 'pickup',
-            btnText: '查看'
-          },
-          {
-            id: '2',
-            content: '店铺上新：海绵宝宝同款捕鱼网',
-            type: 'newgoods',
-            btnText: '查看'
+    async loadMessages() {
+      try {
+        // 获取用户openid
+        const app = getApp();
+        const openid = app.globalData.openid || await app.getOpenId();
+        
+        if (!openid) {
+          console.error('获取openid失败');
+          return;
+        }
+        
+        // 调用云函数获取消息列表
+        const res = await wx.cloud.callFunction({
+          name: 'getMessageList',
+          data: {
+            openid: openid,
+            limit: 30,
+            page: 0
           }
-        ]
-      });
+        });
+        
+        if (res.result.code === 0) {
+          // 格式化消息数据
+          const messageList = res.result.data.map(item => ({
+            id: item._id,
+            content: item.content || item.title || '',
+            type: item.type || 'other',
+            btnText: '查看',
+            isRead: item.isRead || false,
+            createdAt: item.createdAt
+          }));
+          
+          this.setData({
+            messageList: messageList
+          });
+        } else {
+          console.error('获取消息列表失败:', res.result.message);
+        }
+      } catch (error) {
+        console.error('加载消息失败:', error);
+      }
+    },
+
+    /**
+     * 标记消息为已读
+     */
+    async markAsRead(e) {
+      try {
+        const messageId = e.currentTarget.dataset.id;
+        const app = getApp();
+        const openid = app.globalData.openid || await app.getOpenId();
+        
+        if (!openid) {
+          return;
+        }
+        
+        // 调用云函数标记消息为已读
+        const res = await wx.cloud.callFunction({
+          name: 'getMessageList',
+          data: {
+            openid: openid,
+            markRead: messageId,
+            limit: 1,
+            page: 0
+          }
+        });
+        
+        if (res.result.code === 0) {
+          // 更新本地消息状态
+          const messageList = this.data.messageList.map(item => {
+            if (item.id === messageId) {
+              return { ...item, isRead: true };
+            }
+            return item;
+          });
+          
+          this.setData({
+            messageList: messageList
+          });
+        }
+      } catch (error) {
+        console.error('标记消息已读失败:', error);
+      }
     },
 
     /**

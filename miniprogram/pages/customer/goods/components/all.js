@@ -45,6 +45,9 @@ Component({
         imageUrl = '';
       }
       
+      // 使用父页面传递的购物车数量
+      const cartQuantity = item.cartQuantity || 0;
+      
       return {
         // 优先使用 goodsId 作为业务索引；老数据没有 goodsId 时回退到 _id。
         id: item.goodsId || item._id,
@@ -61,7 +64,8 @@ Component({
         priceClass: isSpecial ? 'special-price' : '',
         actionText: isPreorder ? '参与接龙' : '加入购物车',
         actionType: isPreorder ? 'joinGroup' : 'addToCart',
-        type: item.type
+        type: item.type,
+        cartQuantity: cartQuantity
       };
     },
 
@@ -102,6 +106,37 @@ Component({
           image: item.image
         });
       }
+    },
+
+    // 减少数量
+    decreaseQuantity(e) {
+      const { item } = e.currentTarget.dataset;
+      this.triggerEvent('updateQuantity', {
+        id: item.id,
+        quantity: -1
+      });
+    },
+
+    // 增加数量
+    increaseQuantity(e) {
+      const { item } = e.currentTarget.dataset;
+      this.triggerEvent('updateQuantity', {
+        id: item.id,
+        quantity: 1
+      });
+    },
+
+    // 跳转到商品详情页
+    goToDetail(e) {
+      const { item } = e.currentTarget.dataset;
+      wx.navigateTo({
+        url: `/pages/customer/goods/detail/detail?id=${item.id}`
+      });
+    },
+
+    // 阻止事件冒泡
+    stopPropagation() {
+      // 防止点击按钮时触发页面跳转
     }
   }
 });

@@ -1,4 +1,4 @@
-﻿<!-- 商品列表主容器页面 -->
+<!-- 商品列表主容器页面 -->
 <view class="container">
 
   <!-- 搜索栏 -->
@@ -26,16 +26,16 @@
   <!-- 组件容器 -->
   <view class="component-container">
     <block wx:if="{{currentTab === 'all'}}">
-      <all-component id="allComponent" searchKeyword="{{searchKeyword}}" goodsList="{{goodsData.all}}" bind:addToCart="onAddToCart" bind:joinGroup="onJoinGroup"></all-component>
+      <all-component id="allComponent" searchKeyword="{{searchKeyword}}" goodsList="{{goodsData.all}}" bind:addToCart="onAddToCart" bind:joinGroup="onJoinGroup" bind:updateQuantity="onUpdateQuantity"></all-component>
     </block>
     <block wx:if="{{currentTab === 'spot'}}">
-      <spot-component id="spotComponent" searchKeyword="{{searchKeyword}}" goodsList="{{goodsData.spot}}" bind:addToCart="onAddToCart" bind:joinGroup="onJoinGroup"></spot-component>
+      <spot-component id="spotComponent" searchKeyword="{{searchKeyword}}" goodsList="{{goodsData.spot}}" bind:addToCart="onAddToCart" bind:joinGroup="onJoinGroup" bind:updateQuantity="onUpdateQuantity"></spot-component>
     </block>
     <block wx:if="{{currentTab === 'preorder'}}">
-      <preorder-component id="preorderComponent" searchKeyword="{{searchKeyword}}" goodsList="{{goodsData.preorder}}" bind:joinGroup="onJoinGroup"></preorder-component>
+      <preorder-component id="preorderComponent" searchKeyword="{{searchKeyword}}" goodsList="{{goodsData.preorder}}" bind:joinGroup="onJoinGroup" bind:updateQuantity="onUpdateQuantity"></preorder-component>
     </block>
     <block wx:if="{{currentTab === 'special'}}">
-      <special-component id="specialComponent" searchKeyword="{{searchKeyword}}" goodsList="{{goodsData.special}}" bind:addToCart="onAddToCart"></special-component>
+      <special-component id="specialComponent" searchKeyword="{{searchKeyword}}" goodsList="{{goodsData.special}}" bind:addToCart="onAddToCart" bind:updateQuantity="onUpdateQuantity"></special-component>
     </block>
   </view>
   <!-- 底部购物车栏 -->

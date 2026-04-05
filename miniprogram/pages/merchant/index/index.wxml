@@ -6,16 +6,15 @@
       <text class="title">Hi，{{userName}}</text>
       <text class="subtitle">欢迎管理MC_store。</text>
     </view>
-<!-- 原扫码按钮代码替换为：新增外层容器包裹按钮+文字 -->
-<view class="scan-btn-wrapper">
-  <button class="scan-btn" bindtap="onScanPickup">
-    <!-- 按钮内只保留图标，删除文字 -->
-    <image class="card-icon" src="/images/icon_QR.png" />
-  </button>
-  <text class="scan-text">扫码取货</text>
-</view>
-</view>
-
+    <!-- 原扫码按钮代码替换为：新增外层容器包裹按钮+文字 -->
+    <view class="scan-btn-wrapper">
+      <button class="scan-btn" bindtap="onScanPickup">
+        <!-- 按钮内只保留图标，删除文字 -->
+        <image class="card-icon" src="cloud://cloud1-2gltiqs6a2c5cd76.636c-cloud1-2gltiqs6a2c5cd76-1411302136/icons/icon_QR.png" />
+      </button>
+      <text class="scan-text">扫码取货</text>
+    </view>
+  </view>
   <view class="card-container">
     <block wx:for="{{cardGroup}}" wx:key="id">
       <view class="card-item" bindtap="onCardTap" data-id="{{item.id}}">
@@ -25,7 +24,6 @@
       </view>
     </block>
   </view>
-
   <view class="long-card" bindtap="onCardTap" data-id="{{notify.id}}">
     <view class="long-holder">
       <image class="long-icon" src="{{notify.icon}}" />
@@ -35,22 +33,20 @@
       </view>
     </view>
   </view>
-
   <text class="bottom-text">Run your store well!</text>
 </view>
-
 <!-- 自定义底部tab栏（样式参考顾客端 app.json 的 tabBar 配色） -->
 <view class="merchant-tabbar">
   <view class="tabbar-item tabbar-item--active" data-tab="home" bindtap="onTabTap">
-    <image class="tabbar-icon" src="/images/icon_home.png" />
+    <image class="tabbar-icon" src="cloud://cloud1-2gltiqs6a2c5cd76.636c-cloud1-2gltiqs6a2c5cd76-1411302136/icons/icon_home_active.png" />
     <text class="tabbar-text">首页</text>
   </view>
   <view class="tabbar-item" data-tab="product" bindtap="onTabTap">
-    <image class="tabbar-icon" src="/images/icon_order.png" />
+    <image class="tabbar-icon" src="cloud://cloud1-2gltiqs6a2c5cd76.636c-cloud1-2gltiqs6a2c5cd76-1411302136/icons/icon_order.png" />
     <text class="tabbar-text">商品</text>
   </view>
   <view class="tabbar-item" data-tab="my" bindtap="onTabTap">
-    <image class="tabbar-icon" src="/images/icon_mine.png" />
+    <image class="tabbar-icon" src="cloud://cloud1-2gltiqs6a2c5cd76.636c-cloud1-2gltiqs6a2c5cd76-1411302136/icons/icon_mine.png" />
     <text class="tabbar-text">我的</text>
   </view>
 </view>

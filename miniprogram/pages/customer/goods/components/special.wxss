@@ -1,9 +1,13 @@
+.all-container,
+.spot-container,
+.preorder-container,
 .special-container {
   background-color: #f5f5f5;
   width: 100%;
+  padding: 0 24rpx;
+  box-sizing: border-box;
 }
 
-/* 从 .goods-grid 到 .empty-state，和 all.wxss 完全一样，直接复制 */
 .goods-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -53,7 +57,24 @@
   z-index: 10;
 }
 
-/* 透明占位符，保持布局一致 */
+/* 接龙预定角标 → 红色 */
+.goods-badge.preorder {
+  background-color: #ff3b30; /* 红色，和现货黑色区分 */
+  color: #ffffff;
+}
+
+/* 现货订购角标 → 保持黑色（可选，也可以不改默认） */
+.goods-badge.spot {
+  background-color: #000000;
+  color: #ffffff;
+}
+
+/* 特价角标 —— 橙色背景，白色文字 */
+.goods-badge.special {
+  background-color: #ff9500;
+  color: #ffffff;
+}
+
 .goods-badge-placeholder {
   position: absolute;
   top: 16rpx;
@@ -62,6 +83,7 @@
   height: 0;
   visibility: hidden;
 }
+
 .goods-info {
   padding: 20rpx;
   display: flex;

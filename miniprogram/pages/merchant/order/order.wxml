@@ -50,6 +50,7 @@
 
     <block wx:elif="{{activeTab === 'arrival' || activeTab === 'pickup'}}">
       <block wx:for="{{orderData[activeTab]}}" wx:key="id">
+        <!-- 这里沿用商品管理页的卡片结构：左图、右文案、右侧操作 -->
         <view class="goods-card goods-card--{{activeTab}}">
           <image class="goods-img" src="{{item.img}}" mode="aspectFill" />
 
@@ -85,6 +86,22 @@
               待取货
             </view>
           </view>
+        </view>
+      </block>
+    </block>
+
+    <block wx:else>
+      <block wx:for="{{orderData.feedback}}" wx:key="id">
+        <view class="order-card">
+          <text class="order-title">{{item.name || item.orderName}}</text>
+          <text class="order-meta" wx:if="{{item.left}}">
+            <text class="meta-label">处理状态：</text>
+            <text class="status-{{item.left === '待处理' ? 'red' : 'green'}}">{{item.left}}</text>
+          </text>
+          <text class="order-meta" wx:if="{{item.spec}}">
+            <text class="meta-label">反馈内容：</text>
+            {{item.spec}}
+          </text>
         </view>
       </block>
     </block>

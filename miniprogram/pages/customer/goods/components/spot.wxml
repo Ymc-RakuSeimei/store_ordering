@@ -5,9 +5,9 @@
         <view class="goods-image-wrapper">
           <image wx:if="{{item.image}}" class="goods-image" src="{{item.image}}" mode="aspectFill"></image>
           <view wx:else class="goods-image-placeholder"></view>
-          <!-- 有角标时显示角标，无角标时显示透明占位符 -->
-          <view class="goods-badge {{item.badgeClass}}" wx:if="{{item.badgeText}}">{{item.badgeText}}</view>
-          <view class="goods-badge-placeholder" wx:else></view>
+          <!-- 角标：有文字才显示，无文字不显示任何东西 -->
+          <!-- 强制现货角标显示：现货订购 → 黑色 -->
+<view class="goods-badge spot">现货订购</view>
         </view>
         <view class="goods-info">
           <text class="goods-name">{{item.name}}</text>

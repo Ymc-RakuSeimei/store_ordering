@@ -149,7 +149,7 @@ Page({
   // 标记到货。
   markArrival(id) {
     return wx.cloud.callFunction({
-      name: 'markArrival',
+      name: 'markPreorderArrived',
       data: { id }
     }).then((res) => {
       const result = res.result || {};

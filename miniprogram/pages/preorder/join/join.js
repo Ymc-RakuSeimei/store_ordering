@@ -179,7 +179,7 @@ Page({
       return Promise.resolve({
         dragon: {
           id: dragonId,
-          img: '/images/avatar.png',
+          img: 'cloud://cloud1-2gltiqs6a2c5cd76.636c-cloud1-2gltiqs6a2c5cd76-1411302136/icons/avatar.png',
           name: '派大星同款手套气球',
           spec: '50个/袋',
           salePrice: 29.9,

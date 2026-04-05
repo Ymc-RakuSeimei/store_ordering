@@ -1,13 +1,5 @@
 <!-- 今日上新页面 -->
 <view class="container">
-  <!-- 顶部导航栏 -->
-  <view class="nav-bar">
-    <view class="nav-back" bindtap="goBack">
-      <text class="back-icon">←</text>
-    </view>
-    <view class="nav-title">今日上新</view>
-    <view class="nav-placeholder"></view>
-  </view>
 
   <!-- 标签与统计区 -->
   <view class="stats-area">
@@ -22,7 +14,18 @@
         <view class="goods-image-wrapper">
           <image wx:if="{{item.image}}" class="goods-image" src="{{item.image}}" mode="aspectFill"></image>
           <view wx:else class="goods-image-placeholder"></view>
-          <view class="goods-badge {{item.badgeClass}}" wx:if="{{item.badgeText}}">{{item.badgeText}}</view>
+          
+          <!-- 统一角标逻辑：和其他页面完全对齐 -->
+          <!-- 1. 特价商品：强制显示「特价处理」+橙色 -->
+          <view class="goods-badge special" wx:if="{{item.type === 'special'}}">特价处理</view>
+          <!-- 2. 预定商品：强制显示「接龙预定」+红色 -->
+          <view class="goods-badge preorder" wx:elif="{{item.type === 'preorder'}}">接龙预定</view>
+          <!-- 3. 现货商品：强制显示「现货订购」+黑色 -->
+          <view class="goods-badge spot" wx:elif="{{item.type === 'spot'}}">现货订购</view>
+          <!-- 4. 兜底：其他类型按原数据显示 -->
+          <view class="goods-badge {{item.badgeClass}}" wx:elif="{{item.badgeText}}">{{item.badgeText}}</view>
+          <!-- 5. 无角标时占位，保持布局一致 -->
+          <view class="goods-badge-placeholder" wx:else></view>
         </view>
         <view class="goods-info">
           <text class="goods-name">{{item.name}}</text>
@@ -44,7 +47,7 @@
   <view class="cart-bar" bindtap="showCartDetail">
     <view class="cart-left">
       <view class="cart-icon-wrapper">
-        <image class="cart-icon" src="/images/icon_shop.png" mode="aspectFit"></image>
+        <image class="cart-icon" src="cloud://cloud1-2gltiqs6a2c5cd76.636c-cloud1-2gltiqs6a2c5cd76-1411302136/icons/icon_shop.png" mode="aspectFit"></image>
         <view class="cart-badge" wx:if="{{cartTotalCount > 0}}">{{cartTotalCount}}</view>
       </view>
       <view class="cart-info">

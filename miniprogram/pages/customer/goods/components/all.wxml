@@ -5,9 +5,10 @@
         <view class="goods-image-wrapper">
           <image wx:if="{{item.image}}" class="goods-image" src="{{item.image}}" mode="aspectFill"></image>
           <view wx:else class="goods-image-placeholder"></view>
-          <!-- 角标始终存在，无角标时显示透明占位 -->
-          <view class="goods-badge {{item.badgeClass}}" wx:if="{{item.badgeText}}">{{item.badgeText}}</view>
-          <view class="goods-badge-placeholder" wx:else></view>
+          <!-- 角标：有文字才显示，无文字不显示任何东西 -->
+          <!-- 统一角标：特价强制显示“特价处理”+橙色，其他正常显示 -->
+<view class="goods-badge special" wx:if="{{item.type === 'special'}}">特价处理</view>
+<view class="goods-badge {{item.badgeClass}}" wx:elif="{{item.badgeText}}">{{item.badgeText}}</view>
         </view>
         <view class="goods-info">
           <text class="goods-name">{{item.name}}</text>

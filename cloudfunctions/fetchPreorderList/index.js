@@ -32,18 +32,6 @@ function toTimestamp(value) {
   return Number.isNaN(timestamp) ? 0 : timestamp;
 }
 
-function formatDate(dateValue) {
-  if (!dateValue) return '';
-  const date = dateValue instanceof Date ? dateValue : new Date(dateValue);
-  if (Number.isNaN(date.getTime())) return '';
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  const hour = String(date.getHours()).padStart(2, '0');
-  const minute = String(date.getMinutes()).padStart(2, '0');
-  return `${year}-${month}-${day} ${hour}:${minute}`;
-}
-
 function shouldAutoClose(item = {}) {
   if (item.type !== 'preorder') return false;
   if (item.preorderState === 'closed') return false;
@@ -57,12 +45,6 @@ function normalizePreorderItem(item = {}) {
   const image = imageList[0] || DEFAULT_PRODUCT_IMAGE;
   const preorderState = item.preorderState === 'closed' ? 'closed' : 'ongoing';
 
-  // 如果已截止但没有 closedAt，用 updatedAt 兜底
-  let closedAtValue = item.closedAt;
-  if (preorderState === 'closed' && !closedAtValue) {
-    closedAtValue = item.updatedAt || item.createdAt;
-  }
-
   return {
     id: item._id,
     goodsId: item.goodsId || '',
@@ -73,8 +55,6 @@ function normalizePreorderItem(item = {}) {
     arrivalDate: item.arrivalDate || '',
     status: item.status || (preorderState === 'closed' ? '待到货' : 'ongoing'),
     preorderState,
-    closedAt: formatDate(closedAtValue),
-    arrivalTime: formatDate(item.arrivalTime),
     createdAt: item.createdAt,
     updatedAt: item.updatedAt
   };

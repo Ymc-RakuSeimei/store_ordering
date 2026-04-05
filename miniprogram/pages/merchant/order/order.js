@@ -4,7 +4,8 @@ Page({
     tabs: [
       { id: 'pickup', label: '待取货' },
       { id: 'arrival', label: '未到货' },
-      { id: 'customer', label: '顾客订单' }
+      { id: 'customer', label: '顾客订单' },
+      { id: 'feedback', label: '售后反馈' }
     ],
     orderData: {
       pickup: [],
@@ -36,16 +37,17 @@ Page({
     Promise.all([
       this.fetchGoodsListFromServer('pickup'),
       this.fetchGoodsListFromServer('arrival'),
-      this.fetchCustomerOrdersFromServer()
+      this.fetchCustomerOrdersFromServer(),
+      this.fetchFeedbackListFromServer()
     ])
-      .then(([pickup, arrival, customer]) => {
+      .then(([pickup, arrival, customer, feedback]) => {
         const nextActiveTab = this.data.activeTab === 'pickup' && pickup.length === 0 && arrival.length > 0
           ? 'arrival'
           : this.data.activeTab;
 
         this.setData({
           activeTab: nextActiveTab,
-          orderData: { pickup, arrival, customer },
+          orderData: { pickup, arrival, customer, feedback },
           loading: false
         });
       })
@@ -93,6 +95,10 @@ Page({
     wx.navigateTo({
       url: `/pages/merchant/order/detail/detail?customerKey=${encodeURIComponent(customerKey)}`
     });
+  },
+
+  fetchFeedbackListFromServer() {
+    return Promise.resolve([]);
   },
 
   onMarkArrived(e) {

@@ -2,7 +2,7 @@
 @import "../../index/index.wxss";
 
 page {
-  background: #f2f2f5;
+  background-color: #F5F7FA;
   font-family: PingFang SC, Helvetica Neue, Arial, sans-serif;
   color: #333;
   min-height: 100vh;

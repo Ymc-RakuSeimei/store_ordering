@@ -1,59 +1,82 @@
 <view class="page">
-  <view class="hero-card">
-    <view class="hero-copy">
-      <text class="hero-title">数据中心</text>
-      <text class="hero-subtitle">按年、月、周、日查看门店经营表现</text>
-    </view>
-
-    <view class="period-tabs">
-      <block wx:for="{{periods}}" wx:key="key">
-        <view
-          class="period-tab {{activePeriod === item.key ? 'period-tab--active' : ''}}"
-          data-period="{{item.key}}"
-          bindtap="onPeriodChange"
-        >
-          {{item.label}}
-        </view>
-      </block>
-    </view>
-
-    <view class="period-caption">{{chartMeta.periodLabel}}</view>
-  </view>
-
-  <view class="summary-grid">
-    <block wx:for="{{summaryCards}}" wx:key="key">
-      <view class="summary-card">
-        <view class="summary-dot" style="background: {{item.color}};"></view>
-        <text class="summary-label">{{item.label}}</text>
-        <text class="summary-value" style="color: {{item.color}};">{{item.value}}</text>
+  <view class="page-shell">
+    <view class="hero-card">
+      <view class="hero-orb hero-orb--left"></view>
+      <view class="hero-orb hero-orb--right"></view>
+      <view class="hero-meta">
+        <text class="hero-eyebrow">DATA CENTER</text>
+        <text class="hero-period">{{chartMeta.periodLabel}}</text>
       </view>
-    </block>
-  </view>
 
-  <view class="chart-card">
-    <view class="chart-header">
-      <view>
-        <text class="chart-title">趋势分析</text>
-        <text class="chart-subtitle">横轴：{{chartMeta.xAxisTitle}}，纵轴：金额</text>
+      <view class="hero-copy">
+        <text class="hero-title">数据中心</text>
+        <text class="hero-subtitle">查看门店经营数据</text>
+      </view>
+
+      <view class="hero-divider"></view>
+
+      <view class="period-panel">
+        <text class="section-kicker">时间维度</text>
+        <view class="period-tabs">
+          <block wx:for="{{periods}}" wx:key="key">
+            <view
+              class="period-tab {{activePeriod === item.key ? 'period-tab--active' : ''}}"
+              data-period="{{item.key}}"
+              bindtap="onPeriodChange"
+            >
+              {{item.label}}
+            </view>
+          </block>
+        </view>
       </view>
     </view>
 
-    <view class="chart-legend">
-      <block wx:for="{{chartLegend}}" wx:key="key">
-        <view class="legend-item">
-          <view class="legend-dot" style="background: {{item.color}};"></view>
-          <text class="legend-text">{{item.label}}</text>
-        </view>
-      </block>
+    <view class="content-section">
+      <view class="section-header">
+        <text class="section-title">核心概览</text>
+      </view>
+
+      <view class="summary-grid">
+        <block wx:for="{{summaryCards}}" wx:key="key">
+          <view class="summary-card">
+            <view class="summary-accent" style="background: {{item.color}};"></view>
+            <view class="summary-topline">
+              <view class="summary-dot" style="background: {{item.color}};"></view>
+              <text class="summary-label">{{item.label}}</text>
+            </view>
+            <text class="summary-value" style="color: {{item.color}};">{{item.value}}</text>
+          </view>
+        </block>
+      </view>
     </view>
 
-    <view class="chart-body">
-      <canvas
-        id="trend-chart"
-        type="2d"
-        class="trend-canvas"
-      ></canvas>
-      <view wx:if="{{loading}}" class="chart-state">正在加载数据...</view>
+    <view class="chart-card">
+      <view class="chart-orb"></view>
+      <view class="chart-header">
+        <view>
+          <text class="section-kicker section-kicker--english">TREND</text>
+          <text class="chart-title">趋势分析</text>
+          <text class="chart-subtitle">横轴：{{chartMeta.xAxisTitle}}，纵轴：金额</text>
+        </view>
+      </view>
+
+      <view class="chart-legend">
+        <block wx:for="{{chartLegend}}" wx:key="key">
+          <view class="legend-item">
+            <view class="legend-dot" style="background: {{item.color}};"></view>
+            <text class="legend-text">{{item.label}}</text>
+          </view>
+        </block>
+      </view>
+
+      <view class="chart-body">
+        <canvas
+          id="trend-chart"
+          type="2d"
+          class="trend-canvas"
+        ></canvas>
+        <view wx:if="{{loading}}" class="chart-state">正在加载数据...</view>
+      </view>
     </view>
   </view>
 </view>

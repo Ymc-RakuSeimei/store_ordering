@@ -1,14 +1,5 @@
 <!-- 消息中心主容器页面 -->
 <view class="container">
-  <!-- 顶部导航栏 -->
-  <view class="nav-bar">
-    <view class="nav-back" bindtap="goBack">
-      <text class="back-icon"></text>
-    </view>
-    <view class="nav-title">消息中心</view>
-    <view class="nav-placeholder"></view>
-  </view>
-
   <!-- Tab栏 + 一键删除 -->
   <view class="tab-header">
     <view class="tab-bar">
@@ -47,15 +38,15 @@
 <!-- 底部导航栏 - 与主页统一 -->
 <view class="tab-bar-bottom">
   <view class="tab-bottom-item" bindtap="goToHome">
-    <image class="tab-icon" src="/images/tab_home.png" mode="aspectFit"></image>
+    <image class="tab-icon" src="cloud://cloud1-2gltiqs6a2c5cd76.636c-cloud1-2gltiqs6a2c5cd76-1411302136/icons/icon_home.png" mode="aspectFit"></image>
     <text class="tab-text">首页</text>
   </view>
   <view class="tab-bottom-item" bindtap="goToGoods">
-    <image class="tab-icon" src="/images/tab_goods.png" mode="aspectFit"></image>
+    <image class="tab-icon" src="cloud://cloud1-2gltiqs6a2c5cd76.636c-cloud1-2gltiqs6a2c5cd76-1411302136/icons/icon_sort.png" mode="aspectFit"></image>
     <text class="tab-text">商品</text>
   </view>
   <view class="tab-bottom-item" bindtap="goToMy">
-    <image class="tab-icon" src="/images/tab_my.png" mode="aspectFit"></image>
+    <image class="tab-icon" src="cloud://cloud1-2gltiqs6a2c5cd76.636c-cloud1-2gltiqs6a2c5cd76-1411302136/icons/icon_mine.png" mode="aspectFit"></image>
     <text class="tab-text">我的</text>
   </view>
 </view>

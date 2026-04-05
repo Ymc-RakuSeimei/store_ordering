@@ -33,8 +33,7 @@
             <button
               class="action-btn action-btn--stop"
               catchtap="onStopCurrent"
-              data-id="{{item.id}}"
-            >
+              data-id="{{item.id}}">
               截止
             </button>
           </view>

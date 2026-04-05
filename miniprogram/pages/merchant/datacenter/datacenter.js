@@ -6,9 +6,9 @@ const PERIOD_OPTIONS = [
 ];
 
 const METRIC_STYLES = {
-  revenue: { label: '总收入', color: '#1f8f55' },
-  cost: { label: '总成本', color: '#d97706' },
-  profit: { label: '总利润', color: '#2563eb' }
+  revenue: { label: '总收入', color: '#235977' },
+  cost: { label: '总成本', color: '#dc843f' },
+  profit: { label: '总利润', color: '#3d8c95' }
 };
 
 const DEFAULT_SUMMARY = {
@@ -64,11 +64,13 @@ Page({
 
   onUnload() {
     this.clearNumberAnimation();
+    this.clearChartAnimation();
   },
 
   async loadDataCenter(nextPeriod) {
     const activePeriod = nextPeriod || this.data.activePeriod;
     this.clearNumberAnimation();
+    this.clearChartAnimation();
     this.setData({ loading: true, activePeriod });
 
     try {
@@ -100,7 +102,7 @@ Page({
       }, () => {
         this.initChartCanvas();
         this.animateSummary(summary, activePeriod);
-        this.drawChart();
+        this.startChartAnimation();
       });
     } catch (error) {
       console.error('loadDataCenter error', error);
@@ -116,7 +118,7 @@ Page({
         }
       }, () => {
         this.initChartCanvas();
-        this.drawChart();
+        this.startChartAnimation();
       });
       wx.showToast({
         title: error.message || '加载失败',
@@ -170,6 +172,9 @@ Page({
     const ctx = this.chartContext;
     const chart = this.chartPayload || { points: [], yMax: 0 };
     const points = Array.isArray(chart.points) ? chart.points : [];
+    const animationProgress = typeof this.chartAnimationProgress === 'number'
+      ? this.chartAnimationProgress
+      : 1;
 
     ctx.clearRect(0, 0, width, height);
     this.drawChartBackground(ctx, width, height);
@@ -186,9 +191,9 @@ Page({
     const yStepValue = yMax / 4;
 
     ctx.save();
-    ctx.strokeStyle = 'rgba(148, 163, 184, 0.18)';
+    ctx.strokeStyle = 'rgba(17, 17, 17, 0.08)';
     ctx.lineWidth = 1;
-    ctx.fillStyle = '#64748b';
+    ctx.fillStyle = '#6a6a6a';
     ctx.font = '11px sans-serif';
     ctx.textAlign = 'right';
     ctx.textBaseline = 'middle';
@@ -222,25 +227,32 @@ Page({
         padding,
         chartWidth,
         chartHeight,
-        yMax
+        yMax,
+        animationProgress
       });
     });
   },
 
   drawChartBackground(ctx, width, height) {
     const gradient = ctx.createLinearGradient(0, 0, width, height);
-    gradient.addColorStop(0, '#f8fbff');
-    gradient.addColorStop(1, '#eef6ff');
+    gradient.addColorStop(0, '#ffffff');
+    gradient.addColorStop(1, '#f5f5f5');
 
     ctx.save();
     ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, width, height);
+
+    const glow = ctx.createRadialGradient(width * 0.78, height * 0.18, 0, width * 0.78, height * 0.18, width * 0.44);
+    glow.addColorStop(0, 'rgba(79, 107, 255, 0.08)');
+    glow.addColorStop(1, 'rgba(79, 107, 255, 0)');
+    ctx.fillStyle = glow;
     ctx.fillRect(0, 0, width, height);
     ctx.restore();
   },
 
   drawChartEmptyState(ctx, width, height) {
     ctx.save();
-    ctx.fillStyle = '#94a3b8';
+    ctx.fillStyle = '#8a8a8a';
     ctx.font = '13px sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
@@ -248,26 +260,44 @@ Page({
     ctx.restore();
   },
 
-  drawMetricLine({ ctx, metricKey, points, padding, chartWidth, chartHeight, yMax }) {
+  drawMetricLine({ ctx, metricKey, points, padding, chartWidth, chartHeight, yMax, animationProgress }) {
     const style = METRIC_STYLES[metricKey];
     const coordinates = points.map((item, index) => ({
       x: this.getPointX(index, points.length, padding.left, chartWidth),
       y: padding.top + chartHeight - (Math.max(item[metricKey] || 0, 0) / yMax) * chartHeight,
       value: item[metricKey] || 0
     }));
+    const animatedCoordinates = this.getAnimatedCoordinates(coordinates, animationProgress);
 
-    if (!coordinates.length) {
+    if (!coordinates.length || !animatedCoordinates.length) {
       return;
     }
 
     ctx.save();
+    const areaGradient = ctx.createLinearGradient(0, padding.top, 0, padding.top + chartHeight);
+    areaGradient.addColorStop(0, this.hexToRgba(style.color, 0.14));
+    areaGradient.addColorStop(1, this.hexToRgba(style.color, 0));
+    ctx.beginPath();
+    animatedCoordinates.forEach((point, index) => {
+      if (index === 0) {
+        ctx.moveTo(point.x, point.y);
+      } else {
+        ctx.lineTo(point.x, point.y);
+      }
+    });
+    ctx.lineTo(animatedCoordinates[animatedCoordinates.length - 1].x, padding.top + chartHeight);
+    ctx.lineTo(animatedCoordinates[0].x, padding.top + chartHeight);
+    ctx.closePath();
+    ctx.fillStyle = areaGradient;
+    ctx.fill();
+
     ctx.strokeStyle = style.color;
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 4;
     ctx.lineJoin = 'round';
     ctx.lineCap = 'round';
     ctx.beginPath();
 
-    coordinates.forEach((point, index) => {
+    animatedCoordinates.forEach((point, index) => {
       if (index === 0) {
         ctx.moveTo(point.x, point.y);
       } else {
@@ -277,18 +307,48 @@ Page({
 
     ctx.stroke();
 
-    coordinates.forEach((point) => {
+    const visiblePointCount = Math.max(0, animatedCoordinates.length - 1);
+    coordinates.slice(0, visiblePointCount).forEach((point) => {
       ctx.beginPath();
       ctx.fillStyle = '#ffffff';
-      ctx.arc(point.x, point.y, 3.5, 0, Math.PI * 2);
+      ctx.arc(point.x, point.y, 4.8, 0, Math.PI * 2);
       ctx.fill();
       ctx.beginPath();
       ctx.fillStyle = style.color;
-      ctx.arc(point.x, point.y, 2, 0, Math.PI * 2);
+      ctx.arc(point.x, point.y, 2.6, 0, Math.PI * 2);
       ctx.fill();
     });
 
     ctx.restore();
+  },
+
+  getAnimatedCoordinates(coordinates, progress) {
+    if (!Array.isArray(coordinates) || !coordinates.length) {
+      return [];
+    }
+
+    if (coordinates.length === 1 || progress >= 1) {
+      return coordinates.slice();
+    }
+
+    const clampedProgress = Math.max(0, Math.min(progress, 1));
+    const totalSegments = coordinates.length - 1;
+    const scaledProgress = clampedProgress * totalSegments;
+    const completedSegments = Math.floor(scaledProgress);
+    const partialProgress = scaledProgress - completedSegments;
+    const animated = coordinates.slice(0, completedSegments + 1);
+
+    if (completedSegments < totalSegments) {
+      const startPoint = coordinates[completedSegments];
+      const endPoint = coordinates[completedSegments + 1];
+      animated.push({
+        x: startPoint.x + (endPoint.x - startPoint.x) * partialProgress,
+        y: startPoint.y + (endPoint.y - startPoint.y) * partialProgress,
+        value: startPoint.value + (endPoint.value - startPoint.value) * partialProgress
+      });
+    }
+
+    return animated;
   },
 
   getPointX(index, total, startX, chartWidth) {
@@ -305,15 +365,16 @@ Page({
     }
 
     const lastIndex = total - 1;
-    const step = Math.max(1, Math.floor(lastIndex / 4));
-    const indexes = [0];
+    const targetLabelCount = 5;
+    const indexes = [];
 
-    for (let index = step; index < lastIndex; index += step) {
-      indexes.push(index);
-    }
+    for (let step = 0; step < targetLabelCount; step += 1) {
+      const ratio = step / (targetLabelCount - 1);
+      const index = Math.round(lastIndex * ratio);
 
-    if (indexes[indexes.length - 1] !== lastIndex) {
-      indexes.push(lastIndex);
+      if (indexes[indexes.length - 1] !== index) {
+        indexes.push(index);
+      }
     }
 
     return indexes;
@@ -356,6 +417,46 @@ Page({
     }
   },
 
+  startChartAnimation() {
+    this.clearChartAnimation();
+    const points = this.chartPayload && Array.isArray(this.chartPayload.points)
+      ? this.chartPayload.points
+      : [];
+
+    if (!points.length) {
+      this.chartAnimationProgress = 1;
+      this.drawChart();
+      return;
+    }
+
+    const duration = 1600;
+    const startedAt = Date.now();
+    this.chartAnimationProgress = 0;
+
+    const tick = () => {
+      const progress = Math.min((Date.now() - startedAt) / duration, 1);
+      const easedProgress = 1 - Math.pow(1 - progress, 3);
+      this.chartAnimationProgress = easedProgress;
+      this.drawChart();
+
+      if (progress >= 1) {
+        this.chartAnimationTimer = null;
+      } else {
+        this.chartAnimationTimer = setTimeout(tick, 16);
+      }
+    };
+
+    tick();
+  },
+
+  clearChartAnimation() {
+    if (this.chartAnimationTimer) {
+      clearTimeout(this.chartAnimationTimer);
+      this.chartAnimationTimer = null;
+    }
+    this.chartAnimationProgress = 1;
+  },
+
   formatSummaryCards(summary) {
     return [
       {
@@ -385,6 +486,22 @@ Page({
       label: METRIC_STYLES[key].label,
       color: METRIC_STYLES[key].color
     }));
+  },
+
+  hexToRgba(hex, alpha) {
+    const normalizedHex = String(hex || '').replace('#', '');
+    const safeHex = normalizedHex.length === 3
+      ? normalizedHex.split('').map((char) => char + char).join('')
+      : normalizedHex;
+
+    if (safeHex.length !== 6) {
+      return `rgba(17, 17, 17, ${alpha})`;
+    }
+
+    const red = parseInt(safeHex.slice(0, 2), 16);
+    const green = parseInt(safeHex.slice(2, 4), 16);
+    const blue = parseInt(safeHex.slice(4, 6), 16);
+    return `rgba(${red}, ${green}, ${blue}, ${alpha})`;
   },
 
   formatMoney(value) {

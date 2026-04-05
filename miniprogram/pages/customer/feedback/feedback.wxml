@@ -1,2 +1,181 @@
 <!--pages/customer/feedback/feedback.wxml-->
-<text>pages/customer/feedback/feedback.wxml</text>
+<view class="container">
+  <!-- 选项卡 -->
+  <view class="tab-bar">
+    <view class="tab-item {{activeTab === 'afterSale' ? 'active' : ''}}" bindtap="switchTab" data-tab="afterSale">
+      售后申请
+    </view>
+    <view class="tab-item {{activeTab === 'feedback' ? 'active' : ''}}" bindtap="switchTab" data-tab="feedback">
+      意见反馈
+    </view>
+  </view>
+
+  <!-- 售后申请内容 -->
+  <view wx:if="{{activeTab === 'afterSale'}}" class="content">
+    <!-- 订单选择 -->
+    <view class="section">
+      <text class="section-title">选择订单</text>
+      <view class="picker">
+        <picker bindchange="bindOrderChange" value="{{orderIndex >= 0 ? orderIndex : ''}}" range="{{orders}}" range-key="orderNo">
+          <text class="{{orderIndex >= 0 && orders[orderIndex] ? '' : 'picker-placeholder'}}">
+            {{orderIndex >= 0 && orders[orderIndex] ? orders[orderIndex].orderNo : '请选择订单'}}
+          </text>
+        </picker>
+      </view>
+    </view>
+
+    <!-- 商品选择 -->
+    <view class="section">
+      <text class="section-title">选择商品</text>
+      <picker 
+        wx:if="{{selectedOrder}}"
+        bindchange="bindGoodsChange" 
+        value="{{goodsIndex >= 0 ? goodsIndex : ''}}" 
+        range="{{selectedOrder.goods}}" 
+        range-key="name"
+      >
+        <view class="picker">
+          <text class="{{goodsIndex >= 0 && selectedOrder.goods[goodsIndex] ? '' : 'picker-placeholder'}}">
+            {{goodsIndex >= 0 && selectedOrder.goods[goodsIndex] ? selectedOrder.goods[goodsIndex].name + ' × ' + selectedOrder.goods[goodsIndex].quantity : '请选择商品'}}
+          </text>
+        </view>
+      </picker>
+      <view wx:else class="picker">
+        <text class="picker-placeholder">请先选择订单</text>
+      </view>
+    </view>
+
+    <!-- 售后类型选择 -->
+    <view class="section" wx:if="{{goodsIndex >= 0}}">
+      <text class="section-title">售后类型</text>
+      <view class="after-sale-options">
+        <radio-group bindchange="bindAfterSaleTypeChange">
+          <label class="option-item" wx:for="{{afterSaleOptions}}" wx:key="{{item.value}}">
+            <radio value="{{item.value}}" />
+            <text>{{item.label}}</text>
+          </label>
+        </radio-group>
+      </view>
+    </view>
+
+    <!-- 售后理由 -->
+    <view class="section" wx:if="{{goodsIndex >= 0}}">
+      <text class="section-title">售后理由</text>
+      <textarea 
+        placeholder="请详细描述您的售后原因" 
+        placeholder-class="textarea-placeholder"
+        value="{{afterSaleReason}}" 
+        bindinput="bindAfterSaleReasonInput"
+        class="textarea"
+      ></textarea>
+    </view>
+
+    <!-- 上传图片 -->
+    <view class="section" wx:if="{{goodsIndex >= 0}}">
+      <text class="section-title">上传图片</text>
+      <view class="uploader">
+        <view class="uploader-item" wx:for="{{afterSaleImages}}" wx:key="{{index}}">
+          <image src="{{item}}" mode="aspectFill"></image>
+          <view class="delete-btn" bindtap="deleteAfterSaleImage" data-index="{{index}}">×</view>
+        </view>
+        <view class="uploader-item uploader-add" bindtap="chooseAfterSaleImage" wx:if="{{afterSaleImages.length < 9}}">
+          <text class="add-icon">+</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 提交按钮 -->
+    <view wx:if="{{orderIndex >= 0 && goodsIndex >= 0}}">
+      <button 
+        class="submit-btn" 
+        bindtap="submitAfterSale" 
+        disabled="{{orderIndex < 0 || goodsIndex < 0}}"
+      >
+        提交售后申请
+      </button>
+    </view>
+  </view>
+
+  <!-- 意见反馈内容 -->
+  <view wx:if="{{activeTab === 'feedback'}}" class="content">
+    <!-- 订单选择 -->
+    <view class="section">
+      <text class="section-title">选择订单</text>
+      <picker bindchange="bindFeedbackOrderChange" value="{{feedbackOrderIndex >= 0 ? feedbackOrderIndex : ''}}" range="{{orders}}" range-key="orderNo">
+        <view class="picker">
+          <text class="{{feedbackOrderIndex >= 0 && orders[feedbackOrderIndex] ? '' : 'picker-placeholder'}}">
+            {{feedbackOrderIndex >= 0 && orders[feedbackOrderIndex] ? orders[feedbackOrderIndex].orderNo : '请选择订单'}}
+          </text>
+        </view>
+      </picker>
+      <!-- 已提交反馈提示 -->
+      <view wx:if="{{feedbackOrderIndex >= 0 && submittedFeedbackOrders[orders[feedbackOrderIndex]._id]}}" class="submitted-hint">
+        <text style="color: #ff9500;">该订单已提交过反馈，请勿重复提交</text>
+      </view>
+    </view>
+
+    <!-- 订单详情 -->
+    <view class="section" wx:if="{{feedbackOrderIndex >= 0}}">
+      <text class="section-title">订单详情</text>
+      <view class="order-detail">
+        <view class="order-item" wx:for="{{orders[feedbackOrderIndex].goods}}" wx:key="goodsId">
+          <text>{{item.name}} × {{item.quantity}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 评分 -->
+    <view class="section">
+      <text class="section-title">满意度评分</text>
+      <view class="rating">
+        <view 
+          class="star" 
+          wx:for="{{5}}" 
+          wx:key="index"
+          bindtap="setRating"
+          data-rating="{{index + 1}}"
+        >
+          <text class="star-icon">{{index < rating ? '★' : '☆'}}</text>
+        </view>
+        <text class="rating-text">{{rating}}.0 分</text>
+      </view>
+    </view>
+
+    <!-- 留言 -->
+    <view class="section">
+      <text class="section-title">留言内容</text>
+      <textarea 
+        placeholder="请输入您的意见或建议" 
+        placeholder-class="textarea-placeholder"
+        value="{{feedbackContent}}" 
+        bindinput="bindFeedbackContentInput"
+        class="textarea"
+      ></textarea>
+    </view>
+
+    <!-- 上传图片 -->
+    <view class="section">
+      <text class="section-title">上传图片</text>
+      <view class="uploader">
+        <view class="uploader-item" wx:for="{{feedbackImages}}" wx:key="{{index}}">
+          <image src="{{item}}" mode="aspectFill"></image>
+          <view class="delete-btn" bindtap="deleteFeedbackImage" data-index="{{index}}">×</view>
+        </view>
+        <view class="uploader-item uploader-add" bindtap="chooseFeedbackImage" wx:if="{{feedbackImages.length < 9}}">
+          <text class="add-icon">+</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 提交按钮 -->
+    <view wx:if="{{feedbackOrderIndex >= 0 && !submittedFeedbackOrders[orders[feedbackOrderIndex]._id]}}">
+      <button 
+        class="submit-btn" 
+        bindtap="submitFeedback" 
+        disabled="{{feedbackOrderIndex < 0}}"
+      >
+        提交反馈
+      </button>
+    </view>
+  </view>
+</view>

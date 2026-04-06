@@ -1,0 +1,37 @@
+<view class="container">
+  <!-- 商品图片 -->
+  <view class="goods-image-container">
+    <image wx:if="{{goodsDetail.image}}" class="goods-image" src="{{goodsDetail.image}}" mode="aspectFit"></image>
+    <view wx:else class="goods-image-placeholder"></view>
+    <view class="goods-badge {{goodsDetail.badgeClass}}" wx:if="{{goodsDetail.badgeText}}">{{goodsDetail.badgeText}}</view>
+  </view>
+
+  <!-- 商品信息 -->
+  <view class="goods-info">
+    <text class="goods-name">{{goodsDetail.name}}</text>
+    <view class="goods-price-row">
+      <text class="goods-price {{goodsDetail.priceClass}}">¥{{goodsDetail.price}}</text>
+      <text class="goods-original-price" wx:if="{{goodsDetail.originalPrice}}">¥{{goodsDetail.originalPrice}}</text>
+    </view>
+    <text class="goods-stock">{{goodsDetail.statusText}}</text>
+    <text class="goods-spec">规格:{{goodsDetail.spec}}</text>
+  </view>
+
+  <!-- 商品描述 -->
+  <view class="goods-description">
+    <view class="section-title">商品描述</view>
+    <text class="description-content">{{goodsDetail.description || '暂无描述'}}</text>
+  </view>
+
+  <!-- 底部操作栏 -->
+  <view class="bottom-bar">
+    <view class="quantity-control">
+      <view class="quantity-btn minus" bindtap="decreaseQuantity">-</view>
+      <view class="quantity-input">{{quantity}}</view>
+      <view class="quantity-btn plus" bindtap="increaseQuantity">+</view>
+    </view>
+    <view class="add-to-cart" bindtap="addToCart">
+      <text>加入购物车</text>
+    </view>
+  </view>
+</view>

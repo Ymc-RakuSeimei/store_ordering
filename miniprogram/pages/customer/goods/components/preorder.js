@@ -86,6 +86,32 @@ Component({
         price: item.price,
         image: item.image
       });
+<<<<<<< Updated upstream
+=======
+    },
+
+    // 增加数量
+    increaseQuantity(e) {
+      const { item } = e.currentTarget.dataset;
+      this.triggerEvent('updateQuantity', {
+        id: item.id,
+        quantity: 1
+      });
+    },
+
+    // 跳转到详情页
+    goToDetail(e) {
+      const { item } = e.currentTarget.dataset;
+      // 接龙商品跳转到参与接龙页
+      wx.navigateTo({
+        url: `/pages/preorder/join/join?id=${item.id}`
+      });
+    },
+
+    // 阻止事件冒泡
+    stopPropagation() {
+      // 防止点击按钮时触发页面跳转
+>>>>>>> Stashed changes
     }
   }
 });

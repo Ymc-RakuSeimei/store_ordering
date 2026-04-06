@@ -54,8 +54,8 @@
   </view>
 
   <!-- 底部购物车栏 -->
-  <view class="cart-bar" bindtap="showCartDetail">
-    <view class="cart-left">
+  <view class="cart-bar">
+    <view class="cart-left" bindtap="showCartDetail">
       <view class="cart-icon-wrapper">
         <image class="cart-icon" src="cloud://cloud1-2gltiqs6a2c5cd76.636c-cloud1-2gltiqs6a2c5cd76-1411302136/icons/icon_shop.png" mode="aspectFit"></image>
         <view class="cart-badge" wx:if="{{cartTotalCount > 0}}">{{cartTotalCount}}</view>
@@ -65,7 +65,7 @@
         <text class="cart-price">¥{{cartTotalPrice}}</text>
       </view>
     </view>
-    <view class="cart-checkout" catchtap="checkout">
+    <view class="cart-checkout" bindtap="checkout">
       <text>合并结算</text>
     </view>
   </view>

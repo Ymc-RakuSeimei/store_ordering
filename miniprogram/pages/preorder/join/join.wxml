@@ -22,23 +22,6 @@
     </view>
   </view>
 
-<<<<<<< Updated upstream
-  <!-- 接龙详情和表单 -->
-  <view wx:elif="{{dragon}}" class="content">
-    <!-- 商品卡片 -->
-    <view class="product-card">
-      <image class="product-img" src="{{dragon.img || 'cloud://cloud1-2gltiqs6a2c5cd76.636c-cloud1-2gltiqs6a2c5cd76-1411302136/icons/avatar.png'}}" mode="aspectFill"></image>
-      <view class="product-info">
-        <view class="product-name">{{dragon.name}}</view>
-        <view class="product-spec">规格：{{dragon.spec}}</view>
-        <view class="price-row">
-          <view class="price-group">
-            <view class="sale-price">{{dragon.salePrice}}</view>
-          </view>
-          <view class="status-tag status-{{dragon.status}}">
-            {{dragon.status === 'ongoing' ? '进行中' : '已结束'}}
-          </view>
-=======
   <!-- 已参与 -->
   <view wx:elif="{{hasJoined}}" class="joined-container">
     <view class="joined-card">
@@ -81,7 +64,6 @@
         <view class="meta-item" wx:if="{{dragon.arrivalDate}}">
           <text class="meta-icon">📦</text>
           <text class="meta-text">{{dragon.arrivalDate}} 预计到货</text>
->>>>>>> Stashed changes
         </view>
       </view>
     </view>

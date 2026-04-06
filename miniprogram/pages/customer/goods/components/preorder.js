@@ -123,6 +123,7 @@ Component({
     // 阻止事件冒泡
     stopPropagation() {
       // 防止点击按钮时触发页面跳转
+
     }
   }
 });

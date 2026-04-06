@@ -126,17 +126,27 @@ Component({
       });
     },
 
-    // 跳转到商品详情页
+    // 跳转到详情页
     goToDetail(e) {
       const { item } = e.currentTarget.dataset;
-      wx.navigateTo({
-        url: `/pages/customer/goods/detail/detail?id=${item.id}`
-      });
+      // 根据商品类型跳转不同的详情页
+      if (item.type === 'preorder') {
+        // 接龙商品跳转到参与接龙页
+        wx.navigateTo({
+          url: `/pages/preorder/join/join?id=${item.id}`
+        });
+      } else {
+        // 现货/特价商品跳转到商品详情页
+        wx.navigateTo({
+          url: `/pages/customer/goods/detail/detail?id=${item.id}`
+        });
+      }
     },
 
     // 阻止事件冒泡
     stopPropagation() {
       // 防止点击按钮时触发页面跳转
+
     }
   }
 });

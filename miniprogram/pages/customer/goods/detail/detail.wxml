@@ -1,13 +1,4 @@
 <view class="container">
-  <!-- 顶部导航栏 -->
-  <view class="nav-bar">
-    <view class="nav-back" bindtap="goBack">
-      <text class="back-icon"></text>
-    </view>
-    <view class="nav-title">商品详情</view>
-    <view class="nav-placeholder"></view>
-  </view>
-
   <!-- 商品图片 -->
   <view class="goods-image-container">
     <image wx:if="{{goodsDetail.image}}" class="goods-image" src="{{goodsDetail.image}}" mode="aspectFit"></image>

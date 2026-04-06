@@ -1,32 +1,28 @@
 <!--pages/preorder/join/join.wxml-->
 <view class="container">
-  <!-- 加载中 -->
-  <view wx:if="{{loading}}" class="loading-state">
-    <view class="state-icon">⏳</view>
-    <view class="state-text">加载中...</view>
+  <!-- 加载状态 -->
+  <view wx:if="{{loading}}" class="loading-container">
+    <view class="loading-spinner"></view>
+    <text class="loading-text">加载中...</text>
   </view>
 
-  <!-- 加载失败 -->
-  <view wx:elif="{{error}}" class="error-state">
-    <view class="state-icon">⚠️</view>
-    <view class="state-text">{{error}}</view>
-  </view>
+  <!-- 错误状态 -->
+<view wx:elif="{{error}}" class="error-container">
+  <view class="error-icon">😵</view>
+  <text class="error-text">{{error}}</text>
+  <button class="retry-btn" bindtap="authAndLoad">重试</button>
+</view>
 
   <!-- 接龙已结束 -->
-  <view wx:elif="{{dragon.status === 'completed'}}" class="ended-card">
-    <view class="ended-icon">🛑</view>
-    <view class="ended-text">接龙已结束</view>
-  </view>
-
-  <!-- 已参与提示 -->
-  <view wx:elif="{{hasJoined}}" class="joined-card">
-    <view class="joined-icon">✅</view>
-    <view class="joined-text">您已成功参与接龙</view>
-    <view wx:if="{{myParticipation}}" class="joined-qty">
-      参与数量：{{myParticipation.qty}} 份
+  <view wx:elif="{{dragon.status === 'completed'}}" class="ended-container">
+    <view class="ended-card">
+      <view class="ended-icon">🎉</view>
+      <text class="ended-title">接龙已结束</text>
+      <text class="ended-desc">感谢您的关注，下次早点来哦~</text>
     </view>
   </view>
 
+<<<<<<< Updated upstream
   <!-- 接龙详情和表单 -->
   <view wx:elif="{{dragon}}" class="content">
     <!-- 商品卡片 -->
@@ -42,48 +38,102 @@
           <view class="status-tag status-{{dragon.status}}">
             {{dragon.status === 'ongoing' ? '进行中' : '已结束'}}
           </view>
+=======
+  <!-- 已参与 -->
+  <view wx:elif="{{hasJoined}}" class="joined-container">
+    <view class="joined-card">
+      <view class="joined-icon">✅</view>
+      <text class="joined-title">您已参与接龙</text>
+      <text class="joined-desc">参与数量：{{myParticipation.qty}} 件</text>
+      <button class="back-btn" bindtap="goBack">返回</button>
+    </view>
+  </view>
+
+  <!-- 正常内容 -->
+  <view wx:else class="content">
+    <!-- 商品图片区域 - 沉浸式 -->
+    <view class="hero-section">
+      <image class="hero-image" src="{{dragon.img}}" mode="aspectFill"></image>
+      <view class="hero-overlay"></view>
+      <view class="hero-badge" wx:if="{{dragon.status === 'ongoing'}}">
+        <text class="badge-dot"></text>
+        <text>进行中</text>
+      </view>
+    </view>
+
+    <!-- 商品信息卡片 -->
+    <view class="info-card">
+      <text class="product-name">{{dragon.name}}</text>
+      <view class="price-section">
+        <view class="price-group">
+          <text class="price-symbol">¥</text>
+          <text class="price-value">{{dragon.salePrice}}</text>
+        </view>
+        <text class="price-unit">/ {{dragon.spec}}</text>
+      </view>
+      
+      <!-- 限购和到货 -->
+      <view class="meta-grid">
+        <view class="meta-item" wx:if="{{dragon.limitPerPerson > 0}}">
+          <text class="meta-icon">🔒</text>
+          <text class="meta-text">限购 {{dragon.limitPerPerson}} 件</text>
+        </view>
+        <view class="meta-item" wx:if="{{dragon.arrivalDate}}">
+          <text class="meta-icon">📦</text>
+          <text class="meta-text">{{dragon.arrivalDate}} 预计到货</text>
+>>>>>>> Stashed changes
         </view>
       </view>
     </view>
 
-    <!-- 统计信息 -->
+    <!-- 统计卡片 - 只显示已接龙数量 -->
     <view class="stats-card">
-      <view class="stats-row">
-        <view class="stat-item">
-          <view class="stat-value">{{dragon.participantCount}}</view>
-          <view class="stat-label">参与人数</view>
-        </view>
-        <view class="stat-item">
-          <view class="stat-value">{{dragon.totalQty}}</view>
-          <view class="stat-label">总数量</view>
-        </view>
+      <view class="stats-item">
+        <text class="stats-number">{{dragon.totalBooked}}</text>
+        <text class="stats-label">已接龙数量</text>
       </view>
+    </view>
+
+    <!-- 商品描述 -->
+    <view class="desc-card" wx:if="{{dragon.description}}">
+      <text class="desc-title">商品描述</text>
+      <text class="desc-content">{{dragon.description}}</text>
     </view>
 
     <!-- 参与表单 -->
     <view class="form-card">
-      <view class="form-title">填写参与信息</view>
-
-      <view class="form-item">
-        <view class="form-label">数量</view>
-        <view class="quantity-selector">
-          <button class="qty-btn" bindtap="onDecreaseQty" disabled="{{quantity <= 1}}">-</button>
-          <input class="qty-input" type="number" value="{{quantity}}" bindinput="onQtyInput" />
-          <button class="qty-btn" bindtap="onIncreaseQty">+</button>
+      <view class="form-title">参与信息</view>
+      
+      <!-- 数量选择 -->
+      <view class="form-row">
+        <text class="row-label">数量</text>
+        <view class="quantity-control">
+          <view class="qty-btn minus {{quantity <= 1 ? 'disabled' : ''}}" bindtap="onDecreaseQty">
+            <text>-</text>
+          </view>
+          <text class="qty-num">{{quantity}}</text>
+          <view class="qty-btn plus" bindtap="onIncreaseQty">
+            <text>+</text>
+          </view>
         </view>
       </view>
 
-      <view class="form-item">
-        <view class="form-label">备注（选填）</view>
-        <textarea class="remark-input" placeholder="如有特殊要求请备注..." value="{{remark}}" bindinput="onRemarkInput" maxlength="100"></textarea>
+      <!-- 备注 -->
+      <view class="form-row remark-row">
+        <text class="row-label">备注</text>
+        <textarea class="remark-input" placeholder="选填，有什么想说的？" value="{{remark}}" bindinput="onRemarkInput" maxlength="100"></textarea>
       </view>
     </view>
+
+    <!-- 底部安全区 -->
+    <view class="safe-bottom"></view>
   </view>
 
-  <!-- 底部提交按钮 -->
-  <view wx:if="{{dragon && dragon.status === 'ongoing' && !hasJoined}}" class="bottom-bar">
-    <button class="submit-btn" bindtap="onSubmit" disabled="{{submitting || quantity < 1}}">
-      {{submitting ? '提交中...' : '确认参与'}}
+  <!-- 底部固定按钮 -->
+  <view class="bottom-fixed" wx:if="{{dragon && dragon.status === 'ongoing' && !hasJoined && !loading}}">
+    <button class="submit-btn" bindtap="onSubmit" disabled="{{submitting}}">
+      <text wx:if="{{!submitting}}">确认参与</text>
+      <text wx:else>提交中...</text>
     </button>
   </view>
 </view>

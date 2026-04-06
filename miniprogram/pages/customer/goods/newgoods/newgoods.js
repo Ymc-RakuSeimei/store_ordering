@@ -128,6 +128,7 @@ Page({
     wx.navigateBack({ delta: 1 });
   },
 
+
   // 跳转到商品详情页
   goToDetail(e) {
     const { item } = e.currentTarget.dataset;
@@ -135,6 +136,7 @@ Page({
       url: `/pages/customer/goods/detail/detail?id=${item.id}`
     });
   },
+
 
   // 阻止事件冒泡
   stopPropagation() {},

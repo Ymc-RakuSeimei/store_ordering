@@ -142,6 +142,10 @@ page {
   box-sizing: border-box;
 }
 
+.goods-card:active {
+  opacity: 0.94;
+}
+
 .goods-img {
   width: 146rpx;
   height: 146rpx;

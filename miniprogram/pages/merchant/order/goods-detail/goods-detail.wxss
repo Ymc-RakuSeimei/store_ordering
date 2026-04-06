@@ -1,0 +1,240 @@
+page {
+  background-color: #f5f7fa;
+  font-family: PingFang SC, Helvetica Neue, Arial, sans-serif;
+  color: #333;
+}
+
+.page {
+  min-height: 100vh;
+  padding: 20rpx;
+  box-sizing: border-box;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20rpx;
+}
+
+.back {
+  width: 84rpx;
+  font-size: 28rpx;
+  color: #4d4d4d;
+}
+
+.title {
+  flex: 1;
+  text-align: center;
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #222;
+}
+
+.placeholder {
+  width: 84rpx;
+}
+
+.summary-card,
+.section-card {
+  background: #fff;
+  border-radius: 20rpx;
+  padding: 24rpx;
+  box-shadow: 0 6rpx 16rpx rgba(0, 0, 0, 0.08);
+  margin-bottom: 18rpx;
+}
+
+.goods-top {
+  display: flex;
+  align-items: center;
+}
+
+.goods-img {
+  width: 136rpx;
+  height: 136rpx;
+  border-radius: 18rpx;
+  flex-shrink: 0;
+  background: #f0f0f0;
+}
+
+.goods-main {
+  flex: 1;
+  min-width: 0;
+  margin-left: 18rpx;
+}
+
+.goods-name {
+  display: block;
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #222;
+  line-height: 1.2;
+}
+
+.goods-spec,
+.goods-status {
+  display: block;
+  margin-top: 8rpx;
+  font-size: 24rpx;
+  color: #666;
+  line-height: 1.4;
+}
+
+.meta-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14rpx;
+  margin-top: 22rpx;
+}
+
+.meta-item {
+  background: #f7f8fb;
+  border-radius: 16rpx;
+  padding: 18rpx 20rpx;
+}
+
+.meta-label {
+  display: block;
+  font-size: 22rpx;
+  color: #888;
+}
+
+.meta-value {
+  display: block;
+  margin-top: 8rpx;
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #222;
+}
+
+.amount-list {
+  margin-top: 20rpx;
+  border-top: 1rpx solid #f1f1f1;
+  padding-top: 12rpx;
+}
+
+.amount-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12rpx 0;
+}
+
+.amount-label {
+  font-size: 26rpx;
+  color: #666;
+}
+
+.amount-value {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #1f1f1f;
+}
+
+.amount-value--profit {
+  color: #1f8f55;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8rpx;
+}
+
+.section-title {
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #222;
+}
+
+.section-subtitle {
+  font-size: 22rpx;
+  color: #888;
+}
+
+.buyer-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16rpx;
+  padding: 22rpx 0;
+  border-top: 1rpx solid #f1f1f1;
+}
+
+.buyer-row:first-of-type {
+  border-top: none;
+}
+
+.buyer-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.buyer-name {
+  display: block;
+  font-size: 29rpx;
+  font-weight: 600;
+  color: #222;
+}
+
+.buyer-phone,
+.buyer-extra {
+  display: block;
+  margin-top: 8rpx;
+  font-size: 23rpx;
+  color: #6d6d6d;
+  line-height: 1.4;
+}
+
+.buyer-side {
+  min-width: 140rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  flex-shrink: 0;
+}
+
+.buyer-qty {
+  font-size: 34rpx;
+  font-weight: 700;
+  color: #1f1f1f;
+}
+
+.buyer-status {
+  margin-top: 12rpx;
+  min-width: 124rpx;
+  text-align: center;
+  border-radius: 999rpx;
+  padding: 10rpx 18rpx;
+  box-sizing: border-box;
+  font-size: 24rpx;
+  font-weight: 700;
+}
+
+.buyer-status--waiting {
+  background: #fff4db;
+  color: #c98a00;
+}
+
+.buyer-status--pickup {
+  background: #dcf6e5;
+  color: #2c9b54;
+}
+
+.buyer-status--picked {
+  background: #fde6e6;
+  color: #d84f4f;
+}
+
+.buyer-status--default {
+  background: #f1f1f1;
+  color: #666;
+}
+
+.empty-state {
+  margin-top: 120rpx;
+  text-align: center;
+  font-size: 24rpx;
+  color: #999;
+}

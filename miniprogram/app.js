@@ -56,6 +56,7 @@ function runDefaultRefresh(pageInstance, originalOptions) {
     () => (data.customerKey ? tryCallMethod(pageInstance, 'loadOrderDetail', [data.customerKey]) : { called: false }),
     () => (data.pickupCode ? tryCallMethod(pageInstance, 'loadCustomerOrders', [data.pickupCode]) : { called: false }),
     () => tryCallMethod(pageInstance, 'loadGoods'),
+    () => tryCallMethod(pageInstance, 'loadGoodsDetail'),
     () => tryCallMethod(pageInstance, 'loadAllGoodsData'),
     () => tryCallMethod(pageInstance, 'loadGoodsData'),
     () => tryCallMethod(pageInstance, 'loadPreorderList'),

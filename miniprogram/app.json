@@ -5,6 +5,7 @@
     "pages/merchant/product/product",
     "pages/merchant/order/order",
     "pages/merchant/order/detail/detail",
+    "pages/merchant/order/goods-detail/goods-detail",
     "pages/merchant/datacenter/datacenter",
     "pages/merchant/preorder/preorder",
     "pages/merchant/preorder/create/create",

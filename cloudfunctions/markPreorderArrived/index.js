@@ -1,6 +1,11 @@
 const cloud = require('wx-server-sdk');
 
 const ENV_ID = 'cloud1-2gltiqs6a2c5cd76';
+const STATUS_WAITING = '未到货';
+const STATUS_PENDING_PICKUP = '待取货';
+const STATUS_ARRIVED = '已到货';
+const STATUS_PICKED = '已取货';
+const STATUS_COMPLETED = '已完成';
 
 cloud.init({ env: ENV_ID });
 
@@ -19,7 +24,7 @@ async function assertMerchant(openid) {
 }
 
 function matchesGoods(item = {}, goods = {}) {
-  const currentGoodsId = String(item.goodsId || '').trim();
+  const currentGoodsId = String(item.goodsId || item.goodsDocId || '').trim();
   const targetGoodsId = String(goods.goodsId || '').trim();
   const targetDocId = String(goods._id || '').trim();
 
@@ -32,26 +37,28 @@ function matchesGoods(item = {}, goods = {}) {
 
 function computeOrderStatus(goodsList = []) {
   if (!Array.isArray(goodsList) || goodsList.length === 0) {
-    return '待取货';
+    return STATUS_PENDING_PICKUP;
   }
 
-  const hasWaitingArrival = goodsList.some((item) => item.pickupStatus === '未到货');
-  const hasPendingPickup = goodsList.some((item) => item.pickupStatus === '待取货');
-  const allPicked = goodsList.every((item) => item.pickupStatus === '已取货' || item.pickupStatus === '已完成');
+  const hasWaitingArrival = goodsList.some((item) => item.pickupStatus === STATUS_WAITING);
+  const hasPendingPickup = goodsList.some((item) => item.pickupStatus === STATUS_PENDING_PICKUP);
+  const allPicked = goodsList.every((item) => (
+    item.pickupStatus === STATUS_PICKED || item.pickupStatus === STATUS_COMPLETED
+  ));
 
   if (allPicked) {
-    return '已完成';
+    return STATUS_COMPLETED;
   }
 
   if (hasPendingPickup) {
-    return '待取货';
+    return STATUS_PENDING_PICKUP;
   }
 
   if (hasWaitingArrival) {
-    return '未到货';
+    return STATUS_WAITING;
   }
 
-  return '待取货';
+  return STATUS_PENDING_PICKUP;
 }
 
 exports.main = async (event = {}) => {
@@ -77,11 +84,12 @@ exports.main = async (event = {}) => {
 
     const now = new Date();
     const totalBooked = Number(goods.totalBooked) || 0;
-    const nextStock = goods.status === '已到货' ? (Number(goods.stock) || 0) : totalBooked;
+    const hasArrivedBefore = goods.status === STATUS_ARRIVED;
+    const nextStock = hasArrivedBefore ? (Number(goods.stock) || 0) : totalBooked;
 
     await db.collection('goods').doc(id).update({
       data: {
-        status: '已到货',
+        status: STATUS_ARRIVED,
         stock: nextStock,
         arrivedAt: now,
         arrivalTime: now,
@@ -90,23 +98,25 @@ exports.main = async (event = {}) => {
     });
 
     const orderRes = await db.collection('orders').where({
-      status: _.in(['未到货', '待取货', '已到货'])
+      status: _.in([STATUS_WAITING, STATUS_PENDING_PICKUP, STATUS_ARRIVED])
     }).get();
 
-    const targetOrders = (orderRes.data || []).filter((order) =>
-      Array.isArray(order.goods) && order.goods.some((item) => matchesGoods(item, goods) && item.pickupStatus === '未到货')
-    );
+    const targetOrders = (orderRes.data || []).filter((order) => (
+      Array.isArray(order.goods) && order.goods.some((item) => (
+        matchesGoods(item, goods) && item.pickupStatus === STATUS_WAITING
+      ))
+    ));
 
     await Promise.all(
       targetOrders.map((order) => {
         const nextGoods = (order.goods || []).map((item) => {
-          if (!matchesGoods(item, goods) || item.pickupStatus !== '未到货') {
+          if (!matchesGoods(item, goods) || item.pickupStatus !== STATUS_WAITING) {
             return item;
           }
 
           return {
             ...item,
-            pickupStatus: '待取货',
+            pickupStatus: STATUS_PENDING_PICKUP,
             arrivedAt: now
           };
         });
@@ -121,16 +131,40 @@ exports.main = async (event = {}) => {
       })
     );
 
+    let reminderCount = 0;
+
+    // 只在“第一次到货”时自动提醒，避免重复点击造成消息重复发送。
+    if (!hasArrivedBefore && targetOrders.length > 0) {
+      try {
+        const reminderRes = await cloud.callFunction({
+          name: 'sendPickupReminder',
+          data: {
+            goodsId: goods.goodsId || goods._id,
+            goodsName: goods.name || '',
+            stock: nextStock
+          }
+        });
+
+        const reminderResult = reminderRes.result || {};
+        if (reminderResult.code === 0) {
+          reminderCount = Number(reminderResult.userCount) || 0;
+        }
+      } catch (reminderError) {
+        console.error('sendPickupReminder error', reminderError);
+      }
+    }
+
     return {
       code: 0,
       message: '到货成功',
       data: {
         id,
-        updatedOrderCount: targetOrders.length
+        updatedOrderCount: targetOrders.length,
+        reminderCount
       }
     };
   } catch (err) {
-    console.error('markPreorderArrived 云函数错误', err);
+    console.error('markPreorderArrived error', err);
     return {
       code: -1,
       message: err.message || '到货失败',

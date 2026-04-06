@@ -1,0 +1,69 @@
+<view class="page">
+  <view class="header">
+    <text class="back" bindtap="onBack">返回</text>
+    <text class="title">商品详情</text>
+    <text class="placeholder"></text>
+  </view>
+
+  <view class="summary-card" wx:if="{{detail}}">
+    <view class="goods-top">
+      <image class="goods-img" src="{{detail.img}}" mode="aspectFill" />
+      <view class="goods-main">
+        <text class="goods-name">{{detail.name}}</text>
+        <text class="goods-spec" wx:if="{{detail.spec}}">规格：{{detail.spec}}</text>
+        <text class="goods-status" wx:if="{{detail.status}}">商品状态：{{detail.status}}</text>
+      </view>
+    </view>
+
+    <view class="meta-grid">
+      <view class="meta-item">
+        <text class="meta-label">累计共</text>
+        <text class="meta-value">{{detail.totalQty}} 件</text>
+      </view>
+      <view class="meta-item">
+        <text class="meta-label">到货时间</text>
+        <text class="meta-value">{{detail.arrivalTimeText}}</text>
+      </view>
+    </view>
+
+    <view class="amount-list">
+      <view class="amount-row">
+        <text class="amount-label">总价</text>
+        <text class="amount-value">¥{{detail.totalPriceText}}</text>
+      </view>
+      <view class="amount-row">
+        <text class="amount-label">进价</text>
+        <text class="amount-value">¥{{detail.totalCostText}}</text>
+      </view>
+      <view class="amount-row">
+        <text class="amount-label">利润</text>
+        <text class="amount-value amount-value--profit">¥{{detail.totalProfitText}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="section-card" wx:if="{{detail && detail.customers && detail.customers.length}}">
+    <view class="section-header">
+      <text class="section-title">订购买家</text>
+      <text class="section-subtitle">{{detail.customers.length}} 人</text>
+    </view>
+
+    <block wx:for="{{detail.customers}}" wx:key="customerKey">
+      <view class="buyer-row">
+        <view class="buyer-main">
+          <text class="buyer-name">{{item.customerName}}</text>
+          <text class="buyer-phone" wx:if="{{item.phone}}">{{item.phone}}</text>
+          <text class="buyer-extra" wx:if="{{item.latestOrderTimeText}}">最近下单：{{item.latestOrderTimeText}}</text>
+          <text class="buyer-extra" wx:if="{{item.pickupCode}}">取货码：{{item.pickupCode}}</text>
+        </view>
+
+        <view class="buyer-side">
+          <text class="buyer-qty">×{{item.totalQty}}</text>
+          <text class="buyer-status {{item.statusClass}}">{{item.status}}</text>
+        </view>
+      </view>
+    </block>
+  </view>
+
+  <view wx:elif="{{!loading}}" class="empty-state">暂无商品详情</view>
+</view>

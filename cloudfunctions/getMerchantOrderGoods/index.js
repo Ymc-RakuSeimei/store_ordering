@@ -13,6 +13,7 @@ const TXT_PRODUCT = '\u5546\u54c1';
 const TXT_CUSTOMER = '\u987e\u5ba2';
 const TXT_CUSTOMER_KEY_MISSING = '\u7f3a\u5c11\u987e\u5ba2\u6807\u8bc6';
 const TXT_CUSTOMER_NOT_FOUND = '\u672a\u627e\u5230\u987e\u5ba2\u8ba2\u5355';
+const TXT_GOODS_NOT_FOUND = '\u672a\u627e\u5230\u5546\u54c1\u8be6\u60c5';
 const TXT_NO_PERMISSION = '\u65e0\u6743\u9650\u8bbf\u95ee\u8ba2\u5355\u5904\u7406';
 const TXT_LOAD_FAIL = '\u83b7\u53d6\u5546\u5bb6\u8ba2\u5355\u6570\u636e\u5931\u8d25';
 const TXT_SEPARATOR = '\u3001';
@@ -101,6 +102,17 @@ function formatTime(value) {
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
 }
 
+function formatDate(value) {
+  const timestamp = toTimestamp(value);
+  if (!timestamp) {
+    return '';
+  }
+
+  const date = new Date(timestamp);
+  const pad = (num) => String(num).padStart(2, '0');
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+}
+
 function getOrderTime(order = {}) {
   return order.paytime || order.createdAt || order.updatedAt || null;
 }
@@ -155,6 +167,107 @@ async function fetchClosedPreorderGoods() {
   });
 
   return goodsList.filter((item) => (Number(item.totalBooked) || 0) > 0);
+}
+
+async function fetchGoodsMapByGoodsIds(goodsIds = []) {
+  const uniqueGoodsIds = [...new Set(
+    goodsIds
+      .map((item) => String(item || '').trim())
+      .filter(Boolean)
+  )];
+
+  if (uniqueGoodsIds.length === 0) {
+    return {};
+  }
+
+  const goodsMap = {};
+
+  for (const goodsIdChunk of chunk(uniqueGoodsIds, 100)) {
+    const goodsList = await fetchAllByWhere('goods', {
+      goodsId: _.in(goodsIdChunk)
+    });
+
+    goodsList.forEach((goods) => {
+      const keys = [goods.goodsId, goods._id]
+        .map((value) => String(value || '').trim())
+        .filter(Boolean);
+
+      keys.forEach((key) => {
+        goodsMap[key] = goods;
+      });
+    });
+  }
+
+  return goodsMap;
+}
+
+async function findGoodsByIdentity(docId = '', goodsId = '') {
+  const safeDocId = String(docId || '').trim();
+  const safeGoodsId = String(goodsId || '').trim();
+
+  if (safeDocId) {
+    try {
+      const docRes = await db.collection('goods').doc(safeDocId).get();
+      if (docRes && docRes.data) {
+        return docRes.data;
+      }
+    } catch (error) {
+      // docId 未命中时继续尝试 goodsId 查询
+    }
+  }
+
+  if (!safeGoodsId) {
+    return null;
+  }
+
+  const goodsList = await fetchAllByWhere('goods', {
+    goodsId: safeGoodsId
+  }, 1);
+
+  if (goodsList[0]) {
+    return goodsList[0];
+  }
+
+  try {
+    const docRes = await db.collection('goods').doc(safeGoodsId).get();
+    return docRes && docRes.data ? docRes.data : null;
+  } catch (error) {
+    return null;
+  }
+}
+
+function matchesGoodsIdentity(item = {}, goods = null, targetGoodsId = '', targetDocId = '') {
+  const currentGoodsId = String(item.goodsId || item.goodsDocId || '').trim();
+  if (!currentGoodsId) {
+    return false;
+  }
+
+  const candidateIds = [
+    goods && goods.goodsId,
+    goods && goods._id,
+    targetGoodsId,
+    targetDocId
+  ]
+    .map((value) => String(value || '').trim())
+    .filter(Boolean);
+
+  return candidateIds.includes(currentGoodsId);
+}
+
+function resolveGoodsCustomerStatus(statusList = []) {
+  if (statusList.includes(TXT_WAITING)) {
+    return TXT_WAITING;
+  }
+
+  if (statusList.includes(TXT_PENDING_PICKUP)) {
+    return TXT_PENDING_PICKUP;
+  }
+
+  if (statusList.length > 0 && statusList.every((status) => PICKED_STATUSES.includes(status))) {
+    return TXT_PICKED;
+  }
+
+  return statusList[0] || '';
 }
 
 async function buildPickupList() {
@@ -219,13 +332,26 @@ async function buildPickupList() {
     });
   });
 
+  const goodsMap = await fetchGoodsMapByGoodsIds(
+    Object.values(pickupMap).map((item) => item.goodsId)
+  );
+
   return Object.values(pickupMap)
     .sort((a, b) => toTimestamp(b.latestOrderTime) - toTimestamp(a.latestOrderTime))
-    .map((item) => ({
-      ...item,
-      updatedAt: item.latestOrderTime,
-      createdAt: item.latestOrderTime
-    }));
+    .map((item) => {
+      const goods = goodsMap[item.goodsId] || null;
+
+      return {
+        ...item,
+        docId: goods ? goods._id : '',
+        spec: item.spec || getGoodsSpec(goods || {}),
+        img: item.img || pickImage(goods || {}),
+        arrivalDate: goods ? (goods.arrivalDate || formatDate(goods.arrivedAt || goods.arrivalTime)) : '',
+        status: goods ? (goods.status || item.status) : item.status,
+        updatedAt: goods ? (goods.updatedAt || item.latestOrderTime) : item.latestOrderTime,
+        createdAt: goods ? (goods.createdAt || item.latestOrderTime) : item.latestOrderTime
+      };
+    });
 }
 async function buildPickupOrArrivalList(listType) {
   if (listType === 'pickup') {
@@ -391,6 +517,139 @@ function buildGoodsLine(item = {}, orderId = '') {
     subtotal: Number((quantity * price).toFixed(2)),
     pickupStatus: item.pickupStatus || '',
     img: pickImage(item)
+  };
+}
+
+async function buildGoodsDetail({ docId = '', goodsId = '' } = {}) {
+  const goods = await findGoodsByIdentity(docId, goodsId);
+  const resolvedGoodsId = String(goodsId || (goods && goods.goodsId) || '').trim();
+  const resolvedDocId = String(docId || (goods && goods._id) || '').trim();
+
+  if (!goods && !resolvedGoodsId && !resolvedDocId) {
+    throw new Error(TXT_GOODS_NOT_FOUND);
+  }
+
+  const detailOrders = await fetchAllByWhere('orders', {
+    status: _.in([...ACTIVE_ORDER_STATUSES, TXT_COMPLETED])
+  });
+
+  const matchedOrders = detailOrders.filter((order) => (
+    Array.isArray(order.goods) && order.goods.some((item) => (
+      matchesGoodsIdentity(item, goods, resolvedGoodsId, resolvedDocId)
+    ))
+  ));
+
+  if (matchedOrders.length === 0) {
+    throw new Error(TXT_GOODS_NOT_FOUND);
+  }
+
+  const userMap = await buildUserMap(matchedOrders.map((order) => order.openid));
+  const customerMap = {};
+  let totalQty = 0;
+  let totalAmount = 0;
+  let latestArrivedAt = goods ? (goods.arrivedAt || goods.arrivalTime || '') : '';
+  const firstMatchedItem = matchedOrders
+    .reduce((result, order) => result.concat(Array.isArray(order.goods) ? order.goods : []), [])
+    .find((item) => matchesGoodsIdentity(item, goods, resolvedGoodsId, resolvedDocId)) || {};
+
+  matchedOrders.forEach((order) => {
+    const user = userMap[String(order.openid || '').trim()] || null;
+    const customerKey = getCustomerKey(order);
+    const orderTime = getOrderTime(order);
+    const orderTimeTs = toTimestamp(orderTime);
+    const matchedGoodsItems = (order.goods || []).filter((item) => (
+      matchesGoodsIdentity(item, goods, resolvedGoodsId, resolvedDocId)
+    ));
+
+    if (!customerKey || matchedGoodsItems.length === 0) {
+      return;
+    }
+
+    if (!customerMap[customerKey]) {
+      customerMap[customerKey] = {
+        customerKey,
+        customerName: buildCustomerDisplayName(order, user),
+        phone: buildCustomerPhone(order, user),
+        avatarUrl: buildCustomerAvatar(order, user),
+        pickupCode: String(order.pickupCode || '').trim(),
+        totalQty: 0,
+        totalAmount: 0,
+        statusList: [],
+        latestOrderTime: orderTime,
+        latestOrderTimeTs: orderTimeTs
+      };
+    }
+
+    const customer = customerMap[customerKey];
+
+    if (!customer.phone) {
+      customer.phone = buildCustomerPhone(order, user);
+    }
+
+    if (!customer.pickupCode) {
+      customer.pickupCode = String(order.pickupCode || '').trim();
+    }
+
+    if (orderTimeTs >= customer.latestOrderTimeTs) {
+      customer.latestOrderTime = orderTime;
+      customer.latestOrderTimeTs = orderTimeTs;
+    }
+
+    matchedGoodsItems.forEach((item) => {
+      const quantity = Number(item.quantity) || 0;
+      const price = Number(item.price) || 0;
+
+      if (quantity <= 0) {
+        return;
+      }
+
+      totalQty += quantity;
+      totalAmount += quantity * price;
+      customer.totalQty += quantity;
+      customer.totalAmount += quantity * price;
+      customer.statusList.push(item.pickupStatus || '');
+
+      if (!latestArrivedAt && item.arrivedAt) {
+        latestArrivedAt = item.arrivedAt;
+      }
+    });
+  });
+
+  const safeGoods = goods || {};
+  const unitCost = Number(safeGoods.cost) || 0;
+  const totalCost = Number((unitCost * totalQty).toFixed(2));
+  const totalPrice = Number(totalAmount.toFixed(2));
+
+  return {
+    docId: resolvedDocId || String(safeGoods._id || '').trim(),
+    goodsId: resolvedGoodsId || String(safeGoods.goodsId || '').trim(),
+    name: safeGoods.name || firstMatchedItem.name || TXT_PRODUCT,
+    spec: getGoodsSpec(safeGoods) || getGoodsSpec(firstMatchedItem),
+    img: pickImage({
+      ...firstMatchedItem,
+      ...safeGoods,
+      images: Array.isArray(safeGoods.images) && safeGoods.images.length ? safeGoods.images : firstMatchedItem.images
+    }),
+    status: safeGoods.status || '',
+    arrivalTimeText: formatDate(latestArrivedAt),
+    totalQty,
+    totalPrice,
+    totalCost,
+    totalProfit: Number((totalPrice - totalCost).toFixed(2)),
+    unitCost,
+    customers: Object.values(customerMap)
+      .map((item) => ({
+        customerKey: item.customerKey,
+        customerName: item.customerName || TXT_CUSTOMER,
+        phone: item.phone || '',
+        pickupCode: item.pickupCode || '',
+        totalQty: item.totalQty,
+        totalAmount: Number(item.totalAmount.toFixed(2)),
+        status: resolveGoodsCustomerStatus(item.statusList),
+        latestOrderTime: item.latestOrderTime,
+        latestOrderTimeText: formatTime(item.latestOrderTime)
+      }))
+      .sort((a, b) => toTimestamp(b.latestOrderTime) - toTimestamp(a.latestOrderTime))
   };
 }
 
@@ -577,6 +836,11 @@ exports.main = async (event = {}) => {
 
     if (listType === 'customerDetail') {
       data = await buildCustomerDetail(String(event.customerKey || '').trim());
+    } else if (listType === 'goodsDetail') {
+      data = await buildGoodsDetail({
+        docId: String(event.docId || '').trim(),
+        goodsId: String(event.goodsId || '').trim()
+      });
     } else if (listType === 'customer') {
       data = await buildCustomerList();
     } else {
@@ -593,7 +857,7 @@ exports.main = async (event = {}) => {
     return {
       code: -1,
       message: err.message || TXT_LOAD_FAIL,
-      data: event && event.type === 'customerDetail' ? null : []
+      data: event && (event.type === 'customerDetail' || event.type === 'goodsDetail') ? null : []
     };
   }
 };

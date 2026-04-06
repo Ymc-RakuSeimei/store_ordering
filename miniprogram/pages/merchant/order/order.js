@@ -10,7 +10,8 @@ Page({
     orderData: {
       pickup: [],
       arrival: [],
-      customer: []
+      customer: [],
+      feedback: []
     },
     loading: true,
     pickupCode: '',
@@ -58,7 +59,7 @@ Page({
       });
   },
 
-  // 商家订单页的待取货/未到货列表统一从云函数获取。
+  // “待取货 / 未到货”两类商品统一走同一个云函数，靠 type 区分返回数据。
   fetchGoodsListFromServer(type) {
     return wx.cloud.callFunction({
       name: 'getMerchantOrderGoods',
@@ -85,6 +86,10 @@ Page({
     });
   },
 
+  fetchFeedbackListFromServer() {
+    return Promise.resolve([]);
+  },
+
   openCustomerDetail(e) {
     const customerKey = e.currentTarget.dataset.customerKey;
     if (!customerKey) {
@@ -97,8 +102,27 @@ Page({
     });
   },
 
-  fetchFeedbackListFromServer() {
-    return Promise.resolve([]);
+  // 商品卡片点击后进入“该商品的买家汇总页”。
+  openGoodsDetail(e) {
+    const goodsId = String(e.currentTarget.dataset.goodsId || '').trim();
+    const docId = String(e.currentTarget.dataset.docId || '').trim();
+
+    if (!goodsId && !docId) {
+      wx.showToast({ title: '缺少商品标识', icon: 'none' });
+      return;
+    }
+
+    const query = [];
+    if (goodsId) {
+      query.push(`goodsId=${encodeURIComponent(goodsId)}`);
+    }
+    if (docId) {
+      query.push(`docId=${encodeURIComponent(docId)}`);
+    }
+
+    wx.navigateTo({
+      url: `/pages/merchant/order/goods-detail/goods-detail?${query.join('&')}`
+    });
   },
 
   onMarkArrived(e) {
@@ -107,16 +131,22 @@ Page({
 
     wx.showModal({
       title: '确认到货',
-      content: `确认「${name}」已经到货吗？`,
+      content: `确认“${name}”已经到货吗？到货后会自动提醒相关买家一次。`,
       success: (res) => {
         if (!res.confirm) return;
 
         wx.showLoading({ title: '处理中...' });
 
         this.markGoodsArrivedOnServer(id)
-          .then(() => {
+          .then((result) => {
             wx.hideLoading();
-            wx.showToast({ title: '已更新为到货', icon: 'success' });
+            const reminderCount = Number(result && result.reminderCount) || 0;
+
+            wx.showToast({
+              title: reminderCount > 0 ? '已到货并提醒买家' : '已更新为到货',
+              icon: 'success'
+            });
+
             this.setData({ activeTab: 'pickup' });
             this.loadAllOrders();
           })
@@ -147,70 +177,60 @@ Page({
       title: '一键提醒',
       content: '确定要给所有待取货的顾客发送提醒吗？',
       success: (res) => {
-        if (res.confirm) {
-          wx.showLoading({ title: '发送中...' });
-          this.pushOrderReminder()
-            .then((totalCount) => {
-              wx.hideLoading();
-              wx.showModal({
-                title: '提醒成功',
-                content: `已提醒 ${totalCount} 位顾客`,
-                showCancel: false
-              });
-            })
-            .catch((err) => {
-              wx.hideLoading();
-              console.error('pushOrderReminder error', err);
-              wx.showModal({
-                title: '提醒失败',
-                content: '发送提醒时出错，请稍后重试',
-                showCancel: false
-              });
+        if (!res.confirm) return;
+
+        wx.showLoading({ title: '发送中...' });
+        this.pushOrderReminder()
+          .then((totalCount) => {
+            wx.hideLoading();
+            wx.showModal({
+              title: '提醒成功',
+              content: `已提醒 ${totalCount} 位顾客`,
+              showCancel: false
             });
-        }
+          })
+          .catch((err) => {
+            wx.hideLoading();
+            console.error('pushOrderReminder error', err);
+            wx.showModal({
+              title: '提醒失败',
+              content: '发送提醒时出错，请稍后重试',
+              showCancel: false
+            });
+          });
       }
     });
   },
 
-  pushOrderReminder() {
-    return new Promise(async (resolve, reject) => {
+  async pushOrderReminder() {
+    const pickupGoods = this.data.orderData.pickup || [];
+
+    if (pickupGoods.length === 0) {
+      return 0;
+    }
+
+    let totalCount = 0;
+
+    for (const goods of pickupGoods) {
       try {
-        // 获取待取货商品列表
-        const pickupGoods = this.data.orderData.pickup || [];
-        
-        if (pickupGoods.length === 0) {
-          resolve(0);
-          return;
-        }
-        
-        let totalCount = 0;
-        
-        // 为每个待取货商品发送提醒
-        for (const goods of pickupGoods) {
-          try {
-            const res = await wx.cloud.callFunction({
-              name: 'sendPickupReminder',
-              data: {
-                goodsId: goods.id || goods._id,
-                goodsName: goods.name,
-                stock: goods.stock
-              }
-            });
-            
-            if (res.result.code === 0) {
-              totalCount += res.result.userCount || 0;
-            }
-          } catch (err) {
-            console.error(`发送提醒失败 for ${goods.name}:`, err);
-            // 继续处理其他商品
+        const res = await wx.cloud.callFunction({
+          name: 'sendPickupReminder',
+          data: {
+            goodsId: goods.goodsId || goods.id || goods.docId,
+            goodsName: goods.name,
+            stock: goods.stock
           }
+        });
+
+        if (res.result && res.result.code === 0) {
+          totalCount += res.result.userCount || 0;
         }
-        
-        resolve(totalCount);
       } catch (err) {
-        reject(err);
+        console.error(`sendPickupReminder failed for ${goods.name}:`, err);
       }
-    });
+    }
+
+    return totalCount;
   },
 
   onPickupCodeInput(e) {
@@ -226,13 +246,12 @@ Page({
     const { pickupCode } = this.data;
 
     if (!/^\d{6}$/.test(pickupCode)) {
-      wx.showToast({ title: '请输入6位数字取货码', icon: 'none' });
+      wx.showToast({ title: '请输入 6 位数字取货码', icon: 'none' });
       return;
     }
 
     try {
       this.setData({ loading: true });
-
       await new Promise((resolve) => setTimeout(resolve, 200));
 
       wx.navigateTo({

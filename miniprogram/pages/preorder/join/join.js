@@ -231,51 +231,7 @@ Page({
   /**
    * 返回上一页
    */
-<<<<<<< Updated upstream
-  fetchDragonDetail(dragonId) {
-    return wx.cloud.callFunction({
-      name: 'fetchPreorderDetail',
-      data: { dragonId }
-    }).then(res => {
-      if (res.result.code === 0) {
-        return res.result.data;
-      }
-      throw new Error(res.result.message || '获取详情失败');
-    }).catch(err => {
-      // 开发阶段使用本地占位数据
-      console.log('使用本地占位数据');
-      return Promise.resolve({
-        dragon: {
-          id: dragonId,
-          img: 'cloud://cloud1-2gltiqs6a2c5cd76.636c-cloud1-2gltiqs6a2c5cd76-1411302136/icons/avatar.png',
-          name: '派大星同款手套气球',
-          spec: '50个/袋',
-          salePrice: 29.9,
-          participantCount: 12,
-          totalQty: 48,
-          status: 'ongoing'
-        },
-        participants: []
-      });
-    });
-  },
-
-  /**
-   * 提交接龙参与
-   */
-  submitPreorder(data) {
-    return wx.cloud.callFunction({
-      name: 'submitPreorder',
-      data: data
-    }).then(res => {
-      if (res.result.code === 0) {
-        return res.result.data;
-      }
-      throw new Error(res.result.message || '提交失败');
-    });
-=======
   goBack() {
     wx.navigateBack();
->>>>>>> Stashed changes
   }
 });

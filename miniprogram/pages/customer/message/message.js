@@ -15,7 +15,10 @@ Page({
   // 返回上一页
   goBack() {
     wx.navigateBack({
-      delta: 1
+      delta: 1,
+      fail: function () {
+        wx.redirectTo({ url: '/pages/customer/index/index' });
+      }
     });
   },
 

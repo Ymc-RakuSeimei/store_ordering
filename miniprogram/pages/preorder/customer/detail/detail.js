@@ -199,7 +199,7 @@ Page({
       return Promise.resolve({
         dragon: {
           id: dragonId,
-          img: '/images/avatar.png',
+          img: 'cloud://cloud1-2gltiqs6a2c5cd76.636c-cloud1-2gltiqs6a2c5cd76-1411302136/icons/avatar.png',
           name: '派大星同款手套气球',
           spec: '50个/袋',
           salePrice: 29.9,
@@ -213,14 +213,14 @@ Page({
           {
             userId: 'u001',
             userName: '派大星',
-            avatarUrl: '/images/avatar.png',
+            avatarUrl: 'cloud://cloud1-2gltiqs6a2c5cd76.636c-cloud1-2gltiqs6a2c5cd76-1411302136/icons/avatar.png',
             qty: 5,
             joinTime: '2026-03-28 10:30'
           },
           {
             userId: 'u002',
             userName: '海绵宝宝',
-            avatarUrl: '/images/avatar.png',
+            avatarUrl: 'cloud://cloud1-2gltiqs6a2c5cd76.636c-cloud1-2gltiqs6a2c5cd76-1411302136/icons/avatar.png',
             qty: 3,
             joinTime: '2026-03-28 11:15'
           }

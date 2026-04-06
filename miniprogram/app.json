@@ -8,11 +8,14 @@
     "pages/merchant/datacenter/datacenter",
     "pages/merchant/preorder/preorder",
     "pages/merchant/preorder/create/create",
+    "pages/merchant/preorder/detail/detail",
     "pages/merchant/my/my",
     "pages/merchant/notification/notification",
+    "pages/merchant/notification/feedback-detail/feedback-detail",
     "pages/merchant/verify/verify",
     "pages/customer/index/index",
     "pages/customer/goods/goods",
+    "pages/customer/goods/detail/detail",
     "pages/customer/goods/newgoods/newgoods",
     "pages/customer/my/my",
     "pages/customer/feedback/feedback",
@@ -24,6 +27,7 @@
   ],
   "window": {
     "backgroundTextStyle": "light",
+    "enablePullDownRefresh": true,
     "navigationBarBackgroundColor": "#ffffff",
     "navigationBarTitleText": "MC_store",
     "navigationBarTextStyle": "black"
@@ -37,16 +41,19 @@
       {
         "pagePath": "pages/customer/index/index",
         "iconPath": "images/icon_home.png",
+        "selectedIconPath": "images/icon_home_active.png",
         "text": "首页"
       },
       {
         "pagePath": "pages/customer/goods/goods",
         "iconPath": "images/icon_sort.png",
+        "selectedIconPath": "images/icon_sort_active.png",
         "text": "商品"
       },
       {
         "pagePath": "pages/customer/my/my",
         "iconPath": "images/icon_mine.png",
+        "selectedIconPath": "images/icon_mine_active.png",
         "text": "我的"
       }
     ]

@@ -3,12 +3,13 @@
   <!-- 消息列表 -->
   <view class="message-list">
     <block wx:for="{{messageList}}" wx:key="id">
-      <view class="message-card">
+      <view class="message-card" bindtap="markAsRead" data-id="{{item.id}}">
         <view class="message-content">
           <text class="message-number">{{index + 1}}.</text>
           <text class="message-text">{{item.content}}</text>
+          <view wx:if="{{!item.isRead}}" class="unread-dot"></view>
         </view>
-        <view class="view-btn green" bindtap="viewDetail" data-id="{{item.id}}">
+        <view class="view-btn green" bindtap="viewDetail" data-id="{{item.id}}" catchtap="viewDetail">
           {{item.btnText}}
         </view>
       </view>

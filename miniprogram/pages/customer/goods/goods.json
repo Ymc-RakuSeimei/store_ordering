@@ -5,7 +5,6 @@
     "preorder-component": "./components/preorder",
     "special-component": "./components/special"
   },
-  "navigationBarTitleText": "商品",
-  "navigationStyle": "custom"
+  "navigationBarTitleText": "商品"
 }
 

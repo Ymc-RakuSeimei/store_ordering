@@ -10,18 +10,32 @@
       <text class="panel-title" style="color: #34c759;">正在接龙</text>
     </view>
     <block wx:for="{{currentDragons}}" wx:key="id">
-      <view class="item-card">
-        <!-- 商品图片 -->
-        <image class="item-img" src="{{item.img}}" mode="aspectFill" />
-        <view class="item-left">
-          <text class="item-name">{{item.name}}</text>
-          <text class="item-spec">规格：{{item.spec}}</text>
+      <view class="goods-card" bindtap="onViewDetail" data-id="{{item.id}}">
+        <image class="goods-img" src="{{item.img}}" mode="aspectFill" />
+
+        <view class="goods-info">
+          <text class="name">{{item.name}}</text>
+          <text class="spec">规格：{{item.spec}}</text>
         </view>
-        <view class="item-right">
-          <text class="item-qty">×{{item.totalQty}}</text>
-          <view class="btn-group">
-            <button class="btn-handle" data-id="{{item.id}}" data-item="{{item}}" open-type="share">转发</button>
-            <button class="btn-stop" bindtap="onStopCurrent" data-id="{{item.id}}" catchtap="true">截止</button>
+
+        <view class="goods-action-area">
+          <text class="item-qty">x{{item.totalQty}}</text>
+          <view class="action-buttons">
+            <button
+              class="action-btn action-btn--share"
+              catchtap="stopPropagation"
+              data-id="{{item.id}}"
+              data-item="{{item}}"
+              open-type="share"
+            >
+              转发
+            </button>
+            <button
+              class="action-btn action-btn--stop"
+              catchtap="onStopCurrent"
+              data-id="{{item.id}}">
+              截止
+            </button>
           </view>
         </view>
       </view>
@@ -35,15 +49,29 @@
       <text class="panel-title" style="color: #ff3b30;">已截单</text>
     </view>
     <block wx:for="{{completedDragons}}" wx:key="id">
-      <view class="item-card simple">
-        <!-- 商品图片 -->
-        <image class="item-img" src="{{item.img}}" mode="aspectFill" />
-        <view class="item-left">
-          <text class="item-name">{{item.name}}</text>
-          <text class="item-spec">规格：{{item.spec}}</text>
+      <view class="goods-card goods-card--completed" bindtap="onViewDetail" data-id="{{item.id}}">
+        <image class="goods-img" src="{{item.img}}" mode="aspectFill" />
+
+        <view class="goods-info">
+          <text class="name">{{item.name}}</text>
+          <text class="spec">规格：{{item.spec}}</text>
+          <text wx:if="{{item.closedAt}}" class="summary">截止时间：{{item.closedAt}}</text>
+          <text wx:if="{{item.arrivalTime}}" class="summary arrival">到货时间：{{item.arrivalTime}}</text>
         </view>
-        <view class="item-right">
-          <text class="item-qty">×{{item.totalQty}}</text>
+
+        <view class="goods-action-area">
+          <text class="item-qty">x{{item.totalQty}}</text>
+          <button
+            wx:if="{{item.status !== '已到货'}}"
+            class="arrive-btn"
+            catchtap="onMarkArrival"
+            data-id="{{item.id}}"
+          >
+            到货
+          </button>
+          <view wx:else class="arrival-badge">
+            已到货
+          </view>
         </view>
       </view>
     </block>

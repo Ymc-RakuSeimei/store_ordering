@@ -1,30 +1,13 @@
-﻿<!-- 商品列表主容器页面 -->
+<!-- 商品列表主容器页面 -->
 <view class="container">
-  <!-- 顶部导航栏 -->
-  <view class="nav-bar">
-    <view class="nav-back" bindtap="goBack">
-      <text class="back-icon"></text>
-    </view>
-    <view class="nav-title">商品</view>
-    <view class="nav-placeholder"></view>
-  </view>
 
   <!-- 搜索栏 -->
   <view class="search-bar">
     <view class="search-box">
-      <image class="search-icon" src="/images/icon_search.png" mode="aspectFit"></image>
-      <input 
-        class="search-input" 
-        placeholder="搜索商品名称" 
-        placeholder-class="search-placeholder"
-        value="{{searchKeyword}}"
-        bindinput="onSearchInput"
-        confirm-type="search"
-        bindconfirm="onSearchConfirm"
-      />
+      <image class="search-icon" src="cloud://cloud1-2gltiqs6a2c5cd76.636c-cloud1-2gltiqs6a2c5cd76-1411302136/icons/icon_search.png" mode="aspectFit"></image>
+      <input class="search-input" placeholder="搜索商品名称" placeholder-class="search-placeholder" value="{{searchKeyword}}" bindinput="onSearchInput" confirm-type="search" bindconfirm="onSearchConfirm" />
     </view>
   </view>
-
   <!-- 标签栏 -->
   <view class="tab-bar">
     <view class="tab-item {{currentTab === 'all' ? 'active' : ''}}" bindtap="switchTab" data-tab="all">
@@ -40,62 +23,38 @@
       <text>特价区</text>
     </view>
   </view>
-
   <!-- 组件容器 -->
   <view class="component-container">
     <block wx:if="{{currentTab === 'all'}}">
-      <all-component 
-        id="allComponent"
-        searchKeyword="{{searchKeyword}}"
-        goodsList="{{goodsData.all}}"
-        bind:addToCart="onAddToCart" 
-        bind:joinGroup="onJoinGroup"
-      ></all-component>
+      <all-component id="allComponent" searchKeyword="{{searchKeyword}}" goodsList="{{goodsData.all}}" bind:addToCart="onAddToCart" bind:joinGroup="onJoinGroup" bind:updateQuantity="onUpdateQuantity"></all-component>
     </block>
     <block wx:if="{{currentTab === 'spot'}}">
-      <spot-component 
-        id="spotComponent"
-        searchKeyword="{{searchKeyword}}"
-        goodsList="{{goodsData.spot}}"
-        bind:addToCart="onAddToCart"
-      ></spot-component>
+      <spot-component id="spotComponent" searchKeyword="{{searchKeyword}}" goodsList="{{goodsData.spot}}" bind:addToCart="onAddToCart" bind:joinGroup="onJoinGroup" bind:updateQuantity="onUpdateQuantity"></spot-component>
     </block>
     <block wx:if="{{currentTab === 'preorder'}}">
-      <preorder-component 
-        id="preorderComponent"
-        searchKeyword="{{searchKeyword}}"
-        goodsList="{{goodsData.preorder}}"
-        bind:joinGroup="onJoinGroup"
-      ></preorder-component>
+      <preorder-component id="preorderComponent" searchKeyword="{{searchKeyword}}" goodsList="{{goodsData.preorder}}" bind:joinGroup="onJoinGroup" bind:updateQuantity="onUpdateQuantity"></preorder-component>
     </block>
     <block wx:if="{{currentTab === 'special'}}">
-      <special-component 
-        id="specialComponent"
-        searchKeyword="{{searchKeyword}}"
-        goodsList="{{goodsData.special}}"
-        bind:addToCart="onAddToCart"
-      ></special-component>
+      <special-component id="specialComponent" searchKeyword="{{searchKeyword}}" goodsList="{{goodsData.special}}" bind:addToCart="onAddToCart" bind:updateQuantity="onUpdateQuantity"></special-component>
     </block>
   </view>
-
   <!-- 底部购物车栏 -->
-<view class="cart-bar">
-  <view class="cart-left" bindtap="showCartDetail">
-    <view class="cart-icon-wrapper">
-      <image class="cart-icon" src="/images/icon_shop.png" mode="aspectFit"></image>
-      <view class="cart-badge" wx:if="{{cartTotalCount > 0}}">{{cartTotalCount}}</view>
+  <view class="cart-bar">
+    <view class="cart-left" bindtap="showCartDetail">
+      <view class="cart-icon-wrapper">
+        <image class="cart-icon" src="cloud://cloud1-2gltiqs6a2c5cd76.636c-cloud1-2gltiqs6a2c5cd76-1411302136/icons/icon_shop.png" mode="aspectFit"></image>
+        <view class="cart-badge" wx:if="{{cartTotalCount > 0}}">{{cartTotalCount}}</view>
+      </view>
+      <view class="cart-info">
+        <text class="cart-label">合计（现货+预定）</text>
+        <text class="cart-price">¥{{cartTotalPrice}}</text>
+      </view>
     </view>
-    <view class="cart-info">
-      <text class="cart-label">合计（现货+预定）</text>
-      <text class="cart-price">¥{{cartTotalPrice}}</text>
+    <view class="cart-checkout" bindtap="checkout">
+      <text>合并结算</text>
     </view>
   </view>
-  <view class="cart-checkout" bindtap="checkout">
-    <text>合并结算</text>
-  </view>
 </view>
-</view>
-
 <!-- 购物车详情弹窗 -->
 <view class="cart-modal {{showCartModal ? 'show' : ''}}" bindtap="hideCartDetail">
   <view class="cart-modal-content" catchtap="stopPropagation">
@@ -113,7 +72,9 @@
             <text class="cart-modal-price">¥{{item.price}}</text>
           </view>
           <view class="cart-modal-control">
-            <view class="control-btn minus" bindtap="decreaseQuantity" data-id="{{item.id}}">-</view>
+            <view class="control-btn minus" bindtap="decreaseQuantity" data-id="{{item.id}}">
+              -
+            </view>
             <text class="control-num">{{item.quantity}}</text>
             <view class="control-btn plus" bindtap="increaseQuantity" data-id="{{item.id}}">+</view>
           </view>

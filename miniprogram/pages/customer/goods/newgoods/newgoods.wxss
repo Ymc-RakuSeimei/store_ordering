@@ -6,48 +6,7 @@
   padding-bottom: 140rpx;
 }
 
-/* 顶部导航栏 */
-.nav-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  height: 100rpx;
-  padding: 0 32rpx;
-  background-color: transparent;
-  position: relative;
-}
 
-.nav-back {
-  width: 80rpx;
-  height: 80rpx;
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  flex-shrink: 0;
-}
-
-.back-icon {
-  font-size: 56rpx;
-  font-weight: 400;
-  color: #000000;
-  line-height: 1;
-}
-
-.nav-title {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 40rpx;
-  font-weight: 700;
-  color: #000000;
-  white-space: nowrap;
-}
-
-.nav-placeholder {
-  width: 80rpx;
-  flex-shrink: 0;
-  visibility: hidden;
-}
 
 /* 标签与统计区 */
 .stats-area {
@@ -202,6 +161,15 @@
 
 .goods-action {
   margin: 0 20rpx 20rpx 20rpx;
+  padding: 0;
+  text-align: center;
+  border: none;
+  border-radius: 40rpx;
+  background-color: transparent;
+}
+
+.action-button {
+  width: 100%;
   padding: 16rpx 0;
   text-align: center;
   border: 1rpx solid #cccccc;
@@ -212,8 +180,48 @@
   background-color: #ffffff;
 }
 
-.goods-action:active {
+.action-button:active {
   background-color: #f5f5f5;
+}
+
+.quantity-control {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12rpx;
+  padding: 8rpx 0;
+}
+
+.control-btn {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 28rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36rpx;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.control-btn.minus {
+  background-color: #f5f5f5;
+  color: #333333;
+  border: 1rpx solid #e0e0e0;
+}
+
+.control-btn.plus {
+  background-color: #ff3b30;
+  color: #ffffff;
+}
+
+.control-num {
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #333333;
+  min-width: 40rpx;
+  text-align: center;
+  flex-shrink: 0;
 }
 
 /* 底部购物车栏 */

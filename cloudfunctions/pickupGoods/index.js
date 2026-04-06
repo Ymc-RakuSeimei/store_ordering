@@ -19,8 +19,10 @@ exports.main = async (event, context) => {
 
     // 批量处理每个商品
     const updatePromises = goodsIds.map(async (goodsId) => {
-      // 解析 orderId 和 goodsId
-      const [orderId, itemGoodsId] = goodsId.split('_')
+      // 只按第一个下划线拆分，避免把 GD_xxx 这种 goodsId 截断成 GD
+      const separatorIndex = typeof goodsId === 'string' ? goodsId.indexOf('_') : -1
+      const orderId = separatorIndex > -1 ? goodsId.slice(0, separatorIndex) : ''
+      const itemGoodsId = separatorIndex > -1 ? goodsId.slice(separatorIndex + 1) : ''
 
       if (!orderId || !itemGoodsId) {
         console.warn('无效的商品ID:', goodsId)

@@ -137,70 +137,48 @@ Page({
   // ---------------- 后端接口实现 ----------------
 
   /**
-   * 上传商品图片到存储服务
+   * 上传商品图片到云存储
    * @param {string} tempFilePath - 临时图片路径
    * @returns {Promise<string>} 返回图片的永久访问URL
-   * 后端实现步骤：
-   * 1. 将前端传来的临时图片上传到云存储/OSS
-   * 2. 返回图片的永久访问URL或文件ID
-   * 示例云开发代码：
-   * return wx.cloud.uploadFile({
-   *   cloudPath: `preorder/${Date.now()}_${Math.random().toString(36).substr(2)}.png`,
-   *   filePath: tempFilePath
-   * }).then(res => res.fileID);
    */
   uploadProductImage(tempFilePath) {
     console.log('上传商品图片', tempFilePath);
-    // TODO: 后端替换为真实上传逻辑
-    return Promise.resolve(tempFilePath); // 临时返回本地路径
+    const ext = tempFilePath.split('.').pop() || 'png';
+    const cloudPath = `preorder/${Date.now()}_${Math.random().toString(36).substr(2, 9)}.${ext}`;
+
+    return wx.cloud.uploadFile({
+      cloudPath,
+      filePath: tempFilePath
+    }).then(res => res.fileID);
   },
 
   /**
    * 创建接龙到数据库
    * @param {object} payload - 接龙数据
-   * @param {string} payload.img - 商品图片URL
-   * @param {string} payload.name - 商品名称
-   * @param {string} payload.description - 商品描述
-   * @param {string} payload.spec - 商品规格
-   * @param {number} payload.salePrice - 售价
-   * @param {number} payload.costPrice - 进价
-   * @param {number} payload.stock - 库存
-   * @param {number} payload.limitPerPerson - 每人限购数量
-   * @param {string} payload.arrivalDate - 预计到货日期 (YYYY-MM-DD)
-   * @param {string} payload.closeType - 截单方式 ('manual' | 'timed')
-   * @param {Array} payload.closeTime - 定时截单时间 [hour, minute]
    * @returns {Promise} 创建成功后的Promise
-   * 后端实现步骤：
-   * 1. 验证商家身份
-   * 2. 将接龙数据保存到数据库 preorder_dragons 表
-   * 3. 初始化参与人数为0，总预订数为0
-   * 4. 如果是定时截单，设置定时任务
-   * 5. 返回接龙ID
-   * 示例数据库字段：
-   * {
-   *   _id: ObjectId,
-   *   merchantId: String, // 商家ID
-   *   img: String,
-   *   name: String,
-   *   description: String,
-   *   spec: String,
-   *   salePrice: Number,
-   *   costPrice: Number,
-   *   stock: Number,
-   *   limitPerPerson: Number,
-   *   arrivalDate: String,
-   *   closeType: String,
-   *   closeTime: Date, // 定时截单的具体时间
-   *   status: 'ongoing', // 'ongoing' | 'completed'
-   *   participantCount: 0,
-   *   totalQty: 0,
-   *   createdAt: Date,
-   *   updatedAt: Date
-   * }
    */
   createPreorderToServer(payload) {
     console.log('调用后端创建接龙', payload);
-    // TODO: 后端替换为真实创建逻辑
-    return Promise.resolve({ id: 'new_dragon_001' });
+    return wx.cloud.callFunction({
+      name: 'createPreorderGoods',
+      data: {
+        name: payload.name,
+        description: payload.description,
+        spec: payload.spec,
+        salePrice: Number(payload.salePrice),
+        costPrice: Number(payload.costPrice),
+        limitPerPerson: Number(payload.limitPerPerson) || 10,
+        arrivalDate: payload.arrivalDate,
+        closeType: payload.closeType,
+        closeTimeStr: payload.closeTimeStr,
+        img: payload.img
+      }
+    }).then(res => {
+      const result = res.result || {};
+      if (result.code !== 0) {
+        throw new Error(result.message || '创建接龙失败');
+      }
+      return result.data;
+    });
   }
 });

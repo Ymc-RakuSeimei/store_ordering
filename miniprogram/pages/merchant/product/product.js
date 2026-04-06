@@ -1,11 +1,11 @@
-const DEFAULT_PRODUCT_IMAGE = '/images/goods_sample.png';
+const DEFAULT_PRODUCT_IMAGE = 'cloud://cloud1-2gltiqs6a2c5cd76.636c-cloud1-2gltiqs6a2c5cd76-1411302136/icons/placeholder.png';
 
 // 页面上展示图片时，只接受这些常见可访问路径。
 const isUsableImage = (value) => {
   if (typeof value !== 'string') return false;
   const image = value.trim();
   if (!image) return false;
-  return image.startsWith('cloud://') || image.startsWith('http://') || image.startsWith('https://') || image.startsWith('/images/');
+  return image.startsWith('cloud://') || image.startsWith('http://') || image.startsWith('https://');
 };
 
 // 新增商品弹窗的初始值统一放在一个函数里，便于重置表单。
@@ -58,6 +58,7 @@ Page({
     editCostPrice: '',
     editStock: '',
     editImg: '',
+    editDescription: '',
 
     // 新增商品弹窗相关状态。
     showAddDialog: false,
@@ -70,7 +71,12 @@ Page({
   },
 
   onBack() {
-    wx.navigateBack();
+    wx.navigateBack({
+      delta: 1,
+      fail: function () {
+        wx.redirectTo({ url: '/pages/merchant/index/index' });
+      }
+    });
   },
 
   // 切换“现货 / 特价处理”两个 tab。
@@ -88,7 +94,8 @@ Page({
       editSellPrice: item.sellPrice === undefined || item.sellPrice === null ? '' : String(item.sellPrice),
       editCostPrice: item.costPrice === undefined || item.costPrice === null ? '' : String(item.costPrice),
       editStock: item.stock === undefined || item.stock === null ? '' : String(item.stock),
-      editImg: item.img || DEFAULT_PRODUCT_IMAGE
+      editImg: item.img || DEFAULT_PRODUCT_IMAGE,
+      editDescription: item.description === undefined || item.description === null ? '' : String(item.description)
     });
   },
 
@@ -159,6 +166,7 @@ Page({
     if (key === 'sellPrice') this.setData({ editSellPrice: value });
     if (key === 'costPrice') this.setData({ editCostPrice: value });
     if (key === 'stock') this.setData({ editStock: value });
+    if (key === 'description') this.setData({ editDescription: value });
   },
 
   // 给编辑中的商品重新选图并上传到云存储。
@@ -227,6 +235,7 @@ Page({
     const sellPriceText = String(this.data.editSellPrice).trim();
     const costPriceText = String(this.data.editCostPrice).trim();
     const stockText = String(this.data.editStock).trim();
+    const description = String(this.data.editDescription || '').trim();
     const sellPrice = Number(sellPriceText);
     const costPrice = Number(costPriceText);
     const stock = Number(stockText);
@@ -253,13 +262,14 @@ Page({
       sellPrice,
       costPrice,
       stock,
-      img
+      img,
+      description
     }).then((serverProduct) => {
       const key = this.data.activeTab === 'stock' ? 'stockList' : 'specialList';
       const list = this.data[key].map((currentItem, index) => {
         if ((currentItem._id || currentItem.id) === (item._id || item.id)) {
           return normalizeProductItem(
-            serverProduct || { ...currentItem, sellPrice, costPrice, stock, img },
+            serverProduct || { ...currentItem, sellPrice, costPrice, stock, img, description },
             index
           );
         }
@@ -451,7 +461,7 @@ Page({
     const url = map[tab];
 
     if (url) {
-      wx.navigateTo({ url });
+      wx.redirectTo({ url });
     }
   }
 });

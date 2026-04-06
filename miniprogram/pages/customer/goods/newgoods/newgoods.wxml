@@ -1,13 +1,5 @@
 <!-- 今日上新页面 -->
 <view class="container">
-  <!-- 顶部导航栏 -->
-  <view class="nav-bar">
-    <view class="nav-back" bindtap="goBack">
-      <text class="back-icon"></text>
-    </view>
-    <view class="nav-title">今日上新</view>
-    <view class="nav-placeholder"></view>
-  </view>
 
   <!-- 标签与统计区 -->
   <view class="stats-area">
@@ -18,7 +10,7 @@
   <!-- 商品列表区（2列网格） -->
   <view class="goods-list">
     <block wx:for="{{goodsList}}" wx:key="id">
-      <view class="goods-card">
+      <view class="goods-card" bindtap="goToDetail" data-item="{{item}}">
         <view class="goods-image-wrapper">
           <image wx:if="{{item.image}}" class="goods-image" src="{{item.image}}" mode="aspectFill"></image>
           <view wx:else class="goods-image-placeholder"></view>
@@ -44,8 +36,18 @@
           <text class="goods-stock">{{item.statusText}}</text>
           <text class="goods-spec">规格:{{item.spec}}</text>
         </view>
-        <view class="goods-action" bindtap="onAction" data-item="{{item}}">
-          {{item.actionText}}
+        <!-- 购物车操作 -->
+        <view class="goods-action" catchtap="stopPropagation">
+          <!-- 显示加入购物车按钮 -->
+          <view wx:if="{{item.cartQuantity === 0}}" class="action-button" catchtap="onAction" data-item="{{item}}">
+            {{item.actionText}}
+          </view>
+          <!-- 显示数量控制器 -->
+          <view wx:else class="quantity-control">
+            <view class="control-btn minus" catchtap="decreaseQuantity" data-id="{{item.id}}">-</view>
+            <text class="control-num">{{item.cartQuantity}}</text>
+            <view class="control-btn plus" catchtap="increaseQuantity" data-id="{{item.id}}">+</view>
+          </view>
         </view>
       </view>
     </block>
@@ -55,7 +57,7 @@
   <view class="cart-bar" bindtap="showCartDetail">
     <view class="cart-left">
       <view class="cart-icon-wrapper">
-        <image class="cart-icon" src="/images/icon_shop.png" mode="aspectFit"></image>
+        <image class="cart-icon" src="cloud://cloud1-2gltiqs6a2c5cd76.636c-cloud1-2gltiqs6a2c5cd76-1411302136/icons/icon_shop.png" mode="aspectFit"></image>
         <view class="cart-badge" wx:if="{{cartTotalCount > 0}}">{{cartTotalCount}}</view>
       </view>
       <view class="cart-info">

@@ -14,6 +14,13 @@ Page({
     this.loadCartFromStorage();
   },
 
+  onShow() {
+    // 每次显示页面时刷新购物车数据（确保从其他页面返回时更新）
+    this.loadCartFromStorage();
+    // 重新加载商品数据以更新购物车数量显示
+    this.loadGoodsData();
+  },
+
   // 加载商品数据（从云数据库）
   async loadGoodsData() {
     wx.showLoading({ title: '加载中...' });
@@ -88,9 +95,15 @@ Page({
         imageUrl = '';
       }
       
+      // 获取购物车中的数量
+      const cart = wx.getStorageSync('shoppingCart') || [];
+      const goodsId = item.goodsId || item._id;
+      const cartItem = cart.find(cartItem => cartItem.id === goodsId);
+      const cartQuantity = cartItem ? parseInt(cartItem.quantity) : 0;
+      
       return {
         // 优先使用 goodsId 作为业务索引；老数据没有 goodsId 时回退到 _id。
-        id: item.goodsId || item._id,
+        id: goodsId,
         name: item.name || '商品名称',
         price: isSpecial ? (item.specialPrice || item.price) : item.price,
         originalPrice: isSpecial ? item.price : null,
@@ -104,7 +117,8 @@ Page({
         priceClass: isSpecial ? 'special-price' : '',
         actionText: isPreorder ? '参与接龙' : '加入购物车',
         actionType: isPreorder ? 'joinGroup' : 'addToCart',
-        type: item.type
+        type: item.type,
+        cartQuantity: cartQuantity
       };
     });
   },
@@ -114,28 +128,35 @@ Page({
     wx.navigateBack({ delta: 1 });
   },
 
-<<<<<<< Updated upstream
-=======
-  // 跳转到详情页
+
+  // 跳转到商品详情页
   goToDetail(e) {
     const { item } = e.currentTarget.dataset;
-    // 根据商品类型跳转不同的详情页
-    if (item.type === 'preorder') {
-      // 接龙商品跳转到参与接龙页
-      wx.navigateTo({
-        url: `/pages/preorder/join/join?id=${item.id}`
-      });
-    } else {
-      // 现货/特价商品跳转到商品详情页
-      wx.navigateTo({
-        url: `/pages/customer/goods/detail/detail?id=${item.id}`
-      });
-    }
+    wx.navigateTo({
+      url: `/pages/customer/goods/detail/detail?id=${item.id}`
+    });
   },
 
->>>>>>> Stashed changes
+
   // 阻止事件冒泡
   stopPropagation() {},
+
+  // 更新商品列表中的购物车数量
+  updateGoodsCartQuantity(goodsId) {
+    const updatedGoodsList = this.data.goodsList.map(item => {
+      if (item.id === goodsId) {
+        const cart = wx.getStorageSync('shoppingCart') || [];
+        const cartItem = cart.find(cartItem => cartItem.id === goodsId);
+        return {
+          ...item,
+          cartQuantity: cartItem ? cartItem.quantity : 0
+        };
+      }
+      return item;
+    });
+    
+    this.setData({ goodsList: updatedGoodsList });
+  },
 
   // 显示购物车详情
   showCartDetail() {
@@ -194,6 +215,8 @@ Page({
     }
 
     this.updateCartData(cart);
+    // 直接更新商品列表中的购物车数量，避免重新加载
+    this.updateGoodsCartQuantity(id);
     wx.showToast({ title: '已加入购物车', icon: 'success', duration: 1500 });
   },
 
@@ -222,6 +245,8 @@ Page({
           }
 
           this.updateCartData(cart);
+          // 直接更新商品列表中的购物车数量，避免重新加载
+          this.updateGoodsCartQuantity(id);
           wx.showToast({ title: '已加入接龙', icon: 'success', duration: 1500 });
         }
       }
@@ -261,6 +286,8 @@ Page({
     if (item) {
       item.quantity += 1;
       this.updateCartData(cart);
+      // 直接更新商品列表中的购物车数量，避免重新加载
+      this.updateGoodsCartQuantity(id);
     }
   },
 
@@ -273,9 +300,13 @@ Page({
       if (cart[itemIndex].quantity > 1) {
         cart[itemIndex].quantity -= 1;
         this.updateCartData(cart);
+        // 直接更新商品列表中的购物车数量，避免重新加载
+        this.updateGoodsCartQuantity(id);
       } else {
         cart.splice(itemIndex, 1);
         this.updateCartData(cart);
+        // 直接更新商品列表中的购物车数量，避免重新加载
+        this.updateGoodsCartQuantity(id);
       }
     }
   },

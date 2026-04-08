@@ -1,4 +1,3 @@
-// pages/customer/preorder/detail/detail.js
 const app = getApp();
 
 Page({
@@ -7,6 +6,8 @@ Page({
     dragon: null,
     participants: [],
     loading: true,
+    authLoading: false,
+    submitLoading: false,
     submitting: false,
     quantity: 1,
     remark: '',
@@ -25,22 +26,16 @@ Page({
     }
 
     this.setData({ dragonId: options.id });
-
-    // 先验证身份，再加载数据
     this.authAndLoad();
   },
 
-  /**
-   * 身份验证并加载数据
-   */
   async authAndLoad() {
     try {
-      wx.showLoading({ title: '验证中...' });
+      this.setData({ authLoading: true });
 
-      // 验证用户身份
       const role = await app.getUserRole();
       if (role !== 'customer') {
-        wx.hideLoading();
+        this.setData({ authLoading: false });
         wx.showModal({
           title: '提示',
           content: '请以顾客身份参与接龙',
@@ -50,94 +45,75 @@ Page({
         return;
       }
 
-      // 获取用户信息
-      this.setData({ userInfo: app.globalData.userInfo });
-      wx.hideLoading();
-
-      // 加载接龙数据
+      this.setData({ userInfo: app.globalData.userInfo, authLoading: false });
       this.loadDragonDetail();
     } catch (err) {
-      wx.hideLoading();
+      this.setData({ authLoading: false });
       console.error('身份验证失败', err);
       wx.showToast({ title: '身份验证失败', icon: 'none' });
       setTimeout(() => wx.navigateBack(), 1500);
     }
   },
 
-  /**
-   * 加载接龙详情
-   */
   loadDragonDetail() {
-    wx.showLoading({ title: '加载中...' });
+    this.setData({ loading: true });
     this.fetchDragonDetail(this.data.dragonId)
       .then(data => {
-        wx.hideLoading();
-
-        // 检查当前用户是否已参与
         const myParticipation = data.participants.find(
           p => p.userId === app.globalData.userInfo?._id
         );
 
         this.setData({
           dragon: data.dragon,
-          participants: data.participants.slice(0, 10), // 只显示最新10条
+          participants: data.participants.slice(0, 10),
           loading: false,
           hasJoined: !!myParticipation,
           myParticipation: myParticipation || null
         });
       })
       .catch(err => {
-        wx.hideLoading();
+        this.setData({ loading: false });
         console.error('加载详情失败', err);
         wx.showToast({ title: '加载失败', icon: 'none' });
       });
   },
 
-  /**
-   * 减少数量
-   */
   onDecreaseQty() {
     if (this.data.quantity > 1) {
       this.setData({ quantity: this.data.quantity - 1 });
     }
   },
 
-  /**
-   * 增加数量
-   */
   onIncreaseQty() {
-    this.setData({ quantity: this.data.quantity + 1 });
+    const { quantity, dragon } = this.data;
+    if (dragon.limitPerPerson > 0 && quantity >= dragon.limitPerPerson) {
+      wx.showToast({ title: `每人限购${dragon.limitPerPerson}件`, icon: 'none' });
+      return;
+    }
+    this.setData({ quantity: quantity + 1 });
   },
 
-  /**
-   * 手动输入数量
-   */
   onQtyInput(e) {
     let qty = parseInt(e.detail.value) || 1;
+    const { dragon } = this.data;
+    if (dragon.limitPerPerson > 0 && qty > dragon.limitPerPerson) {
+      qty = dragon.limitPerPerson;
+      wx.showToast({ title: `每人限购${dragon.limitPerPerson}件`, icon: 'none' });
+    }
     if (qty < 1) qty = 1;
     this.setData({ quantity: qty });
   },
 
-  /**
-   * 输入备注
-   */
   onRemarkInput(e) {
     this.setData({ remark: e.detail.value });
   },
 
-  /**
-   * 提交参与
-   */
-  async onSubmit() {
+  onSubmit() {
     if (this.data.submitting) return;
-    if (this.data.quantity < 1) {
-      wx.showToast({ title: '请填写数量', icon: 'none' });
-      return;
-    }
 
     wx.showModal({
       title: '确认参与',
-      content: `确定要参与 "${this.data.dragon.name}" 吗？\n数量：${this.data.quantity} 份`,
+      content: `参与 "${this.data.dragon.name}"\n数量：${this.data.quantity} 份`,
       success: (res) => {
         if (res.confirm) {
           this.doSubmit();
@@ -146,106 +122,56 @@ Page({
     });
   },
 
-  /**
-   * 执行提交
-   */
   async doSubmit() {
-    this.setData({ submitting: true });
-    wx.showLoading({ title: '提交中...' });
+    this.setData({ submitting: true, submitLoading: true });
 
     try {
-      await this.submitPreorder({
-        dragonId: this.data.dragonId,
-        quantity: this.data.quantity,
-        remark: this.data.remark
+      const res = await wx.cloud.callFunction({
+        name: 'joinPreorder',
+        data: {
+          dragonId: this.data.dragonId,
+          quantity: this.data.quantity,
+          remark: this.data.remark
+        }
       });
 
-      wx.hideLoading();
-      this.setData({ submitting: false });
+      if (!res.result.success) {
+        throw new Error(res.result.message || '参与失败');
+      }
 
+      this.setData({ submitting: false, submitLoading: false });
       wx.showToast({ title: '参与成功', icon: 'success' });
 
-      // 重新加载数据，刷新状态
       setTimeout(() => {
         this.loadDragonDetail();
-      }, 1000);
+      }, 500);
     } catch (err) {
-      wx.hideLoading();
-      this.setData({ submitting: false });
+      this.setData({ submitting: false, submitLoading: false });
       console.error('提交失败', err);
       wx.showToast({ title: err.message || '提交失败', icon: 'none' });
     }
   },
 
-  // ---------------- 后端接口 ----------------
-
-  /**
-   * 获取接龙详情
-   * @param {string} dragonId - 接龙ID
-   * @returns {Promise<{dragon: object, participants: Array}>}
-   */
   fetchDragonDetail(dragonId) {
-    return wx.cloud.callFunction({
-      name: 'fetchPreorderDetail',
-      data: { dragonId }
-    }).then(res => {
-      if (res.result.code === 0) {
-        return res.result.data;
-      }
-      throw new Error(res.result.message || '获取详情失败');
-    }).catch(err => {
-      // 开发阶段使用本地占位数据
-      console.log('使用本地占位数据');
-      return Promise.resolve({
-        dragon: {
-          id: dragonId,
-          img: 'cloud://cloud1-2gltiqs6a2c5cd76.636c-cloud1-2gltiqs6a2c5cd76-1411302136/icons/avatar.png',
-          name: '派大星同款手套气球',
-          spec: '50个/袋',
-          salePrice: 29.9,
-          costPrice: 15.0,
-          participantCount: 12,
-          totalQty: 48,
-          arrivalDate: '2026-04-15',
-          status: 'ongoing'
-        },
-        participants: [
-          {
-            userId: 'u001',
-            userName: '派大星',
-            avatarUrl: 'cloud://cloud1-2gltiqs6a2c5cd76.636c-cloud1-2gltiqs6a2c5cd76-1411302136/icons/avatar.png',
-            qty: 5,
-            joinTime: '2026-03-28 10:30'
-          },
-          {
-            userId: 'u002',
-            userName: '海绵宝宝',
-            avatarUrl: 'cloud://cloud1-2gltiqs6a2c5cd76.636c-cloud1-2gltiqs6a2c5cd76-1411302136/icons/avatar.png',
-            qty: 3,
-            joinTime: '2026-03-28 11:15'
+    return new Promise((resolve, reject) => {
+      wx.cloud.callFunction({
+        name: 'fetchPreorderDetail',
+        data: { dragonId },
+        success(res) {
+          const result = res.result;
+          if (result.code !== 0) {
+            return reject(new Error(result.message));
           }
-        ]
-      });
-    });
-  },
 
-  /**
-   * 提交接龙参与
-   * @param {object} data - 参与数据
-   * @param {string} data.dragonId - 接龙ID
-   * @param {number} data.quantity - 数量
-   * @param {string} data.remark - 备注
-   * @returns {Promise}
-   */
-  submitPreorder(data) {
-    return wx.cloud.callFunction({
-      name: 'submitPreorder',
-      data: data
-    }).then(res => {
-      if (res.result.code === 0) {
-        return res.result.data;
-      }
-      throw new Error(res.result.message || '提交失败');
+          resolve({
+            dragon: result.data.dragon,
+            participants: result.data.participants || []
+          });
+        },
+        fail(err) {
+          reject(new Error('网络请求失败'));
+        }
+      });
     });
   }
 });

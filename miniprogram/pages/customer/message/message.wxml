@@ -1,6 +1,6 @@
 <!-- 消息中心主容器页面 -->
 <view class="container">
-  <!-- Tab栏 + 一键删除 -->
+  <!-- Tab栏 -->
   <view class="tab-header">
     <view class="tab-bar">
       <view class="tab-item {{currentTab === 'all' ? 'active' : ''}}" bindtap="switchTab" data-tab="all">
@@ -13,24 +13,21 @@
         <text>上新通知</text>
       </view>
     </view>
-    <view class="delete-all" bindtap="deleteAllMessages">
-      <text>一键删除</text>
-    </view>
   </view>
 
   <!-- 组件容器 -->
   <view class="component-container">
     <!-- 全部消息组件 -->
     <block wx:if="{{currentTab === 'all'}}">
-      <all-component></all-component>
+      <all-component bind:deleteAllMessages="deleteAllMessages"></all-component>
     </block>
     <!-- 取货提醒组件 -->
     <block wx:if="{{currentTab === 'pickup'}}">
-      <pickup-component></pickup-component>
+      <pickup-component bind:deleteAllMessages="deleteAllMessages"></pickup-component>
     </block>
     <!-- 上新通知组件 -->
     <block wx:if="{{currentTab === 'newgoods'}}">
-      <newgoods-component></newgoods-component>
+      <newgoods-component bind:deleteAllMessages="deleteAllMessages"></newgoods-component>
     </block>
   </view>
 </view>

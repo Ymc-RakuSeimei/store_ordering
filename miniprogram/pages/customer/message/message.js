@@ -31,21 +31,54 @@ Page({
   },
 
   // 一键删除所有消息
-  deleteAllMessages() {
+  deleteAllMessages(e) {
+    const type = e.detail ? e.detail.type : this.data.currentTab;
+
     wx.showModal({
       title: '提示',
-      content: '确定要删除所有消息吗？',
-      success: (res) => {
+      content: `确定要删除所有${type === 'all' ? '' : type === 'pickup' ? '取货提醒' : '上新通知'}消息吗？`,
+      success: async (res) => {
         if (res.confirm) {
-          // 触发组件刷新消息列表
-          const component = this.selectComponent(`.${this.data.currentTab}-component`);
-          if (component && component.clearMessages) {
-            component.clearMessages();
+          try {
+            // 获取用户openid
+            const app = getApp();
+            const openid = app.globalData.openid || await app.getOpenId();
+            
+            if (!openid) {
+              wx.showToast({ title: '获取用户信息失败', icon: 'none' });
+              return;
+            }
+            
+            // 调用云函数删除消息
+            const deleteRes = await wx.cloud.callFunction({
+              name: 'deleteMessage',
+              data: {
+                type: type,
+                openid: openid
+              }
+            });
+
+            if (deleteRes.result.code === 0) {
+              // 触发组件刷新消息列表
+              const component = this.selectComponent(`.${type}-component`);
+              if (component && component.clearMessages) {
+                component.clearMessages();
+                // 重新加载消息
+                if (component.loadMessages) {
+                  component.loadMessages();
+                }
+              }
+              wx.showToast({
+                title: '已删除',
+                icon: 'success'
+              });
+            } else {
+              wx.showToast({ title: '删除失败', icon: 'none' });
+            }
+          } catch (error) {
+            console.error('删除消息失败:', error);
+            wx.showToast({ title: '删除失败', icon: 'none' });
           }
-          wx.showToast({
-            title: '已删除',
-            icon: 'success'
-          });
         }
       }
     });

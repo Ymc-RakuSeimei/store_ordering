@@ -3,7 +3,8 @@ Page({
   data: {
     cartList: [],
     totalPrice: 0,
-    remark: ''
+    remark: '',
+    loading: false
   },
 
   onLoad(options) {
@@ -37,7 +38,7 @@ Page({
       return;
     }
 
-    wx.showLoading({ title: '下单中...', mask: true });
+    this.setData({ loading: true });
 
     try {
       const openidRes = await wx.cloud.callFunction({
@@ -74,7 +75,7 @@ Page({
 
       if (res.result && res.result.code === 0) {
         wx.removeStorageSync('shoppingCart');
-        wx.hideLoading();
+        this.setData({ loading: false });
         wx.showToast({
           title: '下单成功',
           icon: 'success',
@@ -101,7 +102,7 @@ Page({
       }
     } catch (err) {
       console.error('下单失败', err);
-      wx.hideLoading();
+      this.setData({ loading: false });
       wx.showToast({
         title: err.message || '下单失败，请重试',
         icon: 'none'

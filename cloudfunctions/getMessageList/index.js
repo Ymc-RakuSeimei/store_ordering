@@ -1,83 +1,93 @@
 // 云函数：getMessageList
-// 目的：返回用户消息列表，支持分页和类型筛选，同时支持标记消息为已读
 const cloud = require('wx-server-sdk');
 
-// 如果在云函数中未指定 env，则 auto 选当前环境
 cloud.init({ env: 'cloud1-2gltiqs6a2c5cd76' || cloud.DYNAMIC_CURRENT_ENV });
 
-exports.main = async (event, context) => {
-  const db = cloud.database();
-  const _ = db.command;
+const db = cloud.database();
+const _ = db.command;
 
+exports.main = async (event, context) => {
   try {
-    // 常用参数：limit、page（从0开始）、type、openid、markRead（标记已读的消息ID）
     const limit = Number.isNaN(Number(event.limit)) ? 30 : Math.max(1, Math.min(100, Number(event.limit)));
     const page = Number.isNaN(Number(event.page)) ? 0 : Math.max(0, Number(event.page));
-    const skip = page * limit;
     const type = event.type || '';
     const openid = event.openid;
-    const markRead = event.markRead; // 要标记为已读的消息ID
+    const markRead = event.markRead;
 
-    if (!openid) {
-      return {
-        code: -1,
-        message: '缺少用户标识',
-        data: [],
-      };
-    }
-
-    // 如果需要标记消息为已读
-    if (markRead) {
+    if (markRead && openid) {
       try {
         await db.collection('messages').where({
-          _id: markRead,
-          openid: openid
+          _id: markRead
         }).update({
           data: {
-            isRead: true,
+            readUsers: db.command.addToSet(openid),
             readAt: new Date()
           }
         });
       } catch (markErr) {
         console.error('标记消息已读失败:', markErr);
-        // 标记失败不阻断列表返回
       }
     }
 
-    // 构建查询条件
-    const filter = {
-      openid: openid
-    };
-    
-    // 类型筛选
+    const filter = {};
+
     if (type) {
       filter.type = type;
     }
 
-    const items = await db
-      .collection('messages')
-      .where(filter)
-      .orderBy('createdAt', 'desc')
-      .skip(skip)
-      .limit(limit)
-      .get();
+    let query = db.collection('messages');
 
-    // count 仅当 page===0 时可读; page>0 可直接按 list 返回，避免重复调用 count API
+    if (openid) {
+      if (type && type !== 'newgoods') {
+        filter.openid = openid;
+      } else if (!type) {
+        query = query.where(
+          db.command.or([
+            { openid: openid },
+            buildNewGoodsNotDeletedCondition(openid)
+          ])
+        );
+      } else if (type === 'newgoods') {
+        Object.assign(filter, buildNotDeletedFilter(openid));
+      }
+    }
+
+    let items;
+    try {
+      if (Object.keys(filter).length > 0) {
+        query = query.where(filter);
+      }
+      items = await query
+        .limit(limit)
+        .get();
+    } catch (err) {
+      console.error('查询失败:', err);
+      items = { data: [] };
+    }
+
     let total = -1;
     if (page === 0) {
       try {
         const countResult = await db.collection('messages').where(filter).count();
         total = countResult.total;
       } catch (countErr) {
-        // count 失败不阻断列表返回
+        console.error('获取消息总数失败:', countErr);
         total = -1;
       }
     }
 
+    const processedData = (items.data || []).map(item => {
+      const isRead = openid && item.readUsers && item.readUsers.includes(openid);
+      return {
+        ...item,
+        isRead: isRead
+      };
+    });
+
     return {
       code: 0,
       message: 'ok',
-      data: items.data || [],
+      data: processedData,
       page,
       limit,
       total,
@@ -91,3 +101,22 @@ exports.main = async (event, context) => {
     };
   }
 };
+
+function buildNewGoodsNotDeletedCondition(openid) {
+  return _.and([
+    { type: 'newgoods' },
+    _.or([
+      { deletedUsers: _.nin([openid]) },
+      { deletedUsers: _.exists(false) }
+    ])
+  ]);
+}
+
+function buildNotDeletedFilter(openid) {
+  return {
+    deletedUsers: _.or([
+      _.nin([openid]),
+      _.exists(false)
+    ])
+  };
+}

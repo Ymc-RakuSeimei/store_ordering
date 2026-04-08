@@ -21,8 +21,14 @@ exports.main = async (event, context) => {
       };
     }
 
-    // 根据 goodsId 字段查询
-    const queryResult = await db.collection('goods').where({ goodsId: goodsId }).get();
+    // 同时查询 _id 和 goodsId 字段
+    const _ = db.command;
+    const queryResult = await db.collection('goods').where(
+      _.or([
+        { goodsId: goodsId },
+        { _id: goodsId }
+      ])
+    ).get();
     
     if (!queryResult.data || queryResult.data.length === 0) {
       return {

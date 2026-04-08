@@ -1,6 +1,5 @@
 const DEFAULT_PRODUCT_IMAGE = 'cloud://cloud1-2gltiqs6a2c5cd76.636c-cloud1-2gltiqs6a2c5cd76-1411302136/icons/placeholder.png';
 
-// 页面上展示图片时，只接受这些常见可访问路径。
 const isUsableImage = (value) => {
   if (typeof value !== 'string') return false;
   const image = value.trim();
@@ -8,7 +7,6 @@ const isUsableImage = (value) => {
   return image.startsWith('cloud://') || image.startsWith('http://') || image.startsWith('https://');
 };
 
-// 新增商品弹窗的初始值统一放在一个函数里，便于重置表单。
 const createEmptyNewProduct = () => ({
   name: '',
   spec: '',
@@ -18,8 +16,6 @@ const createEmptyNewProduct = () => ({
   img: ''
 });
 
-// 云函数返回的是“前端可直接展示”的结构；
-// 但为了兼容数据库真实字段，这里仍然兜底读取 specs / price / cost / images。
 const normalizeProductItem = (item = {}, index = 0) => {
   const stableId = item._id || item.id || `goods_${index}`;
   const imageList = Array.isArray(item.images) ? item.images.filter(isUsableImage) : [];
@@ -40,18 +36,13 @@ const normalizeProductItem = (item = {}, index = 0) => {
 
 Page({
   data: {
-    // 当前选中的商品分类。
     activeTab: 'stock',
     tabs: [
       { id: 'stock', label: '现货' },
       { id: 'special', label: '特价处理' }
     ],
-
-    // 两类商品列表分别存储，切 tab 时只切显示，不重复请求。
     stockList: [],
     specialList: [],
-
-    // 编辑商品弹窗相关状态。
     showEditDialog: false,
     editItem: null,
     editSellPrice: '',
@@ -59,10 +50,10 @@ Page({
     editStock: '',
     editImg: '',
     editDescription: '',
-
-    // 新增商品弹窗相关状态。
     showAddDialog: false,
-    newProduct: createEmptyNewProduct()
+    newProduct: createEmptyNewProduct(),
+    loading: false,
+    deleteLoading: false
   },
 
   onLoad() {
@@ -79,13 +70,11 @@ Page({
     });
   },
 
-  // 切换“现货 / 特价处理”两个 tab。
   switchTab(e) {
     const key = e.currentTarget.dataset.tab;
     this.setData({ activeTab: key });
   },
 
-  // 打开编辑弹窗，并把当前商品的数据带进去。
   openEdit(e) {
     const item = e.currentTarget.dataset.item;
     this.setData({
@@ -106,11 +95,6 @@ Page({
     });
   },
 
-  // 删除商品。
-  // 流程：
-  // 1. 先弹确认框，避免误删
-  // 2. 调用 deleteProduct 云函数删除数据库记录
-  // 3. 前端本地列表同步移除已删除商品
   deleteProduct() {
     const item = this.data.editItem || {};
     const productName = item.name || '当前商品';
@@ -118,7 +102,7 @@ Page({
 
     wx.showModal({
       title: '删除商品',
-      content: `确认删除“${productName}”吗？删除后当前商品将从商品列表中移除。`,
+      content: `确认删除"${productName}"吗？删除后当前商品将从商品列表中移除。`,
       confirmColor: '#e14d4d',
       success: (res) => {
         if (!res.confirm) return;
@@ -128,12 +112,10 @@ Page({
           return;
         }
 
-        wx.showLoading({ title: '删除中...' });
+        this.setData({ deleteLoading: true });
 
         this.deleteProductOnServer({ id: productId })
           .then(() => {
-            // 优先根据商品自身分类决定从哪个本地列表中移除，
-            // 避免后续页面交互调整后只依赖 activeTab 带来误删风险。
             const listKey = item.special || item.type === 'special' ? 'specialList' : 'stockList';
             const nextList = (this.data[listKey] || []).filter(
               (currentItem) => (currentItem._id || currentItem.id) !== productId
@@ -142,23 +124,21 @@ Page({
             this.setData({
               [listKey]: nextList,
               showEditDialog: false,
-              editItem: null
+              editItem: null,
+              deleteLoading: false
             });
 
             wx.showToast({ title: '删除成功', icon: 'success' });
           })
           .catch((err) => {
             console.error('deleteProductOnServer失败', err);
+            this.setData({ deleteLoading: false });
             wx.showToast({ title: '删除失败', icon: 'none' });
-          })
-          .finally(() => {
-            wx.hideLoading();
           });
       }
     });
   },
 
-  // 编辑弹窗中的输入框共用一个方法，通过 data-key 区分字段。
   bindEditChange(e) {
     const key = e.currentTarget.dataset.key;
     const value = e.detail.value;
@@ -169,7 +149,6 @@ Page({
     if (key === 'description') this.setData({ editDescription: value });
   },
 
-  // 给编辑中的商品重新选图并上传到云存储。
   chooseEditImage() {
     wx.chooseImage({
       count: 1,
@@ -198,7 +177,6 @@ Page({
     });
   },
 
-  // 新增商品时选择图片，逻辑和编辑时一致，只是写入 newProduct.img。
   chooseProductImage() {
     wx.chooseImage({
       count: 1,
@@ -227,9 +205,6 @@ Page({
     });
   },
 
-  // 保存编辑后的商品。
-  // 注意：前端传的是展示字段 sellPrice / costPrice / img，
-  // 云函数会再转成数据库真实字段 price / cost / images。
   saveEdit() {
     const item = this.data.editItem;
     const sellPriceText = String(this.data.editSellPrice).trim();
@@ -289,7 +264,6 @@ Page({
     });
   },
 
-  // 打开新增商品弹窗。
   openAdd() {
     this.setData({
       showAddDialog: true,
@@ -304,15 +278,12 @@ Page({
     });
   },
 
-  // 新增商品弹窗中的多个输入框复用同一个方法。
   bindAddInput(e) {
     const field = e.currentTarget.dataset.field;
     const value = e.detail.value;
     this.setData({ [`newProduct.${field}`]: value });
   },
 
-  // 新增商品。
-  // 这里仍然提交前端字段，云函数内部会统一转换成 goods 集合真实字段格式。
   saveAdd() {
     const p = this.data.newProduct;
     const name = String(p.name || '').trim();
@@ -364,6 +335,8 @@ Page({
         newProduct: createEmptyNewProduct()
       });
 
+      this.createNewGoodsNotification(item);
+
       wx.showToast({ title: '添加成功', icon: 'success' });
     }).catch((err) => {
       console.error('addProductToServer失败', err);
@@ -371,9 +344,6 @@ Page({
     });
   },
 
-  // ----------------- 云函数调用封装 -----------------
-
-  // 拉取商品列表。
   fetchGoodsFromServer() {
     return wx.cloud.callFunction({
       name: 'fetchGoods',
@@ -387,7 +357,6 @@ Page({
     });
   },
 
-  // 新增商品。
   addProductToServer(product) {
     return wx.cloud.callFunction({
       name: 'addProduct',
@@ -401,7 +370,6 @@ Page({
     });
   },
 
-  // 更新商品。
   updateProductOnServer(updateInfo) {
     return wx.cloud.callFunction({
       name: 'updateProduct',
@@ -415,7 +383,6 @@ Page({
     });
   },
 
-  // 删除商品。
   deleteProductOnServer(payload) {
     return wx.cloud.callFunction({
       name: 'deleteProduct',
@@ -429,8 +396,8 @@ Page({
     });
   },
 
-  // 页面初始化时拉取商品列表，并按现货 / 特价拆分到本地状态。
   loadGoods() {
+    this.setData({ loading: true });
     this.fetchGoodsFromServer().then((res) => {
       this.setData({
         stockList: (res.stock || []).map((item, index) =>
@@ -438,19 +405,35 @@ Page({
         ),
         specialList: (res.special || []).map((item, index) =>
           normalizeProductItem({ ...item, special: true }, index)
-        )
+        ),
+        loading: false
       });
     }).catch((err) => {
       console.error('fetchGoodsFromServer失败', err);
+      this.setData({ loading: false });
       wx.showToast({ title: '加载商品失败', icon: 'none' });
     });
   },
 
-  // 商家底部导航。
+  createNewGoodsNotification(product) {
+    try {
+      wx.cloud.callFunction({
+        name: 'createMessage',
+        data: {
+          type: 'newgoods',
+          title: '新品上市',
+          content: '新品 ' + (product.name || '') + ' 已经上架，快来看看吧！',
+          productId: product._id || product.id
+        }
+      });
+    } catch (error) {
+      console.error('生成上新通知失败:', error);
+    }
+  },
+
   onTabTap(e) {
     const tab = e.currentTarget.dataset.tab;
 
-    // 当前页本身就是商品页，点击时不做跳转。
     if (tab === 'product') return;
 
     const map = {

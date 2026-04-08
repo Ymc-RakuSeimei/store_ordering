@@ -2,7 +2,9 @@ Page({
   data: {
     currentDragons: [],
     completedDragons: [],
-    loading: true
+    loading: true,
+    stopLoading: false,
+    markLoading: false
   },
 
   onLoad() {
@@ -75,16 +77,16 @@ Page({
       success: (res) => {
         if (!res.confirm) return;
 
-        wx.showLoading({ title: '截止中...' });
+        this.setData({ stopLoading: true });
 
         this.stopPreorder(id)
           .then(() => {
-            wx.hideLoading();
+            this.setData({ stopLoading: false });
             wx.showToast({ title: '已截止', icon: 'success' });
             this.loadPreorderList();
           })
           .catch((err) => {
-            wx.hideLoading();
+            this.setData({ stopLoading: false });
             console.error('stopPreorder error', err);
             wx.showToast({ title: err.message || '截止失败', icon: 'none' });
           });
@@ -101,16 +103,16 @@ Page({
       success: (res) => {
         if (!res.confirm) return;
 
-        wx.showLoading({ title: '更新中...' });
+        this.setData({ markLoading: true });
 
         this.markArrival(id)
           .then(() => {
-            wx.hideLoading();
+            this.setData({ markLoading: false });
             wx.showToast({ title: '已标记到货', icon: 'success' });
             this.loadPreorderList();
           })
           .catch((err) => {
-            wx.hideLoading();
+            this.setData({ markLoading: false });
             console.error('markArrival error', err);
             wx.showToast({ title: err.message || '标记失败', icon: 'none' });
           });

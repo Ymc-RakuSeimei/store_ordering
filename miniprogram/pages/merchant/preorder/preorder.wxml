@@ -1,4 +1,9 @@
 <view class="page">
+  <!-- 加载状态 -->
+  <view wx:if="{{loading || stopLoading || markLoading}}" class="loading-state">
+    <view class="loading-spinner"></view>
+    <view class="loading-text">{{stopLoading ? '截止中...' : (markLoading ? '更新中...' : '加载中...')}}</view>
+  </view>
   <!-- 顶部头部 -->
   <view class="header">
     <text class="title">预售订货</text>

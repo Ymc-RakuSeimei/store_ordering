@@ -95,17 +95,17 @@
   visibility: hidden;
 }
 
-/* 1. 现货订购 → 黑色背景（和其他页面统一） */
+/* 1. 现货订购 → 绿色背景*/
 .goods-badge.spot {
-  background-color: #000000;
+  background-color: #4cd964;
 }
 
-/* 2. 接龙预定 → 红色背景（和其他页面统一） */
+/* 2. 接龙预定 → 红色背景 */
 .goods-badge.preorder {
   background-color: #ff3b30;
 }
 
-/* 3. 特价处理 → 橙色背景（和其他页面统一，非红非黑） */
+/* 3. 特价处理 → 橙色背景 */
 .goods-badge.special {
   background-color: #ff9500;
 }

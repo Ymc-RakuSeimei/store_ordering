@@ -2,7 +2,7 @@ const cloud = require('wx-server-sdk');
 
 const ENV_ID = 'cloud1-2gltiqs6a2c5cd76';
 
-cloud.init({ env: ENV_ID });
+cloud.init({ env: ENV_ID || cloud.DYNAMIC_CURRENT_ENV });
 
 const db = cloud.database();
 
@@ -11,7 +11,7 @@ async function assertMerchant(openid) {
   const user = (userRes.data || [])[0];
 
   if (!user || user.role !== 'merchant') {
-    throw new Error('无权限截止接龙');
+    throw new Error('无权限截单');
   }
 
   return user;
@@ -34,24 +34,34 @@ exports.main = async (event = {}) => {
       throw new Error('接龙商品不存在');
     }
 
+    if (goods.preorderState === 'closed') {
+      return {
+        code: 0,
+        message: '已截单',
+        data: { id }
+      };
+    }
+
+    const now = new Date();
+
     await db.collection('goods').doc(id).update({
       data: {
         preorderState: 'closed',
-        closedAt: new Date(),
-        status: '待到货',
-        updatedAt: new Date()
+        closeAt: now,
+        status: goods.status === '已到货' ? '已到货' : '未到货',
+        updatedAt: now
       }
     });
 
     return {
       code: 0,
-      message: '已截止',
+      message: '已截单',
       data: {
         id
       }
     };
   } catch (err) {
-    console.error('stopPreorder 云函数错误', err);
+    console.error('stopPreorder error', err);
     return {
       code: -1,
       message: err.message || '截止失败',

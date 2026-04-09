@@ -3,7 +3,10 @@ const cloud = require('wx-server-sdk');
 const ENV_ID = 'cloud1-2gltiqs6a2c5cd76';
 const DEFAULT_PRODUCT_IMAGE = 'cloud://cloud1-2gltiqs6a2c5cd76.636c-cloud1-2gltiqs6a2c5cd76-1411302136/icons/placeholder.png';
 
-cloud.init({ env: ENV_ID });
+const STATUS_WAITING = '未到货';
+const LEGACY_STATUS_WAITING = '待到货';
+
+cloud.init({ env: ENV_ID || cloud.DYNAMIC_CURRENT_ENV });
 
 const db = cloud.database();
 
@@ -27,9 +30,35 @@ function isUsableImage(value) {
 
 function toTimestamp(value) {
   if (!value) return 0;
-  const date = value instanceof Date ? value : new Date(value);
-  const timestamp = date.getTime();
+
+  if (value instanceof Date) {
+    return value.getTime();
+  }
+
+  if (value && typeof value === 'object' && value.$date) {
+    const exportedTimestamp = new Date(value.$date).getTime();
+    return Number.isNaN(exportedTimestamp) ? 0 : exportedTimestamp;
+  }
+
+  const timestamp = new Date(value).getTime();
   return Number.isNaN(timestamp) ? 0 : timestamp;
+}
+
+function formatDateTime(value) {
+  const timestamp = toTimestamp(value);
+  if (!timestamp) {
+    return '';
+  }
+
+  const date = new Date(timestamp);
+  const pad = (num) => String(num).padStart(2, '0');
+
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
+
+function normalizeWaitingStatus(value = '') {
+  const text = String(value || '').trim();
+  return text === LEGACY_STATUS_WAITING ? STATUS_WAITING : text;
 }
 
 function shouldAutoClose(item = {}) {
@@ -42,19 +71,21 @@ function shouldAutoClose(item = {}) {
 
 function normalizePreorderItem(item = {}) {
   const imageList = Array.isArray(item.images) ? item.images.filter(isUsableImage) : [];
-  const image = imageList[0] || DEFAULT_PRODUCT_IMAGE;
   const preorderState = item.preorderState === 'closed' ? 'closed' : 'ongoing';
 
   return {
     id: item._id,
     goodsId: item.goodsId || '',
-    img: image,
+    img: imageList[0] || DEFAULT_PRODUCT_IMAGE,
     name: item.name || '',
-    spec: item.specs || item.spec || '',
+    spec: String(item.specs || item.spec || '').trim(),
     totalQty: Number(item.totalBooked) || 0,
     arrivalDate: item.arrivalDate || '',
-    status: item.status || (preorderState === 'closed' ? '待到货' : 'ongoing'),
+    status: normalizeWaitingStatus(item.status) || STATUS_WAITING,
     preorderState,
+    closeType: item.closeType || 'manual',
+    closedAt: preorderState === 'closed' ? formatDateTime(item.closeAt) : '',
+    arrivalTime: formatDateTime(item.arrivedAt || item.arrivalTime),
     createdAt: item.createdAt,
     updatedAt: item.updatedAt
   };
@@ -70,12 +101,14 @@ exports.main = async () => {
 
     const autoCloseTargets = items.filter(shouldAutoClose);
     if (autoCloseTargets.length > 0) {
+      const now = new Date();
+
       await Promise.all(
         autoCloseTargets.map((item) =>
           db.collection('goods').doc(item._id).update({
             data: {
               preorderState: 'closed',
-              updatedAt: new Date()
+              updatedAt: now
             }
           })
         )
@@ -83,7 +116,7 @@ exports.main = async () => {
 
       autoCloseTargets.forEach((item) => {
         item.preorderState = 'closed';
-        item.updatedAt = new Date();
+        item.updatedAt = now;
       });
     }
 
@@ -91,6 +124,7 @@ exports.main = async () => {
     const completed = [];
 
     items
+      .slice()
       .sort((a, b) => toTimestamp(b.updatedAt || b.createdAt) - toTimestamp(a.updatedAt || a.createdAt))
       .map(normalizePreorderItem)
       .forEach((item) => {
@@ -98,6 +132,7 @@ exports.main = async () => {
           completed.push(item);
           return;
         }
+
         current.push(item);
       });
 
@@ -110,7 +145,7 @@ exports.main = async () => {
       }
     };
   } catch (err) {
-    console.error('fetchPreorderList 云函数错误', err);
+    console.error('fetchPreorderList error', err);
     return {
       code: -1,
       message: err.message || '获取接龙列表失败',

@@ -2,7 +2,7 @@ const cloud = require('wx-server-sdk');
 
 const ENV_ID = 'cloud1-2gltiqs6a2c5cd76';
 
-cloud.init({ env: ENV_ID });
+cloud.init({ env: ENV_ID || cloud.DYNAMIC_CURRENT_ENV });
 
 const db = cloud.database();
 
@@ -31,14 +31,16 @@ exports.main = async (event = {}) => {
     const goods = goodsRes.data;
 
     if (!goods || goods.type !== 'preorder') {
-      throw new Error('预售商品不存在');
+      throw new Error('预定商品不存在');
     }
+
+    const now = new Date();
 
     await db.collection('goods').doc(id).update({
       data: {
         status: '已到货',
-        arrivalTime: new Date(),
-        updatedAt: new Date()
+        arrivedAt: now,
+        updatedAt: now
       }
     });
 
@@ -50,7 +52,7 @@ exports.main = async (event = {}) => {
       }
     };
   } catch (err) {
-    console.error('markArrival 云函数错误', err);
+    console.error('markArrival error', err);
     return {
       code: -1,
       message: err.message || '标记失败',

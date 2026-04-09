@@ -174,9 +174,9 @@ exports.main = async (event = {}, context) => {
             return false;
           }
 
-          if (item.closeType === 'timed' && item.closedAt) {
-            const closeAt = new Date(item.closedAt).getTime();
-            if (!Number.isNaN(closedAt) && closedAt <= Date.now()) {
+          if (item.closeType === 'timed' && item.closeAt) {
+            const closeAt = new Date(item.closeAt).getTime();
+            if (!Number.isNaN(closeAt) && closeAt <= Date.now()) {
               return false;
             }
           }

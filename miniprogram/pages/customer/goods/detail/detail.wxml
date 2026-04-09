@@ -1,37 +1,78 @@
 <view class="container">
-  <!-- 商品图片 -->
-  <view class="goods-image-container">
-    <image wx:if="{{goodsDetail.image}}" class="goods-image" src="{{goodsDetail.image}}" mode="aspectFit"></image>
-    <view wx:else class="goods-image-placeholder"></view>
-    <view class="goods-badge {{goodsDetail.badgeClass}}" wx:if="{{goodsDetail.badgeText}}">{{goodsDetail.badgeText}}</view>
+  <!-- 加载中 -->
+  <view wx:if="{{loading}}" class="loading-state">
+    <view class="loading-spinner"></view>
+    <view class="loading-text">加载中...</view>
   </view>
 
-  <!-- 商品信息 -->
-  <view class="goods-info">
-    <text class="goods-name">{{goodsDetail.name}}</text>
-    <view class="goods-price-row">
-      <text class="goods-price {{goodsDetail.priceClass}}">¥{{goodsDetail.price}}</text>
-      <text class="goods-original-price" wx:if="{{goodsDetail.originalPrice}}">¥{{goodsDetail.originalPrice}}</text>
+  <!-- 商品详情 -->
+  <view wx:elif="{{goodsDetail}}" class="content">
+    <!-- 商品卡片 -->
+    <view class="product-card">
+      <image class="product-img" src="{{goodsDetail.image || 'cloud://cloud1-2gltiqs6a2c5cd76.636c-cloud1-2gltiqs6a2c5cd76-1411302136/icons/avatar.png'}}" mode="aspectFill"></image>
+      <view class="product-info">
+        <view class="product-name">{{goodsDetail.name}}</view>
+        <view class="product-spec">规格：{{goodsDetail.spec}}</view>
+        <view class="price-row">
+          <view class="price-group">
+            <view class="sale-price">{{goodsDetail.price}}</view>
+            <view wx:if="{{goodsDetail.originalPrice}}" class="cost-price">{{goodsDetail.originalPrice}}</view>
+          </view>
+          <view class="status-tag status-{{goodsDetail.type}}">
+            {{goodsDetail.badgeText}}
+          </view>
+        </view>
+      </view>
     </view>
-    <text class="goods-stock">{{goodsDetail.statusText}}</text>
-    <text class="goods-spec">规格:{{goodsDetail.spec}}</text>
-  </view>
 
-  <!-- 商品描述 -->
-  <view class="goods-description">
-    <view class="section-title">商品描述</view>
-    <text class="description-content">{{goodsDetail.description || '暂无描述'}}</text>
+    <!-- 库存信息 -->
+    <view class="stats-card">
+      <view class="stats-row">
+        <view class="stat-item">
+          <view class="stat-value">{{goodsDetail.stock}}</view>
+          <view class="stat-label">{{goodsDetail.statusLabel}}</view>
+        </view>
+        <view class="stat-item">
+          <view class="stat-value">{{goodsDetail.statusText}}</view>
+          <view class="stat-label">当前状态</view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 商品详情 -->
+    <view wx:if="{{goodsDetail.description}}" class="form-card">
+      <view class="form-title">商品详情</view>
+      <view class="detail-content">{{goodsDetail.description}}</view>
+    </view>
+
+    <!-- 数量选择 -->
+    <view class="form-card">
+      <view class="form-title">选购数量</view>
+      <view class="form-item">
+        <view class="form-label">数量</view>
+        <view class="quantity-selector">
+          <button class="qty-btn minus" bindtap="decreaseQuantity">-</button>
+          <input class="qty-input" type="number" value="{{quantity}}" bindinput="onQtyInput" />
+          <button class="qty-btn plus" bindtap="increaseQuantity" disabled="{{goodsDetail.stock && quantity >= goodsDetail.stock}}">+</button>
+        </view>
+      </view>
+    </view>
   </view>
 
   <!-- 底部操作栏 -->
-  <view class="bottom-bar">
-    <view class="quantity-control">
-      <view class="quantity-btn minus" bindtap="decreaseQuantity">-</view>
-      <view class="quantity-input">{{quantity}}</view>
-      <view class="quantity-btn plus" bindtap="increaseQuantity">+</view>
+  <view wx:if="{{goodsDetail}}" class="bottom-bar">
+    <view class="cart-info" bindtap="goToCart">
+      <view class="cart-icon">
+        <image class="cart-icon-image" src="cloud://cloud1-2gltiqs6a2c5cd76.636c-cloud1-2gltiqs6a2c5cd76-1411302136/icons/icon_shop.png" mode="aspectFit"></image>
+        <view class="cart-badge" wx:if="{{cartCount > 0}}">{{cartCount}}</view>
+      </view>
+      <view class="cart-price">
+        <text class="cart-label">合计</text>
+        <text class="cart-amount">¥{{cartTotal}}</text>
+      </view>
     </view>
-    <view class="add-to-cart" bindtap="addToCart">
-      <text>加入购物车</text>
-    </view>
+    <button class="submit-btn" bindtap="addToCart" disabled="{{isAdding}}">
+      {{isAdding ? '已添加' : '加入购物车'}}
+    </button>
   </view>
 </view>

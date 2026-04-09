@@ -1,7 +1,8 @@
 // pages/customer/message/components/pickup/pickup.js
 Component({
   data: {
-    messageList: []
+    messageList: [],
+    loading: true
   },
 
   lifetimes: {
@@ -16,16 +17,14 @@ Component({
      */
     async loadMessages() {
       try {
-        // 获取用户openid
         const app = getApp();
         const openid = app.globalData.openid || await app.getOpenId();
-        
+
         if (!openid) {
           console.error('获取openid失败');
           return;
         }
-        
-        // 调用云函数获取取货提醒消息
+
         const res = await wx.cloud.callFunction({
           name: 'getMessageList',
           data: {
@@ -35,9 +34,8 @@ Component({
             page: 0
           }
         });
-        
+
         if (res.result.code === 0) {
-          // 格式化消息数据
           const messageList = res.result.data.map(item => ({
             id: item._id,
             content: item.content || item.title || '',
@@ -45,15 +43,22 @@ Component({
             isRead: item.isRead || false,
             createdAt: item.createdAt
           }));
-          
+
           this.setData({
-            messageList: messageList
+            messageList: messageList,
+            loading: false
           });
         } else {
           console.error('获取取货提醒失败:', res.result.message);
+          this.setData({
+            loading: false
+          });
         }
       } catch (error) {
         console.error('加载取货提醒失败:', error);
+        this.setData({
+          loading: false
+        });
       }
     },
 
@@ -116,6 +121,14 @@ Component({
       this.setData({
         messageList: []
       });
+    },
+
+    /**
+     * 一键删除所有消息
+     */
+    deleteAllMessages() {
+      // 直接调用父组件的deleteAllMessages方法，不显示自己的弹窗
+      this.triggerEvent('deleteAllMessages', { type: 'pickup' });
     }
   }
 });

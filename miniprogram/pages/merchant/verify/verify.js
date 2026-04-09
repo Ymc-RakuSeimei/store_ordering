@@ -6,6 +6,7 @@ Page({
     pickupGoods: [],            // 可取货商品
     waitingGoods: [],           // 待到货商品
     loading: true,
+    pickupLoading: false,
     errorMsg: ''
   },
 
@@ -94,7 +95,7 @@ Page({
   // 调用云函数核销商品
   async pickupGoods(goodsIds) {
     try {
-      wx.showLoading({ title: '处理中...' })
+      this.setData({ pickupLoading: true })
 
       const res = await wx.cloud.callFunction({
         name: 'pickupGoods',
@@ -104,7 +105,7 @@ Page({
         }
       })
 
-      wx.hideLoading()
+      this.setData({ pickupLoading: false })
 
       if (res.result && res.result.code === 0) {
         wx.showToast({ title: '取货成功', icon: 'success' })
@@ -117,7 +118,7 @@ Page({
         })
       }
     } catch (err) {
-      wx.hideLoading()
+      this.setData({ pickupLoading: false })
       console.error('取货失败:', err)
       wx.showToast({ title: '取货失败', icon: 'none' })
     }

@@ -1,4 +1,9 @@
 <view class="container">
+  <!-- 加载状态 -->
+  <view wx:if="{{loading}}" class="loading-state">
+    <view class="loading-spinner"></view>
+    <view class="loading-text">下单中...</view>
+  </view>
   <!-- 顶部导航栏 -->
   <view class="nav-bar">
     <view class="nav-back" bindtap="goBack">

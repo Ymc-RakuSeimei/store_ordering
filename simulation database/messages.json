@@ -1,1 +1,1 @@
-{"_id":"c25002a969c16e28014d56ef0e4172d2","openid":"用户标识","type":"消息类型：system","createAt":{"$date":"2026-03-23T16:48:58.396Z"},"relatedData":{},"title":"消息标题","isread":true,"content":"消息内容"}
+{"_id":"c25002a969c16e28014d56ef0e4172d2","openid":"用户标识","type":"消息类型：system","createAt":{"$date":"2026-03-23T16:48:58.396Z"},"relatedData":{},"title":"消息标题","content":"消息内容"}

@@ -41,11 +41,9 @@ Component({
         imageUrl = '';
       }
       
-      // 使用父页面传递的购物车数量
       const cartQuantity = item.cartQuantity || 0;
       
       return {
-        // 优先使用 goodsId 作为业务索引；老数据没有 goodsId 时回退到 _id。
         id: item.goodsId || item._id,
         name: item.name || '商品名称',
         price: item.price || 0,
@@ -66,11 +64,8 @@ Component({
     // 筛选商品
     filterGoods() {
       let list = [...this.data.originalList];
-      
-      // 格式化数据
       list = list.map(item => this.formatGoodsItem(item));
       
-      // 关键词筛选
       const keyword = this.properties.searchKeyword;
       if (keyword && keyword.trim()) {
         const lowerKeyword = keyword.toLowerCase().trim();
@@ -112,18 +107,18 @@ Component({
       });
     },
 
-    // 跳转到商品详情页
+    // 跳转到详情页（修复：接龙商品跳转到接龙详情页）
     goToDetail(e) {
       const { item } = e.currentTarget.dataset;
+      // 接龙商品跳转到参与接龙页
       wx.navigateTo({
-        url: `/pages/customer/goods/detail/detail?id=${item.id}`
+        url: `/pages/preorder/join/join?id=${item.id}`
       });
     },
 
     // 阻止事件冒泡
     stopPropagation() {
       // 防止点击按钮时触发页面跳转
-
     }
   }
 });

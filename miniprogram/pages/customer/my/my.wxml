@@ -1,12 +1,17 @@
 <!-- 我的页面 -->
 <view class="container">
+  <!-- 加载状态 -->
+  <view wx:if="{{loading || loginLoading || contactLoading}}" class="loading-state">
+    <view class="loading-spinner"></view>
+    <view class="loading-text">{{loginLoading ? '获取中...' : (contactLoading ? '获取商家微信...' : '加载中...')}}</view>
+  </view>
   <!-- 顶部用户信息区 -->
   <view class="header">
     <view class="greeting" bindtap="handleLogin">
       <text class="greeting-title">Hello, {{userInfo.nickName}}</text>
       <text class="greeting-subtitle">Wish you a happy shopping!</text>
     </view>
-    <image class="qrcode" src="cloud://cloud1-2gltiqs6a2c5cd76.636c-cloud1-2gltiqs6a2c5cd76-1411302136/icons/二维码.png" mode="aspectFill"></image>
+    <image class="qrcode" bindtap = "ScanQR"src="cloud://cloud1-2gltiqs6a2c5cd76.636c-cloud1-2gltiqs6a2c5cd76-1411302136/icons/二维码.png" mode="aspectFill"></image>
     <image class="avatar" src="{{userInfo.avatarUrl}}" mode="aspectFill" bindtap="handleLogin"></image>
   </view>
   <!-- 功能列表卡片 -->

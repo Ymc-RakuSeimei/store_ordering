@@ -1,4 +1,9 @@
 <view class="page">
+  <!-- 加载状态 -->
+  <view wx:if="{{loading || markLoading || reminderLoading}}" class="loading-state">
+    <view class="loading-spinner"></view>
+    <view class="loading-text">{{markLoading ? '处理中...' : (reminderLoading ? '发送中...' : '加载中...')}}</view>
+  </view>
   <view class="header">
     <text class="title">订单处理</text>
     <button class="scan-btn" bindtap="onScanPickup">扫码取货</button>

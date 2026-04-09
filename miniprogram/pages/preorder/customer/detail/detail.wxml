@@ -1,9 +1,9 @@
 <!--pages/customer/preorder/detail/detail.wxml-->
 <view class="container">
   <!-- 加载中 -->
-  <view wx:if="{{loading}}" class="loading-state">
-    <view class="empty-icon">⏳</view>
-    <view class="empty-text">加载中...</view>
+  <view wx:if="{{loading || authLoading || submitLoading}}" class="loading-state">
+    <view class="loading-spinner"></view>
+    <view class="loading-text">{{authLoading ? '验证中...' : (submitLoading ? '提交中...' : '加载中...')}}</view>
   </view>
 
   <!-- 接龙已结束 -->

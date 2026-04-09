@@ -1,10 +1,15 @@
-<!-- 商品列表主容器页面 -->
+﻿<!-- 商品列表主容器页面 -->
 <view class="container">
+  <!-- 加载中 -->
+  <view wx:if="{{loading}}" class="loading-state">
+    <view class="loading-spinner"></view>
+    <view class="loading-text">加载中...</view>
+  </view>
 
   <!-- 搜索栏 -->
   <view class="search-bar">
     <view class="search-box">
-      <image class="search-icon" src="cloud://cloud1-2gltiqs6a2c5cd76.636c-cloud1-2gltiqs6a2c5cd76-1411302136/icons/icon_search.png" mode="aspectFit"></image>
+      <image class="search-icon" src="cloud://cloud1-2gltiqs6a2c5cd76.636c-cloud1-2gltiqs6a2c5cd76-1411302136/icons/搜索.png" mode="aspectFit"></image>
       <input class="search-input" placeholder="搜索商品名称" placeholder-class="search-placeholder" value="{{searchKeyword}}" bindinput="onSearchInput" confirm-type="search" bindconfirm="onSearchConfirm" />
     </view>
   </view>

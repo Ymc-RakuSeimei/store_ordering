@@ -14,6 +14,8 @@ Page({
       feedback: []
     },
     loading: true,
+    markLoading: false,
+    reminderLoading: false,
     pickupCode: '',
     isPickupCodeValid: false
   },
@@ -135,11 +137,11 @@ Page({
       success: (res) => {
         if (!res.confirm) return;
 
-        wx.showLoading({ title: '处理中...' });
+        this.setData({ markLoading: true });
 
         this.markGoodsArrivedOnServer(id)
           .then((result) => {
-            wx.hideLoading();
+            this.setData({ markLoading: false });
             const reminderCount = Number(result && result.reminderCount) || 0;
 
             wx.showToast({
@@ -151,7 +153,7 @@ Page({
             this.loadAllOrders();
           })
           .catch((err) => {
-            wx.hideLoading();
+            this.setData({ markLoading: false });
             console.error('markGoodsArrivedOnServer error', err);
             wx.showToast({ title: err.message || '到货处理失败', icon: 'none' });
           });
@@ -179,10 +181,10 @@ Page({
       success: (res) => {
         if (!res.confirm) return;
 
-        wx.showLoading({ title: '发送中...' });
+        this.setData({ reminderLoading: true });
         this.pushOrderReminder()
           .then((totalCount) => {
-            wx.hideLoading();
+            this.setData({ reminderLoading: false });
             wx.showModal({
               title: '提醒成功',
               content: `已提醒 ${totalCount} 位顾客`,
@@ -190,7 +192,7 @@ Page({
             });
           })
           .catch((err) => {
-            wx.hideLoading();
+            this.setData({ reminderLoading: false });
             console.error('pushOrderReminder error', err);
             wx.showModal({
               title: '提醒失败',

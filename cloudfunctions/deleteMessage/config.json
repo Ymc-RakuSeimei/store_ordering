@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "openapi": [],
+    "db": [
+      {
+        "collection": "messages",
+        "actions": ["remove"]
+      }
+    ],
+    "cloud": []
+  }
+}

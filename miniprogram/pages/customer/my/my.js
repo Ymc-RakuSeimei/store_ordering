@@ -7,7 +7,10 @@ Page({
       phoneNumber: '',
       role: ''
     },
-    notificationEnabled: true
+    notificationEnabled: true,
+    loading: false,
+    loginLoading: false,
+    contactLoading: false
   },
 
   onLoad(options) {
@@ -18,17 +21,14 @@ Page({
     this.checkLoginStatus()
   },
 
-  // 检查登录状态
   async checkLoginStatus() {
-    wx.showLoading({ title: '加载中...' })
+    this.setData({ loading: true })
     try {
       const res = await wx.cloud.callFunction({
         name: 'getUserInfo'
       })
-      console.log('getUserInfo 返回结果:', res)
 
       if (res.result.success && res.result.user) {
-        console.log('用户数据:', res.result.user)
         this.setData({
           userInfo: {
             nickName: res.result.user.nickName || '微信用户',
@@ -39,7 +39,6 @@ Page({
           }
         })
       } else {
-        console.log('用户未登录或不存在')
         this.setData({
           userInfo: {
             nickName: '游客',
@@ -52,20 +51,17 @@ Page({
     } catch (err) {
       console.error('获取用户信息失败', err)
     } finally {
-      wx.hideLoading()
+      this.setData({ loading: false })
     }
   },
 
-  // 登录（直接保存微信返回的头像URL）
   async handleLogin() {
     if (this.data.userInfo.openid) {
-      console.log('已登录，无需重复授权')
       return
     }
 
-    wx.showLoading({ title: '获取中...' })
+    this.setData({ loginLoading: true })
     try {
-      // 1. 获取微信用户信息
       const { userInfo } = await new Promise((resolve, reject) => {
         wx.getUserProfile({
           desc: '用于完善会员资料',
@@ -73,17 +69,14 @@ Page({
           fail: reject
         })
       })
-      console.log('获取到的微信用户信息:', userInfo)
 
-      // 2. 直接保存微信返回的头像URL（不上传到云存储）
       const saveRes = await wx.cloud.callFunction({
         name: 'saveUserInfo',
         data: {
           nickName: userInfo.nickName,
-          avatarUrl: userInfo.avatarUrl  // 直接保存微信头像URL
+          avatarUrl: userInfo.avatarUrl
         }
       })
-      console.log('保存结果:', saveRes)
 
       if (saveRes.result.success) {
         await this.checkLoginStatus()
@@ -108,16 +101,14 @@ Page({
         })
       }
     } finally {
-      wx.hideLoading()
+      this.setData({ loginLoading: false })
     }
   },
 
-  // 跳转订单中心
   goToOrderCenter() {
     wx.navigateTo({ url: '/pages/customer/myOrder/myOrder' })
   },
 
-  // 消息订阅通知
   toggleNotification() {
     wx.showModal({
       title: '消息订阅',
@@ -130,57 +121,40 @@ Page({
     })
   },
 
-  // 联系售后/商家
   async contactService() {
-    console.log('contactService函数被调用')
     const that = this
     wx.showActionSheet({
       itemList: ['联系商家', '售后反馈'],
       success: async (res) => {
-        console.log('选择了选项:', res.tapIndex)
         if (res.tapIndex === 0) {
-          console.log('开始联系商家流程')
-          wx.showLoading({ title: '获取商家微信...' })
+          that.setData({ contactLoading: true })
           try {
-            console.log('用户信息:', that.data.userInfo)
-
-            // 1. 获取当前用户的订单列表
-            console.log('开始调用getOrderList')
             const orderRes = await wx.cloud.callFunction({
               name: 'getOrderList',
               data: {
                 openid: that.data.userInfo.openid
               }
             })
-            console.log('getOrderList返回结果:', orderRes)
 
             if (!orderRes.result || orderRes.result.code !== 0 || !orderRes.result.data || orderRes.result.data.length === 0) {
-              wx.hideLoading()
+              that.setData({ contactLoading: false })
               wx.showToast({ title: '暂无订单信息', icon: 'none' })
               return
             }
 
-            // 2. 从订单中获取店名（取第一个订单的store字段）
             const firstOrder = orderRes.result.data[0]
-            const storeName = firstOrder.store || 'MC_store' // 默认店名
-            console.log('店名:', storeName)
+            const storeName = firstOrder.store || 'MC_store'
 
-            // 3. 调用云函数获取对应商家信息
-            console.log('开始调用getUserInfo获取商家')
             const merchantRes = await wx.cloud.callFunction({
               name: 'getUserInfo',
               data: { role: 'merchant', store: storeName }
             })
-            console.log('getUserInfo返回结果:', merchantRes)
 
-            wx.hideLoading()
+            that.setData({ contactLoading: false })
 
-            // 直接显示弹窗
-            console.log('准备显示弹窗')
             if (merchantRes.result && merchantRes.result.success && merchantRes.result.user) {
               const merchantUser = merchantRes.result.user
               const wechat = merchantUser.wechat || 'wechat_ymc123456'
-              console.log('商家微信:', wechat)
 
               wx.showModal({
                 title: `${storeName} 商家微信`,
@@ -188,7 +162,6 @@ Page({
                 showCancel: false,
                 confirmText: '确定',
                 success: (modalRes) => {
-                  console.log('弹窗确认被点击')
                   if (modalRes.confirm) {
                     wx.setClipboardData({
                       data: wechat,
@@ -197,28 +170,28 @@ Page({
                       }
                     })
                   }
-                },
-                fail: (err) => {
-                  console.log('弹窗失败:', err)
                 }
               })
-              console.log('wx.showModal已调用')
             } else {
               wx.showToast({ title: '暂未获取到商家微信', icon: 'none' })
             }
           } catch (err) {
-            wx.hideLoading()
+            that.setData({ contactLoading: false })
             console.error('获取商家微信失败', err)
             wx.showToast({ title: '获取失败，请重试', icon: 'none' })
           }
         } else if (res.tapIndex === 1) {
-          // 售后反馈
           wx.navigateTo({ url: '/pages/customer/feedback/feedback' })
         }
       },
       fail: (err) => {
-        console.log('showActionSheet失败:', err)
+        console.error('showActionSheet失败:', err)
       }
+    })
+  },
+  ScanQR() {
+    wx.navigateTo({
+      url: '/pages/customer/myOrder/myOrder?tab=waiting'
     })
   }
 })

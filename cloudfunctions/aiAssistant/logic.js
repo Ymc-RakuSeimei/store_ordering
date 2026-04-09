@@ -45,6 +45,169 @@ function sanitizeMessageHistory(history) {
     }));
 }
 
+function extractFactsFromAnswer(answer) {
+  const facts = {
+    numbers: [],
+    productNames: [],
+    dates: [],
+    money: []
+  };
+
+  const moneyPattern = /￥?(\d+(?:\.\d+)?)/g;
+  let match;
+  while ((match = moneyPattern.exec(answer)) !== null) {
+    facts.numbers.push({ value: parseFloat(match[1]), type: 'money', raw: match[0] });
+    facts.money.push({ value: parseFloat(match[1]), raw: match[0] });
+  }
+
+  const datePattern = /\d{1,2}[月日点时分]|\d{4}[-/年]\d{1,2}[-/月]\d{1,2}[日]?/g;
+  while ((match = datePattern.exec(answer)) !== null) {
+    facts.dates.push(match[0]);
+  }
+
+  return facts;
+}
+
+function verifyDataConsistency(originalData, llmAnswer, intent) {
+  const warnings = [];
+  const originalFacts = extractDataFacts(originalData);
+  const answerFacts = extractFactsFromAnswer(llmAnswer);
+
+  if (originalFacts.totalCount === 0 && answerFacts.numbers.length > 0) {
+    const hasSignificantNumber = answerFacts.numbers.some(n => n.value > 10 || n.type === 'money');
+    if (hasSignificantNumber) {
+      warnings.push('回答中包含数据但原始数据为空');
+    }
+  }
+
+  if (originalFacts.maxMoney !== undefined && answerFacts.maxMoney !== undefined) {
+    if (answerFacts.maxMoney > originalFacts.maxMoney * 1.5) {
+      warnings.push('回答中的金额超出原始数据范围');
+    }
+  }
+
+  return warnings;
+}
+
+function extractDataFacts(data) {
+  const facts = { totalCount: 0, maxMoney: undefined, items: [] };
+
+  if (!data) return facts;
+
+  if (Array.isArray(data)) {
+    facts.totalCount = data.length;
+    data.forEach(item => {
+      if (item.price) {
+        const price = Number(item.price);
+        if (!facts.maxMoney || price > facts.maxMoney) {
+          facts.maxMoney = price;
+        }
+      }
+      if (item.name) {
+        facts.items.push(String(item.name));
+      }
+    });
+  } else if (typeof data === 'object') {
+    if (data.revenue !== undefined) {
+      facts.maxMoney = Number(data.revenue);
+    }
+    if (data.profit !== undefined) {
+      facts.maxMoney = Number(data.profit);
+    }
+    if (data.answerDraft) {
+      const moneyPattern = /(\d+(?:\.\d+)?)/g;
+      const prices = [];
+      let match;
+      while ((match = moneyPattern.exec(data.answerDraft)) !== null) {
+        const val = parseFloat(match[1]);
+        if (val > 0) prices.push(val);
+      }
+      if (prices.length > 0) {
+        facts.maxMoney = Math.max(...prices);
+      }
+    }
+  }
+
+  return facts;
+}
+
+function extractAnswerFacts(answer) {
+  const facts = { numbers: [], maxMoney: 0 };
+
+  const moneyPattern = /￥?(\d+(?:\.\d{1,2})?)/g;
+  let match;
+  while ((match = moneyPattern.exec(answer)) !== null) {
+    const val = parseFloat(match[1]);
+    if (val > facts.maxMoney) {
+      facts.maxMoney = val;
+    }
+    facts.numbers.push({ value: val, raw: match[0] });
+  }
+
+  return facts;
+}
+
+function detectDataFabrication(originalData, llmAnswer) {
+  if (!originalData || !llmAnswer) return { isValid: true, warnings: [] };
+
+  const warnings = [];
+  const dataFacts = extractDataFacts(originalData);
+  const answerFacts = extractAnswerFacts(llmAnswer);
+
+  if (dataFacts.totalCount === 0 && llmAnswer.length > 20) {
+    if (/(共|总计|合计|一共|总共有)/.test(llmAnswer) && /\d+[个件名]/.test(llmAnswer)) {
+      warnings.push('原始数据为空，但回答中似乎包含统计数据');
+    }
+  }
+
+  if (dataFacts.maxMoney > 0) {
+    if (answerFacts.maxMoney > dataFacts.maxMoney * 2) {
+      warnings.push('回答中的金额显著超出原始数据范围');
+    }
+  }
+
+  const sensitivePattern = /(其他用户|别的用户|其他订单|别的订单)/;
+  if (sensitivePattern.test(llmAnswer) && typeof originalData === 'object') {
+    if (originalData.role === 'customer') {
+      warnings.push('回答可能涉及其他用户数据');
+    }
+  }
+
+  return {
+    isValid: warnings.length === 0,
+    warnings
+  };
+}
+
+function correctFabricatedAnswer(originalData, llmAnswer, intent) {
+  const validation = detectDataFabrication(originalData, llmAnswer);
+
+  if (validation.isValid) {
+    return llmAnswer;
+  }
+
+  let corrected = llmAnswer;
+  const originalFacts = extractDataFacts(originalData);
+
+  if (originalFacts.totalCount === 0) {
+    const fabricatedCount = llmAnswer.match(/(共|总计|合计|一共|总共有)\s*(\d+)/);
+    if (fabricatedCount) {
+      corrected = llmAnswer.replace(fabricatedCount[0], '暂无相关数据');
+    }
+  }
+
+  if (originalFacts.maxMoney === 0) {
+    const fabricatedMoney = llmAnswer.match(/￥?\d+\.?\d*/);
+    if (fabricatedMoney && parseFloat(fabricatedMoney[0]) > 0) {
+      corrected = corrected.replace(fabricatedMoney[0], '数据不足');
+    }
+  }
+
+  console.warn('检测到大模型可能编造答案，已进行修正:', validation.warnings);
+
+  return corrected;
+}
+
 function matchGoods(message, goodsList) {
   const text = normalizeText(message);
   const exactMatched = goodsList.filter((item) => {
@@ -692,40 +855,25 @@ function buildMerchantResult(intent, message, context) {
 function createModelMessages(params) {
   const { role, userName, message, history, answerDraft, contextSummary, suggestions, actionLog } = params;
 
+  const roleDesc = role === 'merchant'
+    ? '你是MC_store商家助手，可查营业额/利润、库存、订单、售后；可执行改价、上下架、设置预警操作。'
+    : '你是MC_store买家助手，只能查商品、订单、取货码、接龙、优惠，只能看自己的数据。';
+
   const systemContent = [
-    `你是微信小程序"MC_store"的AI智能店员，当前服务对象是${role === 'merchant' ? '商家' : '买家'}。`,
-    role === 'merchant'
-      ? '你的职责是帮助商家管理店铺，查询经营数据，执行商品管理操作。'
-      : '你的职责是帮助买家查询商品信息、订单状态、优惠活动等。',
-    '请基于提供的信息，用自然、友好、口语化的方式回答用户问题。',
-    '回答要简洁明了，像真人对话一样自然，不要机械地罗列数据。',
-    '不要暴露系统内部字段或技术细节，用用户能理解的语言描述。',
-    '如果数据不足，请诚实告知，不要编造信息。',
-    '你可以进行多轮对话，理解上下文，记住用户之前说过的话。',
-    '根据用户的提问方式灵活调整回答风格，可以是专业、亲切或简洁的。',
-    role === 'merchant'
-      ? '你是商家助手，可以查看所有客户的数据，帮助商家管理店铺。你可以查营业额、库存、订单；改价格、上下架商品、设置库存预警。'
-      : '你是买家助手，只能查看当前登录用户自己的订单和信息，绝对不能查看其他用户的任何数据。你只能帮买家查商品价格、库存、接龙活动、自己的订单状态、自己的取货码、优惠活动。',
-    role === 'customer' ? '重要提醒：你收到的"相关数据"已经过滤，只包含当前用户自己的信息，请直接基于这些数据回答，不要编造其他用户的信息。' : '',
-    role === 'customer' ? '作为买家助手，你的回复应该是面向普通消费者的，避免使用商家管理术语，不要提及后台操作、营销设置等商家专属内容。' : '',
-    role === 'customer' ? '当用户询问取货码时，只返回用户账号的唯一取货码，不要编造订单相关的取货码或订单信息。' : '',
-    role === 'customer' ? '当用户询问现在有哪些接龙活动时，只返回处于"正在接龙"状态的商品，不要返回已经截止的商品。' : '',
-    answerDraft ? `\n${answerDraft}` : '',
-    suggestions && suggestions.length ? `如果合适，可以在结尾顺带推荐用户继续追问：${suggestions.join('、')}。` : ''
+    roleDesc,
+    '回答简洁自然口语化，不要编造，不要暴露技术细节。',
+    contextSummary ? `背景数据：\n${contextSummary}` : '',
+    answerDraft ? `可参考的信息：\n${answerDraft}` : '',
+    suggestions?.length ? `可顺带推荐：${suggestions.join('、')}` : ''
   ].filter(Boolean).join('\n');
 
   const conversation = sanitizeMessageHistory(history);
 
-  const contextInfo = [
-    userName ? `用户昵称：${userName}` : '',
-    actionLog ? `刚刚执行的操作结果：${actionLog}` : '',
-    // 不再在用户内容中重复数据，避免大模型混淆
-    // 数据已经在系统提示的"数据库查询结果"中提供
+  const userContent = [
+    userName ? `用户：${userName}` : '',
+    actionLog ? `刚执行的操作结果：${actionLog}` : '',
+    `问题：${message}`
   ].filter(Boolean).join('\n');
-
-  const userContent = contextInfo
-    ? `${contextInfo}\n\n用户问题：${message}`
-    : message;
 
   return {
     messages: [
@@ -799,5 +947,8 @@ module.exports = {
   buildCustomerResult,
   buildMerchantResult,
   matchGoods,
-  INTENT_DEFINITIONS
+  INTENT_DEFINITIONS,
+  detectDataFabrication,
+  correctFabricatedAnswer,
+  verifyDataConsistency
 };

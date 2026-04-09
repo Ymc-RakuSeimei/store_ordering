@@ -18,17 +18,11 @@
   <!-- 组件容器 -->
   <view class="component-container">
     <!-- 全部消息组件 -->
-    <block wx:if="{{currentTab === 'all'}}">
-      <all-component bind:deleteAllMessages="deleteAllMessages"></all-component>
-    </block>
+    <all-component id="allComponent" hidden="{{currentTab !== 'all'}}" bind:deleteAllMessages="deleteAllMessages"></all-component>
     <!-- 取货提醒组件 -->
-    <block wx:if="{{currentTab === 'pickup'}}">
-      <pickup-component bind:deleteAllMessages="deleteAllMessages"></pickup-component>
-    </block>
+    <pickup-component id="pickupComponent" hidden="{{currentTab !== 'pickup'}}" bind:deleteAllMessages="deleteAllMessages"></pickup-component>
     <!-- 上新通知组件 -->
-    <block wx:if="{{currentTab === 'newgoods'}}">
-      <newgoods-component bind:deleteAllMessages="deleteAllMessages"></newgoods-component>
-    </block>
+    <newgoods-component id="newgoodsComponent" hidden="{{currentTab !== 'newgoods'}}" bind:deleteAllMessages="deleteAllMessages"></newgoods-component>
   </view>
 </view>
 

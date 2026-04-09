@@ -1,4 +1,7 @@
 {
+  "scripts": {
+    "test:ai": "node tests/ai-assistant.test.js"
+  },
   "dependencies": {
     "@vant/weapp": "^1.11.7",
     "weapp-qrcode": "^1.0.0",

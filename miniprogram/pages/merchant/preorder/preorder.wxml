@@ -1,8 +1,4 @@
 <view class="page">
-  <!-- 顶部头部 -->
-  <view class="header">
-    <text class="title">预售订货</text>
-  </view>
 
   <!-- 正在接龙区域 -->
   <view class="panel">

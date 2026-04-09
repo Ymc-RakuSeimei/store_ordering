@@ -25,32 +25,6 @@ page {
   /* 背景色 */
 }
 
-/* 顶部头部区域 */
-.header {
-  display: flex;
-  /* flex布局 */
-  align-items: center;
-  /* 垂直方向居中对齐 */
-  justify-content: center;
-  /* 水平居中 */
-  margin-bottom: 10rpx;
-  /* 底部外边距，与下方内容分隔 */
-}
-
-/* 页面标题文字样式 */
-.title {
-  flex: 1;
-  /* 占据剩余空间 */
-  text-align: center;
-  /* 文字居中 */
-  font-size: 32rpx;
-  /* 字体大小 */
-  font-weight: 600;
-  /* 加粗 */
-  color: #333;
-  /* 文字颜色 */
-}
-
 /* Tab 切换栏（现货/特价处理） */
 .tab-nav {
   display: flex;

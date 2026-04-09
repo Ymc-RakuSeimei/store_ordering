@@ -1,13 +1,5 @@
 <view class="page">
-  <!-- 加载状态 -->
-  <view wx:if="{{loading || deleteLoading}}" class="loading-state">
-    <view class="loading-spinner"></view>
-    <view class="loading-text">{{deleteLoading ? '删除中...' : '加载中...'}}</view>
-  </view>
-  <!-- 顶部标题栏 -->
-  <view class="header">
-    <text class="title">商品管理</text>
-  </view>
+
   <!-- 选项卡：现货 / 特价处理 -->
   <view class="tab-nav">
     <block wx:for="{{tabs}}" wx:key="id">

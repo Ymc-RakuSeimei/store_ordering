@@ -10,31 +10,6 @@ page {
   box-sizing: border-box;
 }
 
-.header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 20rpx;
-}
-
-.back {
-  width: 84rpx;
-  font-size: 28rpx;
-  color: #4d4d4d;
-}
-
-.title {
-  flex: 1;
-  text-align: center;
-  font-size: 32rpx;
-  font-weight: 700;
-  color: #222;
-}
-
-.placeholder {
-  width: 84rpx;
-}
-
 .summary-card,
 .section-card {
   background: #fff;

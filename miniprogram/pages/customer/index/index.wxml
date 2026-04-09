@@ -1,6 +1,5 @@
 <!-- 买家端首页 - 纯页面结构 -->
 <view class="container">
-  <!-- 顶部：欢迎语 + 头像 -->
   <view class="header">
     <view class="welcome-text">
       <text>Hi，{{userInfo.nickName}}</text>
@@ -8,7 +7,7 @@
     </view>
     <image class="avatar" src="{{userInfo.avatarUrl}}" mode="aspectFill"></image>
   </view>
-  <!-- 功能卡片区域 -->
+
   <view class="card-container">
     <view class="card-item" bindtap="goToNewGoods">
       <image class="card-icon" src="cloud://cloud1-2gltiqs6a2c5cd76.636c-cloud1-2gltiqs6a2c5cd76-1411302136/icons/icon_new.png"></image>
@@ -31,8 +30,12 @@
       <text class="card-title">扫码取货</text>
       <text class="card-subtitle">出示身份核验码</text>
     </view>
+    <view class="ai-entry" bindtap="openAiAssistant">
+      <image class="ai-entry-icon" src="/images/icon_ai.png" mode="aspectFit"></image>
+      <text class="ai-entry-label">AI智能店员</text>
+    </view>
   </view>
-  <!-- 消息中心长卡片 -->
+
   <view class="long-card" bindtap="goToMessage">
     <view class="center-box">
       <view class="icon-container">
@@ -42,6 +45,6 @@
       <text class="long-title">消息中心</text>
     </view>
   </view>
-  <!-- 底部标语 -->
+
   <text class="bottom-text">Wish you a happy shopping!</text>
 </view>

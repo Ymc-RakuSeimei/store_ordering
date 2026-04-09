@@ -1,14 +1,4 @@
 <view class="page">
-  <!-- 加载状态 -->
-  <view wx:if="{{loading || reminderLoading}}" class="loading-state">
-    <view class="loading-spinner"></view>
-    <view class="loading-text">{{reminderLoading ? '发送中...' : '加载中...'}}</view>
-  </view>
-  <view class="header">
-    <text class="back" bindtap="onBack">← 返回</text>
-    <text class="title">消息中心</text>
-    <view class="placeholder"></view>
-  </view>
 
   <view class="tabbar">
     <block wx:for="{{tabs}}" wx:key="id">

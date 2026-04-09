@@ -3,6 +3,60 @@ const { streamModelReply } = require('../../utils/ai-assistant');
 const STORAGE_KEY = 'ai_chat_history';
 const EXPIRE_TIME = 24 * 60 * 60 * 1000;
 
+function detectDataFabrication(originalData, answer) {
+  if (!originalData || !answer) return { isValid: true, warnings: [] };
+
+  const warnings = [];
+
+  const originalStr = String(originalData || '');
+  const answerStr = String(answer || '');
+
+  if (originalStr.length < 10 && answerStr.length > 30) {
+    if (/(共|总计|合计|一共|总共有)/.test(answerStr) && /\d+[个件名]/.test(answerStr)) {
+      warnings.push('originalDataEmpty');
+    }
+  }
+
+  const originalMoney = originalStr.match(/￥?(\d+(?:\.\d+)?)/g) || [];
+  const answerMoney = answerStr.match(/￥?(\d+(?:\.\d+)?)/g) || [];
+
+  if (originalMoney.length === 0 && answerMoney.length > 0) {
+    const answerVals = answerMoney.map(m => parseFloat(m.replace('￥', ''))).filter(v => v > 0);
+    if (answerVals.some(v => v > 100)) {
+      warnings.push('significantDataInAnswerButEmptyOriginal');
+    }
+  }
+
+  if (originalMoney.length > 0) {
+    const originalMax = Math.max(...originalMoney.map(m => parseFloat(m.replace('￥', ''))));
+    const answerVals = answerMoney.map(m => parseFloat(m.replace('￥', '')));
+    if (answerVals.some(v => v > originalMax * 2)) {
+      warnings.push('answerExceedsOriginal');
+    }
+  }
+
+  return {
+    isValid: warnings.length === 0,
+    warnings
+  };
+}
+
+function correctFabricatedAnswer(originalData, answer, warnings) {
+  if (!warnings || warnings.length === 0) return answer;
+
+  let corrected = answer;
+
+  if (warnings.includes('originalDataEmpty')) {
+    corrected = corrected.replace(/(共|总计|合计|一共|总共有)\s*\d+[个件名]/, '暂无相关数据');
+  }
+
+  if (warnings.includes('answerExceedsOriginal')) {
+    corrected = corrected.replace(/￥?\d+\.?\d+/, '数据不足');
+  }
+
+  return corrected;
+}
+
 function buildMessage(role, content) {
   return {
     id: `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
@@ -260,7 +314,10 @@ Page({
     const { streamModelReply } = require('../../utils/ai-assistant');
 
     try {
-      const finalText = await streamModelReply(payload.modelPayload.messages, {
+      const validationData = payload.validationData || {};
+      const originalData = validationData.originalData || '';
+
+      let finalText = await streamModelReply(payload.modelPayload.messages, {
         onToken: (_, currentText) => {
           this.updateLastAssistantMessage(currentText);
         }
@@ -268,6 +325,14 @@ Page({
 
       if (!finalText || !finalText.trim()) {
         this.updateLastAssistantMessage(fallbackAnswer);
+        return;
+      }
+
+      const validation = detectDataFabrication(originalData, finalText);
+      if (!validation.isValid) {
+        console.warn('检测到大模型可能编造答案:', validation.warnings);
+        finalText = correctFabricatedAnswer(originalData, finalText, validation.warnings);
+        this.updateLastAssistantMessage(finalText);
       }
     } catch (error) {
       console.error('streamModelReply failed', error);

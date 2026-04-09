@@ -6,7 +6,9 @@ const {
   buildCustomerResult,
   buildMerchantResult,
   matchGoods,
-  INTENT_DEFINITIONS
+  INTENT_DEFINITIONS,
+  detectDataFabrication,
+  correctFabricatedAnswer
 } = require('./logic');
 
 const ENV_ID = 'cloud1-2gltiqs6a2c5cd76';
@@ -522,7 +524,13 @@ exports.main = async (event = {}, context) => {
         contextSummary: result.contextSummary,
         suggestions: result.suggestions || [],
         modelPayload,
-        actionLog
+        actionLog,
+        validationData: {
+          role,
+          intent,
+          originalData: result.answerDraft || result.contextSummary || '',
+          contextData
+        }
       }
     };
   } catch (error) {

@@ -1,9 +1,9 @@
 <!--pages/preorder/join/join.wxml-->
 <view class="container">
   <!-- 加载状态 -->
-  <view wx:if="{{loading}}" class="loading-container">
+  <view wx:if="{{loading || authLoading || submitLoading}}" class="loading-state">
     <view class="loading-spinner"></view>
-    <text class="loading-text">加载中...</text>
+    <view class="loading-text">{{authLoading ? '验证中...' : (submitLoading ? '处理中...' : '加载中...')}}</view>
   </view>
 
   <!-- 错误状态 -->

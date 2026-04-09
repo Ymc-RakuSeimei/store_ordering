@@ -6,7 +6,8 @@ Page({
     showCartModal: false,
     cartList: [],
     cartTotalCount: 0,
-    cartTotalPrice: 0
+    cartTotalPrice: 0,
+    loading: false
   },
 
   onLoad(options) {
@@ -23,7 +24,7 @@ Page({
 
   // 加载商品数据（从云数据库）
   async loadGoodsData() {
-    wx.showLoading({ title: '加载中...' });
+    this.setData({ loading: true });
     try {
       const res = await wx.cloud.callFunction({
         name: 'getGoodsList',
@@ -52,7 +53,7 @@ Page({
       console.error('加载商品失败', err);
       wx.showToast({ title: '加载失败', icon: 'none' });
     } finally {
-      wx.hideLoading();
+      this.setData({ loading: false });
     }
   },
 

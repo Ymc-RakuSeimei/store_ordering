@@ -15,8 +15,10 @@ Page({
     feedbackContent: '',
     feedbackImages: [],
     feedbackOrderIndex: -1,
-    submittedFeedbackOrders: [], // 已提交反馈的订单ID列表
-    userInfo: {}
+    submittedFeedbackOrders: {}, // 已提交反馈的订单ID列表
+    userInfo: {},
+    loading: false,
+    submitLoading: false
   },
 
   onLoad(options) {
@@ -26,10 +28,7 @@ Page({
   // 获取用户信息和订单
   async getUserInfoAndOrders() {
     try {
-      wx.hideLoading()
-    } catch (e) {}
-    wx.showLoading({ title: '加载中...' })
-    try {
+      this.setData({ loading: true })
       // 先获取用户信息
       const userRes = await wx.cloud.callFunction({
         name: 'getUserInfo'
@@ -45,9 +44,7 @@ Page({
     } catch (err) {
       console.error('获取用户信息失败', err)
     } finally {
-      try {
-        wx.hideLoading()
-      } catch (e) {}
+      this.setData({ loading: false })
     }
   },
 
@@ -241,10 +238,7 @@ Page({
       return
     }
     
-    try {
-      wx.hideLoading()
-    } catch (e) {}
-    wx.showLoading({ title: '提交中...' })
+    this.setData({ submitLoading: true })
     try {
       // 上传图片
       const uploadedImages = []
@@ -281,18 +275,17 @@ Page({
           selectedGoods: null,
           afterSaleType: '',
           afterSaleReason: '',
-          afterSaleImages: []
+          afterSaleImages: [],
+          submitLoading: false
         })
       } else {
+        this.setData({ submitLoading: false })
         wx.showToast({ title: '提交失败', icon: 'none' })
       }
     } catch (err) {
       console.error('提交售后申请失败', err)
+      this.setData({ submitLoading: false })
       wx.showToast({ title: '提交失败，请重试', icon: 'none' })
-    } finally {
-      try {
-        wx.hideLoading()
-      } catch (e) {}
     }
   },
 
@@ -356,10 +349,7 @@ Page({
       return
     }
     
-    try {
-      wx.hideLoading()
-    } catch (e) {}
-    wx.showLoading({ title: '提交中...' })
+    this.setData({ submitLoading: true })
     try {
       // 上传图片
       const uploadedImages = []
@@ -394,18 +384,17 @@ Page({
           feedbackOrderIndex: -1,
           rating: 0,
           feedbackContent: '',
-          feedbackImages: []
+          feedbackImages: [],
+          submitLoading: false
         })
       } else {
+        this.setData({ submitLoading: false })
         wx.showToast({ title: res.result.message || '提交失败', icon: 'none' })
       }
     } catch (err) {
       console.error('提交反馈失败', err)
+      this.setData({ submitLoading: false })
       wx.showToast({ title: '提交失败，请重试', icon: 'none' })
-    } finally {
-      try {
-        wx.hideLoading()
-      } catch (e) {}
     }
   }
 })

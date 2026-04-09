@@ -1,15 +1,21 @@
 <!-- 上新通知组件 -->
 <view class="newgoods-container">
+  <!-- 加载状态 -->
+  <view wx:if="{{loading}}" class="loading-state">
+    <view class="loading-spinner"></view>
+    <text class="loading-text">加载中...</text>
+  </view>
+  
   <!-- 消息列表 -->
-  <view class="message-list">
+  <view wx:else class="message-list">
     <block wx:for="{{messageList}}" wx:key="id">
-      <view class="message-card" bindtap="markAsRead" data-id="{{item.id}}">
+      <view class="message-card">
         <view class="message-content">
           <text class="message-number">{{index + 1}}.</text>
           <text class="message-text">{{item.content}}</text>
           <view wx:if="{{!item.isRead}}" class="unread-dot"></view>
         </view>
-        <view class="view-btn orange" bindtap="viewDetail" data-id="{{item.id}}" catchtap="viewDetail">
+        <view class="view-btn orange" bindtap="viewDetail" data-id="{{item.id}}" data-productid="{{item.productId}}" catchtap="viewDetail">
           {{item.btnText}}
         </view>
       </view>
@@ -19,5 +25,10 @@
     <view class="empty-state" wx:if="{{messageList.length === 0}}">
       <text>暂无上新通知</text>
     </view>
+  </view>
+  
+  <!-- 一键删除按钮 - 仅在有消息时显示 -->
+  <view wx:if="{{messageList.length > 0}}" class="delete-all-btn" bindtap="deleteAllMessages">
+    <text>一键删除</text>
   </view>
 </view>

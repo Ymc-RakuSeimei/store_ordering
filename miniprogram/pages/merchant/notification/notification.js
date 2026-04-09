@@ -10,7 +10,8 @@ Page({
     notifications: [],
     feedbackList: [],
     allNotifications: [],
-    loading: true
+    loading: true,
+    reminderLoading: false
   },
 
   onLoad() {
@@ -155,10 +156,10 @@ Page({
       content: `确定要给未取「${item.name}」的顾客发送提醒吗？`,
       success: (res) => {
         if (res.confirm) {
-          wx.showLoading({ title: '发送中...' });
+          this.setData({ reminderLoading: true });
           this.requestNotificationReminder(item)
             .then((result) => {
-              wx.hideLoading();
+              this.setData({ reminderLoading: false });
               const count = result && result.userCount ? result.userCount : 0;
               wx.showModal({
                 title: '提醒成功',
@@ -167,7 +168,7 @@ Page({
               });
             })
             .catch(err => {
-              wx.hideLoading();
+              this.setData({ reminderLoading: false });
               console.error('requestNotificationReminder error', err);
               wx.showModal({
                 title: '提醒失败',

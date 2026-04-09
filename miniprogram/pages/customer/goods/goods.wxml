@@ -1,5 +1,10 @@
 ﻿<!-- 商品列表主容器页面 -->
 <view class="container">
+  <!-- 加载中 -->
+  <view wx:if="{{loading}}" class="loading-state">
+    <view class="loading-spinner"></view>
+    <view class="loading-text">加载中...</view>
+  </view>
 
   <!-- 搜索栏 -->
   <view class="search-bar">

@@ -1,4 +1,9 @@
 <view class="page">
+  <!-- 加载状态 -->
+  <view wx:if="{{loading}}" class="loading-state">
+    <view class="loading-spinner"></view>
+    <view class="loading-text">创建中...</view>
+  </view>
   <view class="header">
     <text class="back" bindtap="onBack">← 返回</text>
     <text class="title">创建接龙</text>

@@ -63,9 +63,9 @@
   color: #ffffff;
 }
 
-/* 现货订购角标 → 保持黑色（可选，也可以不改默认） */
+/* 现货订购角标 → 绿色背景 */
 .goods-badge.spot {
-  background-color: #000000;
+  background-color: #52c41a;
   color: #ffffff;
 }
 

@@ -7,6 +7,7 @@ Page({
     cartList: [],
     cartTotalCount: 0,
     cartTotalPrice: 0,
+    loading: false,
     goodsData: {
       all: [],
       spot: [],
@@ -38,7 +39,7 @@ Page({
 
   // 加载所有商品数据
   async loadAllGoodsData() {
-    wx.showLoading({ title: '加载中...' });
+    this.setData({ loading: true });
     try {
       const res = await wx.cloud.callFunction({
         name: 'getGoodsList',
@@ -79,7 +80,7 @@ Page({
       console.error('加载商品失败', err);
       wx.showToast({ title: '加载失败', icon: 'none' });
     } finally {
-      wx.hideLoading();
+      this.setData({ loading: false });
     }
   },
 

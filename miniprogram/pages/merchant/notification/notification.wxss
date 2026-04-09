@@ -5,7 +5,10 @@ page {
 }
 .page {
   padding: 20rpx;
-  min-height: 100vh;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
 }
 
 
@@ -20,7 +23,8 @@ page {
 }
 .tab {
   flex: 1;
-  padding: 10rpx 0;
+  height: 60rpx;
+  line-height: 60rpx;
   text-align: center;
   font-size: 26rpx;
   color: #666;
@@ -31,8 +35,15 @@ page {
   background: #333;
   color: #fff;
 }
+
+/* 消息列表滚动区域 */
+.notice-scroll {
+  flex: 1;
+  height: 0;
+}
+
 .notice-list {
-  padding-bottom: 40rpx;
+  padding-bottom: 20rpx;
 }
 .notice-card {
   background: #fff;
@@ -107,4 +118,30 @@ page {
 .feedback-status-mini.status-green {
   background: #f0fff4;
   color: #34c759;
+}
+
+/* 一键删除按钮 */
+.delete-all-btn {
+  width: 100%;
+  height: 100rpx;
+  background: #ff3b30;
+  border-radius: 30rpx;
+  margin-top: 20rpx;
+  margin-bottom: 20rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.delete-all-btn text {
+  font-size: 34rpx;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.delete-all-btn:active {
+  opacity: 0.8;
+  transform: scale(0.98);
 }

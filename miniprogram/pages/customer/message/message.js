@@ -43,12 +43,12 @@ Page({
             // 获取用户openid
             const app = getApp();
             const openid = app.globalData.openid || await app.getOpenId();
-            
+
             if (!openid) {
               wx.showToast({ title: '获取用户信息失败', icon: 'none' });
               return;
             }
-            
+
             // 调用云函数删除消息
             const deleteRes = await wx.cloud.callFunction({
               name: 'deleteMessage',
@@ -60,12 +60,30 @@ Page({
 
             if (deleteRes.result.code === 0) {
               // 触发组件刷新消息列表
-              const component = this.selectComponent(`.${type}-component`);
-              if (component && component.clearMessages) {
-                component.clearMessages();
-                // 重新加载消息
-                if (component.loadMessages) {
-                  component.loadMessages();
+              if (type === 'all') {
+                // 删除全部时，清空所有组件的消息列表
+                const allComponent = this.selectComponent('#allComponent');
+                const pickupComponent = this.selectComponent('#pickupComponent');
+                const newgoodsComponent = this.selectComponent('#newgoodsComponent');
+
+                if (allComponent && allComponent.clearMessages) {
+                  allComponent.clearMessages();
+                }
+                if (pickupComponent && pickupComponent.clearMessages) {
+                  pickupComponent.clearMessages();
+                }
+                if (newgoodsComponent && newgoodsComponent.clearMessages) {
+                  newgoodsComponent.clearMessages();
+                }
+              } else {
+                // 删除特定类型时，只清空当前组件
+                const componentMap = {
+                  'pickup': '#pickupComponent',
+                  'newgoods': '#newgoodsComponent'
+                };
+                const component = this.selectComponent(componentMap[type]);
+                if (component && component.clearMessages) {
+                  component.clearMessages();
                 }
               }
               wx.showToast({

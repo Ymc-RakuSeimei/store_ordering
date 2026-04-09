@@ -1,43 +1,46 @@
-
 page {
   background-color: #ffffff;
   font-family: PingFang SC, Helvetica Neue, Arial, sans-serif;
 }
+
 .container {
   padding: 30rpx;
   box-sizing: border-box;
 }
 
-/* 顶部样式 */
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin: 20rpx 0 50rpx;
 }
+
 .welcome-text {
   display: flex;
   flex-direction: column;
   color: #333;
 }
+
 .main-title {
   font-size: 50rpx;
   font-weight: bold;
   margin-top: 10rpx;
 }
+
 .avatar {
   width: 110rpx;
   height: 110rpx;
   border-radius: 16rpx;
 }
 
-/* 卡片布局 */
 .card-container {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
+  position: relative;
+  padding-bottom: 10rpx;
 }
-/* 白色卡片 + 阴影 */
+
 .card-item {
   width: 42%;
   background: #ffffff;
@@ -52,22 +55,26 @@ page {
   position: relative;
   min-height: 320rpx;
 }
+
 .card-icon {
   width: 70rpx;
   height: 70rpx;
   margin-bottom: 20rpx;
 }
+
 .card-title {
   font-size: 34rpx;
   font-weight: bold;
   color: #333;
   margin-bottom: 8rpx;
 }
+
 .card-subtitle {
   font-size: 22rpx;
   color: #888;
   text-align: left;
 }
+
 .new-tag {
   position: absolute;
   top: 26rpx;
@@ -76,26 +83,51 @@ page {
   font-size: 24rpx;
 }
 
-/* 长卡片 */
+.ai-entry {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 132rpx;
+  height: 132rpx;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: linear-gradient(135deg, #1677ff 0%, #2fb0ff 100%);
+  box-shadow: 0 18rpx 36rpx rgba(23, 119, 255, 0.25);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+  border: 8rpx solid rgba(255, 255, 255, 0.96);
+}
+
+.ai-entry-icon {
+  width: 56rpx;
+  height: 56rpx;
+}
+
+.ai-entry-label {
+  margin-top: 4rpx;
+  color: #ffffff;
+  font-size: 20rpx;
+  font-weight: 700;
+  letter-spacing: 2rpx;
+}
+
 .long-card {
   background: #ffffff;
   border-radius: 24rpx;
   padding: 30rpx;
   margin: 10rpx 0 50rpx;
   box-shadow: 0 6rpx 20rpx rgba(0, 0, 0, 0.06);
-  
-  /* 让内部内容强制居中 */
   display: flex;
-  justify-content: center;  /* 左右居中 */
-  align-items: center;      /* 上下居中 */
-  
-  /* 你可以随便改宽度，不会影响居中！ */
-  width: 90%; 
+  justify-content: center;
+  align-items: center;
+  width: 90%;
   margin-left: auto;
   margin-right: auto;
 }
 
-/* 居中容器 */
 .center-box {
   display: flex;
   align-items: center;
@@ -103,26 +135,22 @@ page {
   position: relative;
 }
 
-/* 图标容器 */
 .icon-container {
   position: relative;
   margin-right: 40rpx;
 }
 
-/* 图标 */
 .long-icon {
   width: 60rpx;
   height: 60rpx;
 }
 
-/* 文字 */
 .long-title {
   font-size: 34rpx;
   font-weight: bold;
   color: #333;
 }
 
-/* 未读消息小红点 */
 .unread-badge {
   position: absolute;
   top: -15rpx;
@@ -141,9 +169,8 @@ page {
   box-shadow: 0 2rpx 8rpx rgba(255, 59, 48, 0.3);
 }
 
-/* 底部文字 */
 .bottom-text {
-  font-family:Georgia, 'Times New Roman', Times, serif;
+  font-family: Georgia, 'Times New Roman', Times, serif;
   display: block;
   text-align: center;
   font-weight: bold;

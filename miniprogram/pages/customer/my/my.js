@@ -220,5 +220,10 @@ Page({
         console.log('showActionSheet失败:', err)
       }
     })
+  },
+  ScanQR() {
+    wx.navigateTo({
+      url: '/pages/customer/myOrder/myOrder?tab=waiting'
+    })
   }
 })

@@ -6,7 +6,7 @@
       <text class="greeting-title">Hello, {{userInfo.nickName}}</text>
       <text class="greeting-subtitle">Wish you a happy shopping!</text>
     </view>
-    <image class="qrcode" src="cloud://cloud1-2gltiqs6a2c5cd76.636c-cloud1-2gltiqs6a2c5cd76-1411302136/icons/二维码.png" mode="aspectFill"></image>
+    <image class="qrcode" bindtap = "ScanQR"src="cloud://cloud1-2gltiqs6a2c5cd76.636c-cloud1-2gltiqs6a2c5cd76-1411302136/icons/二维码.png" mode="aspectFill"></image>
     <image class="avatar" src="{{userInfo.avatarUrl}}" mode="aspectFill" bindtap="handleLogin"></image>
   </view>
   <!-- 功能列表卡片 -->

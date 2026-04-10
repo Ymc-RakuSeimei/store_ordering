@@ -4,11 +4,6 @@
     <view class="loading-spinner"></view>
     <view class="loading-text">创建中...</view>
   </view>
-  <view class="header">
-    <text class="back" bindtap="onBack">← 返回</text>
-    <text class="title">创建接龙</text>
-    <view class="placeholder"></view>
-  </view>
 
   <view class="form-card">
     <!-- 商品图片上传 -->

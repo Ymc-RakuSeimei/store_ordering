@@ -11,26 +11,8 @@ page {
   padding: 20rpx 20rpx 40rpx;
   box-sizing: border-box;
 }
-.header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 20rpx;
-}
-.back {
-  font-size: 30rpx;
-  color: #333;
-  font-weight: 500;
-}
-.placeholder {
-  width: 60rpx;
-}
-.title {
-  flex: 1;
-  text-align: center;
-  font-size: 32rpx;
-  font-weight: 600;
-}
+
+
 .form-card {
   background: #ffffff;
   border-radius: 20rpx;

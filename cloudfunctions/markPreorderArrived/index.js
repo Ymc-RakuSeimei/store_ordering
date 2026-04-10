@@ -92,7 +92,6 @@ exports.main = async (event = {}) => {
         status: STATUS_ARRIVED,
         stock: nextStock,
         arrivedAt: now,
-        arrivalTime: now,
         updatedAt: now
       }
     });

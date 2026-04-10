@@ -5,6 +5,7 @@ const DEFAULT_PRODUCT_IMAGE = 'cloud://cloud1-2gltiqs6a2c5cd76.636c-cloud1-2glti
 const PAGE_SIZE = 100;
 
 const TXT_WAITING = '\u672a\u5230\u8d27';
+const TXT_WAITING_LEGACY = '\u5f85\u5230\u8d27';
 const TXT_PENDING_PICKUP = '\u5f85\u53d6\u8d27';
 const TXT_ARRIVED = '\u5df2\u5230\u8d27';
 const TXT_PICKED = '\u5df2\u53d6\u8d27';
@@ -115,6 +116,11 @@ function formatDate(value) {
 
 function getOrderTime(order = {}) {
   return order.paytime || order.createdAt || order.updatedAt || null;
+}
+
+function normalizeWaitingStatus(value = '') {
+  const text = String(value || '').trim();
+  return text === TXT_WAITING_LEGACY ? TXT_WAITING : text;
 }
 
 function getCustomerKey(order = {}) {
@@ -255,19 +261,21 @@ function matchesGoodsIdentity(item = {}, goods = null, targetGoodsId = '', targe
 }
 
 function resolveGoodsCustomerStatus(statusList = []) {
-  if (statusList.includes(TXT_WAITING)) {
+  const normalizedList = statusList.map((status) => normalizeWaitingStatus(status));
+
+  if (normalizedList.includes(TXT_WAITING)) {
     return TXT_WAITING;
   }
 
-  if (statusList.includes(TXT_PENDING_PICKUP)) {
+  if (normalizedList.includes(TXT_PENDING_PICKUP)) {
     return TXT_PENDING_PICKUP;
   }
 
-  if (statusList.length > 0 && statusList.every((status) => PICKED_STATUSES.includes(status))) {
+  if (normalizedList.length > 0 && normalizedList.every((status) => PICKED_STATUSES.includes(status))) {
     return TXT_PICKED;
   }
 
-  return statusList[0] || '';
+  return normalizedList[0] || '';
 }
 
 async function buildPickupList() {
@@ -347,7 +355,7 @@ async function buildPickupList() {
         spec: item.spec || getGoodsSpec(goods || {}),
         img: item.img || pickImage(goods || {}),
         arrivalDate: goods ? (goods.arrivalDate || formatDate(goods.arrivedAt || goods.arrivalTime)) : '',
-        status: goods ? (goods.status || item.status) : item.status,
+        status: goods ? (normalizeWaitingStatus(goods.status) || item.status) : normalizeWaitingStatus(item.status),
         updatedAt: goods ? (goods.updatedAt || item.latestOrderTime) : item.latestOrderTime,
         createdAt: goods ? (goods.createdAt || item.latestOrderTime) : item.latestOrderTime
       };
@@ -390,7 +398,7 @@ async function buildPickupOrArrivalList(listType) {
         return;
       }
 
-      if (item.pickupStatus === TXT_WAITING) {
+      if (normalizeWaitingStatus(item.pickupStatus) === TXT_WAITING) {
         counters[canonicalId].waitingQty += quantity;
         return;
       }
@@ -422,7 +430,7 @@ async function buildPickupOrArrivalList(listType) {
         spec: getGoodsSpec(goods),
         img: pickImage(goods),
         arrivalDate: goods.arrivalDate || '',
-        status: goods.status || '',
+        status: normalizeWaitingStatus(goods.status) || '',
         totalQty: Number(goods.totalBooked) || 0,
         waitingQty: summary.waitingQty,
         pickupQty: summary.pickupQty,
@@ -630,7 +638,7 @@ async function buildGoodsDetail({ docId = '', goodsId = '' } = {}) {
       ...safeGoods,
       images: Array.isArray(safeGoods.images) && safeGoods.images.length ? safeGoods.images : firstMatchedItem.images
     }),
-    status: safeGoods.status || '',
+    status: normalizeWaitingStatus(safeGoods.status) || '',
     arrivalTimeText: formatDate(latestArrivedAt),
     totalQty,
     totalPrice,
@@ -665,7 +673,7 @@ async function buildCustomerList() {
   orders.forEach((order) => {
     const goodsList = Array.isArray(order.goods) ? order.goods : [];
     const activeGoods = goodsList.filter((item) => (
-      item.pickupStatus === TXT_WAITING || item.pickupStatus === TXT_PENDING_PICKUP
+      normalizeWaitingStatus(item.pickupStatus) === TXT_WAITING || item.pickupStatus === TXT_PENDING_PICKUP
     ));
 
     if (activeGoods.length === 0) {
@@ -733,7 +741,7 @@ async function buildCustomerList() {
       group.totalQty += quantity;
       group.goodsNames.push(item.name || TXT_PRODUCT);
 
-      if (item.pickupStatus === TXT_WAITING) {
+      if (normalizeWaitingStatus(item.pickupStatus) === TXT_WAITING) {
         group.waitingQty += quantity;
       }
 

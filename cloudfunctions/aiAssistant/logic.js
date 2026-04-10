@@ -375,11 +375,6 @@ function buildCustomerResult(intent, message, context) {
       const closeAt = normalizeDate(item.closeAt);
       if (closeAt && closeAt <= now) return false;
     }
-    // 检查是否已截止（使用closedAt字段）
-    if (item.closedAt) {
-      const closedAt = new Date(item.closedAt).getTime();
-      if (!Number.isNaN(closedAt) && closedAt <= now) return false;
-    }
     return true;
   });
 

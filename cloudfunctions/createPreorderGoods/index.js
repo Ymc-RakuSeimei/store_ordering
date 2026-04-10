@@ -12,7 +12,7 @@ async function assertMerchant(openid) {
   const user = (userRes.data || [])[0];
 
   if (!user || user.role !== 'merchant') {
-    throw new Error('\u65e0\u6743\u9650\u521b\u5efa\u63a5\u9f99');
+    throw new Error('无权限创建接龙');
   }
 
   return user;
@@ -29,6 +29,23 @@ function isUsableImage(value) {
   return image.startsWith('cloud://') || image.startsWith('http://') || image.startsWith('https://');
 }
 
+function parseCloseAt(arrivalDate, closeType, closeTimeStr) {
+  if (closeType !== 'timed') {
+    return null;
+  }
+
+  if (!closeTimeStr) {
+    throw new Error('请选择截单时间');
+  }
+
+  const closeDate = new Date(`${arrivalDate}T${closeTimeStr}:00`);
+  if (Number.isNaN(closeDate.getTime())) {
+    throw new Error('截单时间格式不正确');
+  }
+
+  return closeDate;
+}
+
 function sanitizePayload(event = {}) {
   const name = String(event.name || '').trim();
   const description = String(event.description || '').trim();
@@ -42,40 +59,27 @@ function sanitizePayload(event = {}) {
   const img = isUsableImage(event.img) ? event.img.trim() : DEFAULT_PRODUCT_IMAGE;
 
   if (!name) {
-    throw new Error('\u5546\u54c1\u540d\u79f0\u4e0d\u80fd\u4e3a\u7a7a');
+    throw new Error('商品名称不能为空');
   }
 
   if (!spec) {
-    throw new Error('\u5546\u54c1\u89c4\u683c\u4e0d\u80fd\u4e3a\u7a7a');
+    throw new Error('商品规格不能为空');
   }
 
   if (Number.isNaN(salePrice) || salePrice < 0) {
-    throw new Error('\u552e\u4ef7\u683c\u5f0f\u4e0d\u6b63\u786e');
+    throw new Error('售价格式不正确');
   }
 
   if (Number.isNaN(costPrice) || costPrice < 0) {
-    throw new Error('\u8fdb\u4ef7\u683c\u5f0f\u4e0d\u6b63\u786e');
+    throw new Error('进价格式不正确');
   }
 
   if (!arrivalDate) {
-    throw new Error('\u8bf7\u9009\u62e9\u9884\u8ba1\u5230\u8d27\u65f6\u95f4');
+    throw new Error('请选择预计到货时间');
   }
 
   if (!Number.isInteger(limitPerPerson) || limitPerPerson <= 0) {
-    throw new Error('\u6bcf\u4eba\u9650\u8d2d\u5fc5\u987b\u4e3a\u6b63\u6574\u6570');
-  }
-
-  if (closeType === 'timed' && !closeTimeStr) {
-    throw new Error('\u8bf7\u9009\u62e9\u622a\u5355\u65f6\u95f4');
-  }
-
-  let closeAt = null;
-  if (closeType === 'timed') {
-    const closeDate = new Date(`${arrivalDate}T${closeTimeStr}:00`);
-    if (Number.isNaN(closeDate.getTime())) {
-      throw new Error('\u622a\u5355\u65f6\u95f4\u683c\u5f0f\u4e0d\u6b63\u786e');
-    }
-    closeAt = closeDate;
+    throw new Error('每人限购必须为正整数');
   }
 
   return {
@@ -83,20 +87,17 @@ function sanitizePayload(event = {}) {
     description,
     specs: spec,
     price: salePrice,
-    salePrice,
     cost: costPrice,
-    costPrice,
     images: [img],
     type: 'preorder',
-    status: '\u672a\u5230\u8d27',
+    status: '未到货',
     preorderState: 'ongoing',
     stock: 0,
     totalBooked: 0,
     limitPerPerson,
     arrivalDate,
     closeType,
-    closeAt,
-    goodsId: ''
+    closeAt: parseCloseAt(arrivalDate, closeType, closeTimeStr)
   };
 }
 
@@ -117,10 +118,11 @@ exports.main = async (event = {}) => {
       }
     });
 
-    const generatedGoodsId = buildGoodsId(addRes._id);
+    const goodsId = buildGoodsId(addRes._id);
+
     await db.collection('goods').doc(addRes._id).update({
       data: {
-        goodsId: generatedGoodsId,
+        goodsId,
         updatedAt: new Date()
       }
     });
@@ -129,7 +131,7 @@ exports.main = async (event = {}) => {
 
     return {
       code: 0,
-      message: '\u521b\u5efa\u6210\u529f',
+      message: '创建成功',
       data: {
         goods: productRes.data
       }
@@ -138,7 +140,7 @@ exports.main = async (event = {}) => {
     console.error('createPreorderGoods error', err);
     return {
       code: -1,
-      message: err.message || '\u521b\u5efa\u63a5\u9f99\u5931\u8d25',
+      message: err.message || '创建接龙失败',
       data: null
     };
   }

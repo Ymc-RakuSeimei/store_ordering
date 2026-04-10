@@ -1,9 +1,24 @@
+/**
+ * AI助手逻辑模块
+ * 包含意图识别、回复生成、数据处理和大模型交互等核心功能
+ */
+
 const DAY_MS = 24 * 60 * 60 * 1000;
 
+/**
+ * 文本标准化处理
+ * @param {*} value - 输入值
+ * @returns {string} - 标准化后的字符串
+ */
 function normalizeText(value) {
   return String(value || '').trim().toLowerCase();
 }
 
+/**
+ * 日期标准化处理
+ * @param {*} value - 输入值（日期对象、时间戳、字符串等）
+ * @returns {Date|null} - 标准化后的日期对象或null
+ */
 function normalizeDate(value) {
   if (!value) return null;
   if (value instanceof Date) return value;
@@ -19,6 +34,11 @@ function normalizeDate(value) {
   return Number.isNaN(date.getTime()) ? null : date;
 }
 
+/**
+ * 格式化日期时间
+ * @param {*} value - 日期值
+ * @returns {string} - 格式化后的日期时间字符串
+ */
 function formatDateTime(value) {
   const date = normalizeDate(value);
   if (!date) return '未知时间';
@@ -29,22 +49,37 @@ function formatDateTime(value) {
   return `${month}-${day} ${hour}:${minute}`;
 }
 
+/**
+ * 格式化货币
+ * @param {*} value - 金额值
+ * @returns {string} - 格式化后的货币字符串
+ */
 function formatCurrency(value) {
   const amount = Number(value || 0);
   return `￥${amount.toFixed(2)}`;
 }
 
+/**
+ * 清理消息历史记录
+ * @param {Array} history - 原始消息历史
+ * @returns {Array} - 清理后的消息历史
+ */
 function sanitizeMessageHistory(history) {
   if (!Array.isArray(history)) return [];
   return history
     .filter((item) => item && item.role && item.content)
-    .slice(-8)
+    .slice(-8)  // 只保留最近8条消息
     .map((item) => ({
       role: item.role === 'assistant' ? 'assistant' : 'user',
-      content: String(item.content).slice(0, 400)
+      content: String(item.content).slice(0, 400)  // 每条消息限制400字符
     }));
 }
 
+/**
+ * 从回答中提取事实信息
+ * @param {string} answer - 大模型回答
+ * @returns {Object} - 提取的事实信息
+ */
 function extractFactsFromAnswer(answer) {
   const facts = {
     numbers: [],
@@ -53,6 +88,7 @@ function extractFactsFromAnswer(answer) {
     money: []
   };
 
+  // 提取金额
   const moneyPattern = /￥?(\d+(?:\.\d+)?)/g;
   let match;
   while ((match = moneyPattern.exec(answer)) !== null) {
@@ -60,6 +96,7 @@ function extractFactsFromAnswer(answer) {
     facts.money.push({ value: parseFloat(match[1]), raw: match[0] });
   }
 
+  // 提取日期
   const datePattern = /\d{1,2}[月日点时分]|\d{4}[-/年]\d{1,2}[-/月]\d{1,2}[日]?/g;
   while ((match = datePattern.exec(answer)) !== null) {
     facts.dates.push(match[0]);
@@ -68,11 +105,19 @@ function extractFactsFromAnswer(answer) {
   return facts;
 }
 
+/**
+ * 验证数据一致性
+ * @param {*} originalData - 原始数据
+ * @param {string} llmAnswer - 大模型回答
+ * @param {string} intent - 意图
+ * @returns {Array} - 警告信息列表
+ */
 function verifyDataConsistency(originalData, llmAnswer, intent) {
   const warnings = [];
   const originalFacts = extractDataFacts(originalData);
   const answerFacts = extractFactsFromAnswer(llmAnswer);
 
+  // 检查原始数据为空但回答包含数据的情况
   if (originalFacts.totalCount === 0 && answerFacts.numbers.length > 0) {
     const hasSignificantNumber = answerFacts.numbers.some(n => n.value > 10 || n.type === 'money');
     if (hasSignificantNumber) {
@@ -80,6 +125,7 @@ function verifyDataConsistency(originalData, llmAnswer, intent) {
     }
   }
 
+  // 检查金额超出范围的情况
   if (originalFacts.maxMoney !== undefined && answerFacts.maxMoney !== undefined) {
     if (answerFacts.maxMoney > originalFacts.maxMoney * 1.5) {
       warnings.push('回答中的金额超出原始数据范围');
@@ -89,6 +135,11 @@ function verifyDataConsistency(originalData, llmAnswer, intent) {
   return warnings;
 }
 
+/**
+ * 从数据中提取事实信息
+ * @param {*} data - 输入数据
+ * @returns {Object} - 提取的事实信息
+ */
 function extractDataFacts(data) {
   const facts = { totalCount: 0, maxMoney: undefined, items: [] };
 
@@ -126,11 +177,28 @@ function extractDataFacts(data) {
         facts.maxMoney = Math.max(...prices);
       }
     }
+  } else if (typeof data === 'string') {
+    // 处理字符串类型的数据，例如 answerDraft 或 contextSummary
+    const moneyPattern = /(\d+(?:\.\d+)?)/g;
+    const prices = [];
+    let match;
+    while ((match = moneyPattern.exec(data)) !== null) {
+      const val = parseFloat(match[1]);
+      if (val > 0) prices.push(val);
+    }
+    if (prices.length > 0) {
+      facts.maxMoney = Math.max(...prices);
+    }
   }
 
   return facts;
 }
 
+/**
+ * 从回答中提取事实信息（简化版）
+ * @param {string} answer - 大模型回答
+ * @returns {Object} - 提取的事实信息
+ */
 function extractAnswerFacts(answer) {
   const facts = { numbers: [], maxMoney: 0 };
 
@@ -147,6 +215,12 @@ function extractAnswerFacts(answer) {
   return facts;
 }
 
+/**
+ * 检测大模型是否编造数据
+ * @param {*} originalData - 原始数据
+ * @param {string} llmAnswer - 大模型回答
+ * @returns {Object} - 检测结果
+ */
 function detectDataFabrication(originalData, llmAnswer) {
   if (!originalData || !llmAnswer) return { isValid: true, warnings: [] };
 
@@ -154,18 +228,21 @@ function detectDataFabrication(originalData, llmAnswer) {
   const dataFacts = extractDataFacts(originalData);
   const answerFacts = extractAnswerFacts(llmAnswer);
 
+  // 检测原始数据为空但回答包含统计数据的情况
   if (dataFacts.totalCount === 0 && llmAnswer.length > 20) {
     if (/(共|总计|合计|一共|总共有)/.test(llmAnswer) && /\d+[个件名]/.test(llmAnswer)) {
       warnings.push('原始数据为空，但回答中似乎包含统计数据');
     }
   }
 
+  // 检测回答金额超出原始数据范围的情况
   if (dataFacts.maxMoney > 0) {
     if (answerFacts.maxMoney > dataFacts.maxMoney * 2) {
       warnings.push('回答中的金额显著超出原始数据范围');
     }
   }
 
+  // 检测回答可能涉及其他用户数据的情况
   const sensitivePattern = /(其他用户|别的用户|其他订单|别的订单)/;
   if (sensitivePattern.test(llmAnswer) && typeof originalData === 'object') {
     if (originalData.role === 'customer') {
@@ -179,6 +256,13 @@ function detectDataFabrication(originalData, llmAnswer) {
   };
 }
 
+/**
+ * 修正大模型编造的答案
+ * @param {*} originalData - 原始数据
+ * @param {string} llmAnswer - 大模型回答
+ * @param {string} intent - 意图
+ * @returns {string} - 修正后的回答
+ */
 function correctFabricatedAnswer(originalData, llmAnswer, intent) {
   const validation = detectDataFabrication(originalData, llmAnswer);
 
@@ -189,6 +273,7 @@ function correctFabricatedAnswer(originalData, llmAnswer, intent) {
   let corrected = llmAnswer;
   const originalFacts = extractDataFacts(originalData);
 
+  // 修正原始数据为空的情况
   if (originalFacts.totalCount === 0) {
     const fabricatedCount = llmAnswer.match(/(共|总计|合计|一共|总共有)\s*(\d+)/);
     if (fabricatedCount) {
@@ -196,7 +281,9 @@ function correctFabricatedAnswer(originalData, llmAnswer, intent) {
     }
   }
 
-  if (originalFacts.maxMoney === 0) {
+  // 只有当 maxMoney 是 undefined 或 null 时，才将回答中的金额替换为"数据不足"
+  // 0 值应该被视为有效数据
+  if (originalFacts.maxMoney === undefined || originalFacts.maxMoney === null) {
     const fabricatedMoney = llmAnswer.match(/￥?\d+\.?\d*/);
     if (fabricatedMoney && parseFloat(fabricatedMoney[0]) > 0) {
       corrected = corrected.replace(fabricatedMoney[0], '数据不足');
@@ -208,8 +295,16 @@ function correctFabricatedAnswer(originalData, llmAnswer, intent) {
   return corrected;
 }
 
+/**
+ * 匹配商品
+ * @param {string} message - 用户消息
+ * @param {Array} goodsList - 商品列表
+ * @returns {Array} - 匹配的商品列表
+ */
 function matchGoods(message, goodsList) {
   const text = normalizeText(message);
+
+  // 精确匹配：商品名称或ID完全匹配
   const exactMatched = goodsList.filter((item) => {
     const name = normalizeText(item.name);
     const goodsId = normalizeText(item.goodsId || item._id);
@@ -220,52 +315,123 @@ function matchGoods(message, goodsList) {
     return exactMatched;
   }
 
+  // 模糊匹配：商品名称包含关键词
   return goodsList.filter((item) => {
     const tokens = normalizeText(item.name).split(/\s+/).filter(Boolean);
     return tokens.some((token) => token.length >= 2 && text.includes(token));
   });
 }
 
+/**
+ * 检测时间周期
+ * @param {string} message - 用户消息
+ * @returns {string} - 时间周期（day/week/month）
+ */
 function detectPeriod(message) {
   if (/本周|这周|周/.test(message)) return 'week';
   if (/今天|今日|当天|日/.test(message)) return 'day';
   return 'month';
 }
 
+/**
+ * 获取一天的开始时间
+ * @param {Date} date - 日期
+ * @returns {Date} - 当天开始时间
+ */
+function getStartOfDay(date) {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+}
+
+/**
+ * 获取一周的开始时间（周一）
+ * @param {Date} date - 日期
+ * @returns {Date} - 本周开始时间
+ */
+function getStartOfWeek(date) {
+  const start = getStartOfDay(date);
+  const day = start.getDay();
+  const offset = day === 0 ? 6 : day - 1; // 周日为0，调整为周一为开始
+  start.setDate(start.getDate() - offset);
+  return start;
+}
+
+/**
+ * 获取一个月的开始时间
+ * @param {Date} date - 日期
+ * @returns {Date} - 本月开始时间
+ */
+function getStartOfMonth(date) {
+  return new Date(date.getFullYear(), date.getMonth(), 1);
+}
+
+/**
+ * 获取一年的开始时间
+ * @param {Date} date - 日期
+ * @returns {Date} - 本年开始时间
+ */
+function getStartOfYear(date) {
+  return new Date(date.getFullYear(), 0, 1);
+}
+
+/**
+ * 获取时间范围的开始时间
+ * @param {string} period - 时间周期
+ * @param {Date} now - 当前时间
+ * @returns {Date} - 时间范围开始时间
+ */
 function getRangeStart(period, now = new Date()) {
   if (period === 'day') {
-    return new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    return getStartOfDay(now);
   }
 
   if (period === 'week') {
-    const start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const weekday = start.getDay() || 7;
-    start.setDate(start.getDate() - weekday + 1);
-    start.setHours(0, 0, 0, 0);
-    return start;
+    return getStartOfWeek(now);
   }
 
-  return new Date(now.getFullYear(), now.getMonth(), 1);
+  if (period === 'month') {
+    return getStartOfMonth(now);
+  }
+
+  return getStartOfYear(now);
 }
 
+/**
+ * 从消息中提取价格
+ * @param {string} message - 用户消息
+ * @returns {number|null} - 提取的价格
+ */
 function extractPrice(message) {
   const match = String(message).match(/(\d+(?:\.\d+)?)/);
   return match ? Number(match[1]) : null;
 }
 
+/**
+ * 从消息中提取库存预警阈值
+ * @param {string} message - 用户消息
+ * @returns {number|null} - 提取的阈值
+ */
 function extractThreshold(message) {
   const match = String(message).match(/阈值[^0-9]*(\d+)|预警[^0-9]*(\d+)|低于[^0-9]*(\d+)/);
   if (!match) return null;
   return Number(match[1] || match[2] || match[3]);
 }
 
+/**
+ * 检测用户意图
+ * @param {string} role - 用户角色（merchant/customer）
+ * @param {string} message - 用户消息
+ * @returns {string} - 识别的意图
+ */
 function detectIntent(role, message) {
   const text = String(message || '');
 
   if (role === 'merchant') {
+    if (/现货.*(商品|有哪些|列表)|在架.*现货|可售.*现货/.test(text)) return 'merchant_stock_goods';
+    if (/特价.*(商品|有哪些|列表)|优惠.*(商品|有哪些)|秒杀.*(商品|有哪些)/.test(text)) return 'merchant_special_goods';
+    if (/接龙|预售|预定/.test(text) && /有哪些|列表|情况|状态|进行|截止|已截止|详情|明细/.test(text)) return 'merchant_preorder_overview';
     // 1. 查询待取货商品统计（优先匹配，更具体）
-    // 匹配问法："有哪些货物没有被取完"、"还有哪些货没取"、"待取货商品有哪些"
-    if (/哪些.*货.*没取|哪些.*货.*被取|哪些.*货物.*没取完|待取货.*有哪些|还有哪些.*没取|没取完.*有哪些/.test(text)) return 'merchant_pending_pickup_goods';
+    // 匹配问法："有哪些货物没有被取完"、"还有哪些货没取"、"待取货商品有哪些"、"未取货的订单有哪些"
+    if (/哪些.*货.*没取|哪些.*货.*被取|哪些.*货物.*没取完|待取货.*有哪些|还有哪些.*没取|没取完.*有哪些|未取货.*订单.*有哪些/.test(text)) return 'merchant_pending_pickup_goods';
 
     // 2. 查询特定商品的买家列表（需要包含商品名+谁没取货）
     // 匹配问法："xx还有谁没取货"、"xx谁还没取"
@@ -276,7 +442,8 @@ function detectIntent(role, message) {
     if (/批量.*阈值|批量.*预警|全部.*阈值|设为\d+/.test(text)) return 'merchant_batch_threshold';
     if (/低库存|库存预警|库存不足/.test(text)) return 'merchant_low_stock';
     if (/补货|补多少|补货建议/.test(text)) return 'merchant_restock';
-    if (/未取货|未提货|超过3天/.test(text)) return 'merchant_unpicked';
+    // 匹配问法："目前滞留的订单有哪些"、"超过3天未取的订单有哪些"
+    if (/滞留.*订单.*有哪些|超过3天.*未取/.test(text)) return 'merchant_unpicked';
     if (/售后|退款|换货|反馈/.test(text)) return 'merchant_after_sale';
     if (/修改.*价格|价格改|调价/.test(text)) return 'merchant_update_price';
     if (/上架|下架/.test(text)) return 'merchant_toggle_sale';
@@ -318,6 +485,11 @@ function detectIntent(role, message) {
   return role === 'merchant' ? 'merchant_help' : 'customer_goods_info';
 }
 
+/**
+ * 总结商品信息
+ * @param {Object} item - 商品对象
+ * @returns {string} - 总结文本
+ */
 function summarizeGoods(item) {
   const stock = Number(item.stock || 0);
   const totalBooked = Number(item.totalBooked || 0);
@@ -330,6 +502,11 @@ function summarizeGoods(item) {
   return `- ${parts.join('，')}`;
 }
 
+/**
+ * 总结订单信息
+ * @param {Array} orders - 订单列表
+ * @returns {string} - 总结文本
+ */
 function summarizeOrders(orders) {
   if (!orders.length) return '暂无匹配订单。';
   return orders.slice(0, 5).map((order) => {
@@ -340,6 +517,11 @@ function summarizeOrders(orders) {
   }).join('\n');
 }
 
+/**
+ * 构建帮助回答
+ * @param {string} role - 用户角色
+ * @returns {Object} - 回答对象
+ */
 function buildHelpAnswer(role) {
   if (role === 'merchant') {
     return {
@@ -356,6 +538,13 @@ function buildHelpAnswer(role) {
   }
 }
 
+/**
+ * 构建买家回复结果
+ * @param {string} intent - 意图
+ * @param {string} message - 用户消息
+ * @param {Object} context - 上下文数据
+ * @returns {Object} - 回复结果
+ */
 function buildCustomerResult(intent, message, context) {
   const { goodsList, orders, user } = context;
   const matchedGoods = matchGoods(message, goodsList);
@@ -600,22 +789,82 @@ function buildCustomerResult(intent, message, context) {
   return buildHelpAnswer('customer');
 }
 
+/**
+ * 计算商家营业额
+ * @param {Array} goodsList - 商品列表
+ * @param {Array} orders - 订单列表
+ * @param {string} period - 时间周期
+ * @returns {Object} - 营业额和利润
+ */
 function computeMerchantTurnover(goodsList, orders, period) {
   const rangeStart = getRangeStart(period);
+  const rangeEnd = new Date();
   let revenue = 0;
   let profit = 0;
 
-  orders.forEach((order) => {
-    const createdAt = normalizeDate(order.paytime || order.createdAt);
-    if (!createdAt || createdAt < rangeStart) return;
+  // 构建商品信息映射
+  const goodsInfoMap = goodsList.reduce((map, item) => {
+    if (!item) return map;
+    const goodsInfo = {
+      cost: Number(item.costPrice ?? item.cost) || 0,
+      type: String(item.type || '')
+    };
+    [item._id, item.goodsId].forEach((candidateId) => {
+      const normalizedId = String(candidateId || '').trim().toLowerCase();
+      if (!normalizedId) return;
+      map[normalizedId] = goodsInfo;
+    });
+    return map;
+  }, {});
 
-    (Array.isArray(order.goods) ? order.goods : []).forEach((item) => {
-      const quantity = Number(item.quantity || 0);
-      const price = Number(item.price || 0);
-      const goodsDoc = goodsList.find((goods) => String(goods.goodsId || goods._id) === String(item.goodsId || ''));
-      const cost = Number(goodsDoc && goodsDoc.cost ? goodsDoc.cost : 0);
-      revenue += price * quantity;
-      profit += (price - cost) * quantity;
+  orders.forEach((order) => {
+    const orderDate = normalizeDate(order.paytime || order.createdAt || order.updatedAt);
+    const goods = Array.isArray(order.goods) ? order.goods : [];
+
+    goods.forEach((item) => {
+      if (!item) return;
+
+      // 解析商品信息
+      const candidateIds = [item.goodsId, item.goodsDocId, item._id];
+      let goodsInfo = null;
+      for (const candidateId of candidateIds) {
+        const normalizedId = String(candidateId || '').trim().toLowerCase();
+        if (normalizedId && goodsInfoMap[normalizedId]) {
+          goodsInfo = goodsInfoMap[normalizedId];
+          break;
+        }
+      }
+
+      const goodsType = goodsInfo?.type || '';
+      const goodsTypeNormalized = String(goodsType).toLowerCase();
+      const unitCost = Number(goodsInfo?.cost || 0) || 0;
+
+      const quantity = Number(item.quantity) || 0;
+      const price = Number(item.price) || 0;
+      const revenueDelta = price * quantity;
+      const costDelta = unitCost * quantity;
+      const profitDelta = revenueDelta - costDelta;
+
+      if (goodsTypeNormalized === 'preorder' || goodsTypeNormalized.includes('preorder') || goodsTypeNormalized.includes('预定')) {
+        // 预售：等取货后才计入（与库存从 totalBooked 减少一致）
+        const pickupStatus = item.pickupStatus;
+        if (pickupStatus !== '已取货' && pickupStatus !== '已完成') return;
+
+        const pickupDate = normalizeDate(item.pickuptime || item.pickupTime || null);
+        if (!pickupDate) return;
+        if (pickupDate < rangeStart || pickupDate >= rangeEnd) return;
+
+        revenue += revenueDelta;
+        profit += profitDelta;
+        return;
+      }
+
+      // 现货/特价：按下单时间计入（对应买家下单时库存变动）
+      if (!orderDate) return;
+      if (orderDate < rangeStart || orderDate >= rangeEnd) return;
+
+      revenue += revenueDelta;
+      profit += profitDelta;
     });
   });
 
@@ -625,16 +874,62 @@ function computeMerchantTurnover(goodsList, orders, period) {
   };
 }
 
+/**
+ * 构建商家回复结果
+ * @param {string} intent - 意图
+ * @param {string} message - 用户消息
+ * @param {Object} context - 上下文数据
+ * @returns {Object} - 回复结果
+ */
 function buildMerchantResult(intent, message, context) {
   const { goodsList, orders, feedbacks } = context;
   const matchedGoods = matchGoods(message, goodsList);
+
+  if (intent === 'merchant_stock_goods') {
+    const stockGoods = goodsList.filter((item) => String(item.type || '').toLowerCase() !== 'preorder' && !item.special && String(item.type || '').toLowerCase() !== 'special');
+    return {
+      answerDraft: stockGoods.length
+        ? stockGoods.slice(0, 20).map((item, index) => `${index + 1}. ${item.name}，规格${item.specs || item.spec || '默认'}，售价${formatCurrency(item.price || item.sellPrice)}，库存${Number(item.stock || 0)}件。`).join('\n')
+        : '当前没有可售现货商品。',
+      contextSummary: `现货商品共${stockGoods.length}个。`,
+      suggestions: ['特价商品有哪些', '哪些商品低库存']
+    };
+  }
+
+  if (intent === 'merchant_special_goods') {
+    const specialGoods = goodsList.filter((item) => item.special === true || String(item.type || '').toLowerCase() === 'special');
+    return {
+      answerDraft: specialGoods.length
+        ? specialGoods.slice(0, 20).map((item, index) => `${index + 1}. ${item.name}，规格${item.specs || item.spec || '默认'}，售价${formatCurrency(item.price || item.sellPrice)}，库存${Number(item.stock || 0)}件。`).join('\n')
+        : '当前没有特价商品。',
+      contextSummary: `特价商品共${specialGoods.length}个。`,
+      suggestions: ['现货商品有哪些', '本周营业额']
+    };
+  }
+
+  if (intent === 'merchant_preorder_overview') {
+    const preorderGoods = goodsList.filter((item) => String(item.type || '').toLowerCase() === 'preorder');
+    const ongoing = preorderGoods.filter((item) => item.preorderState !== 'closed');
+    const closed = preorderGoods.filter((item) => item.preorderState === 'closed');
+    return {
+      answerDraft: [
+        `正在接龙：${ongoing.length}个`,
+        ongoing.slice(0, 10).map((item, index) => `${index + 1}. ${item.name}（预定量${Number(item.totalBooked || 0)}，到货${item.arrivalDate || '待定'}）`).join('\n') || '暂无',
+        '',
+        `已截止：${closed.length}个`,
+        closed.slice(0, 10).map((item, index) => `${index + 1}. ${item.name}（预定量${Number(item.totalBooked || 0)}）`).join('\n') || '暂无'
+      ].join('\n'),
+      contextSummary: `接龙商品共${preorderGoods.length}个，进行中${ongoing.length}个，已截止${closed.length}个。`,
+      suggestions: ['接龙统计', '本周营业额']
+    };
+  }
 
   if (intent === 'merchant_turnover') {
     const period = detectPeriod(message);
     const stats = computeMerchantTurnover(goodsList, orders, period);
     const periodLabelMap = { day: '今日', week: '本周', month: '本月' };
     return {
-      answerDraft: `${periodLabelMap[period] || '本月'}总营业额${formatCurrency(stats.revenue)}，预估净利润${formatCurrency(stats.profit)}。`,
+      answerDraft: `${periodLabelMap[period] || '本月'}总营业额${formatCurrency(stats.revenue)}，净利润${formatCurrency(stats.profit)}。`,
       contextSummary: `统计周期：${period}。营业额${formatCurrency(stats.revenue)}，净利润${formatCurrency(stats.profit)}。`,
       suggestions: ['哪些商品低库存', '当前接龙统计']
     };
@@ -690,6 +985,110 @@ function buildMerchantResult(intent, message, context) {
       answerDraft: lines.join('\n'),
       contextSummary: lines.join('\n'),
       suggestions: ['哪些商品低库存', '未取货订单有哪些']
+    };
+  }
+
+  if (intent === 'merchant_goods_buyers') {
+    if (!matchedGoods.length) {
+      return {
+        answerDraft: '请告诉我具体商品名称，例如"水果玉米还有谁没取货"。',
+        contextSummary: '未识别到具体商品。',
+        suggestions: goodsList.slice(0, 3).map((item) => `${item.name}还有谁没取货`)
+      };
+    }
+
+    const targetGoods = matchedGoods[0];
+    const customerMap = {};
+
+    orders.forEach((order) => {
+      (Array.isArray(order.goods) ? order.goods : []).forEach((item) => {
+        if (String(item.goodsId || '') === String(targetGoods.goodsId || targetGoods._id) && item.pickupStatus === '待取货') {
+          const customerName = (order.customerInfo && order.customerInfo.name) || '未知顾客';
+          const customerPhone = (order.customerInfo && order.customerInfo.phone) || '暂无电话';
+          const quantity = Number(item.quantity || 0);
+
+          if (!customerMap[customerName]) {
+            customerMap[customerName] = {
+              name: customerName,
+              phone: customerPhone,
+              quantity: 0
+            };
+          }
+          customerMap[customerName].quantity += quantity;
+        }
+      });
+    });
+
+    const customers = Object.values(customerMap);
+    if (customers.length === 0) {
+      return {
+        answerDraft: `目前没有关于"${targetGoods.name}"的未取货订单记录。`,
+        contextSummary: `暂无${targetGoods.name}的未取货订单。`,
+        suggestions: ['未取货订单有哪些', '本周营业额']
+      };
+    }
+
+    // 按照要求的格式构建回复
+    const answerDraft = customers.map((customer) => `${customer.name} ${customer.phone} 还有${customer.quantity}件${targetGoods.name}未取`).join('；');
+    const contextSummary = customers.map((customer) => `${customer.name}（${customer.phone}）：${customer.quantity}件`).join('；');
+    return {
+      answerDraft,
+      contextSummary,
+      suggestions: ['未取货订单有哪些', '本周营业额']
+    };
+  }
+
+  if (intent === 'merchant_pending_pickup_goods') {
+    const results = orders.filter((order) => /待取货/.test(String(order.status || '')));
+
+    if (results.length === 0) {
+      return {
+        answerDraft: '目前没有未取货的订单。',
+        contextSummary: '暂无未取货订单。',
+        suggestions: ['新的售后申请有哪些', '本周营业额']
+      };
+    }
+
+    // 按顾客分组，显示具体商品
+    const customerMap = {};
+    results.forEach((order) => {
+      const customerName = (order.customerInfo && order.customerInfo.name) || '未知顾客';
+      const customerPhone = (order.customerInfo && order.customerInfo.phone) || '暂无电话';
+      const pickupCode = order.pickupCode || '暂无';
+
+      if (!customerMap[customerName]) {
+        customerMap[customerName] = {
+          name: customerName,
+          phone: customerPhone,
+          pickupCode,
+          goods: []
+        };
+      }
+
+      (Array.isArray(order.goods) ? order.goods : []).forEach((item) => {
+        if (item.pickupStatus === '待取货') {
+          customerMap[customerName].goods.push({
+            name: item.name || '商品',
+            quantity: item.quantity || 1
+          });
+        }
+      });
+    });
+
+    // 构建回复
+    let answerDraft = '以下买家有货品还没有取，详情如下\n\n';
+    Object.values(customerMap).forEach((customer) => {
+      answerDraft += `${customer.name}  ${customer.phone} ${customer.pickupCode !== '暂无' ? `取货码:${customer.pickupCode}` : ''}\n`;
+      customer.goods.forEach((item) => {
+        answerDraft += `${item.name}   ×${item.quantity}\n`;
+      });
+      answerDraft += '\n';
+    });
+
+    return {
+      answerDraft,
+      contextSummary: answerDraft,
+      suggestions: ['新的售后申请有哪些', '本周营业额']
     };
   }
 
@@ -756,8 +1155,6 @@ function buildMerchantResult(intent, message, context) {
       suggestions: ['新的售后申请有哪些', '本周营业额']
     };
   }
-
-
 
   if (intent === 'merchant_after_sale') {
     const pending = feedbacks.filter((item) => /待处理/.test(String(item.status || '待处理')));
@@ -893,17 +1290,20 @@ const INTENT_DEFINITIONS = {
   customer_promotions: '用户想查看优惠活动/特价商品。例如："今天有什么特价商品"、"有什么优惠"',
 
   // 商家意图
+  merchant_stock_goods: '商家想查看现货商品列表及价格库存。例如："现货商品有哪些"、"现在在售现货"',
+  merchant_special_goods: '商家想查看特价商品列表及价格库存。例如："特价商品有哪些"、"现在有哪些优惠商品"',
+  merchant_preorder_overview: '商家想查看预售/接龙商品情况，区分进行中和已截止，并可查看详情统计。例如："接龙商品有哪些"、"预售订货情况"',
   merchant_turnover: '商家想查询营业额/利润。例如："本周营业额"、"利润多少"',
   merchant_preorder_stats: '商家想查看接龙统计数据。例如："接龙统计"、"转化率多少"',
   merchant_low_stock: '商家想查看低库存商品。例如："哪些商品低库存"、"库存预警"',
   merchant_restock: '商家想获取补货建议。例如："给我补货建议"、"补多少货"',
-  merchant_unpicked: '商家想查看未取货订单。例如："未取货订单有哪些"、"超过3天未取货"',
+  merchant_unpicked: '商家想查看未取货订单。例如："未取货订单有哪些"、"超过3天未取货"、"滞留货品"',
   merchant_after_sale: '商家想查看售后/反馈。例如："售后申请"、"退款换货"',
   merchant_update_price: '商家想修改商品价格。例如："把瑞幸咖啡价格改成16元"',
   merchant_toggle_sale: '商家想上架/下架商品。例如："上架商品"、"下架商品"',
   merchant_batch_threshold: '商家想批量设置库存预警阈值。例如："把全部商品库存预警阈值设为8"',
   merchant_pending_pickup_goods: '商家想查看所有待取货商品的统计。例如："有哪些货物没有被取完"、"还有哪些货没取"',
-  merchant_goods_buyers: '商家想查看特定商品的待取货买家列表。例如："李宁战戟8000还有谁没取货"、"xx商品谁还没取"',
+  merchant_goods_buyers: '商家想查看特定商品的待取货买家列表。例如："商品1还有谁没取货"、"xx商品谁还没取"',
   merchant_help: '商家需要帮助/教程。例如："怎么发起接龙"、"教程"'
 };
 

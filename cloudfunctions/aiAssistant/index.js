@@ -1,24 +1,62 @@
+/**
+ * AI助手云函数主入口
+ * 负责处理AI助手的核心逻辑，包括数据查询、意图识别、操作执行和回复生成
+ * 
+ * 核心功能：
+ * 1. 处理用户输入的自然语言查询
+ * 2. 基于规则和大模型进行意图识别
+ * 3. 根据用户角色（买家/商家）提供不同的功能
+ * 4. 执行商家操作（如改价、上下架、设置库存预警）
+ * 5. 生成智能回复并调用大模型进行优化
+ * 6. 检测和修正大模型可能的幻觉
+ */
+
 const cloud = require('wx-server-sdk');
 const {
-  createModelMessages,
-  createIntentUnderstandingMessages,
-  detectIntent,
-  buildCustomerResult,
-  buildMerchantResult,
-  matchGoods,
-  INTENT_DEFINITIONS,
-  detectDataFabrication,
-  correctFabricatedAnswer
+  createModelMessages,         // 创建大模型消息格式
+  createIntentUnderstandingMessages, // 创建意图理解消息
+  detectIntent,                // 基于规则检测用户意图
+  buildCustomerResult,         // 构建买家回复结果
+  buildMerchantResult,         // 构建商家回复结果
+  matchGoods,                  // 匹配商品
+  INTENT_DEFINITIONS,          // 意图定义和说明
+  detectDataFabrication,       // 检测数据编造
+  correctFabricatedAnswer      // 修正编造的答案
 } = require('./logic');
 
+// 云环境ID
 const ENV_ID = 'cloud1-2gltiqs6a2c5cd76';
+// 数据库查询页大小
 const PAGE_SIZE = 100;
 
+// 初始化云环境
 cloud.init({ env: ENV_ID });
 
 const db = cloud.database();
 const _ = db.command;
 
+/**
+ * 商家敏感意图集合
+ * 这些意图涉及商家核心经营数据，需要特殊处理
+ */
+const MERCHANT_SENSITIVE_INTENTS = new Set([
+  'merchant_stock_goods',       // 现货商品列表
+  'merchant_special_goods',     // 特价商品列表
+  'merchant_preorder_overview', // 预售/接龙概览
+  'merchant_turnover',          // 营业额查询
+  'merchant_preorder_stats',    // 接龙统计
+  'merchant_unpicked',          // 未取货订单
+  'merchant_pending_pickup_goods', // 待取货商品
+  'merchant_goods_buyers',      // 商品买家列表
+  'merchant_after_sale'         // 售后申请
+]);
+
+/**
+ * 批量获取数据库数据
+ * @param {string} collectionName - 集合名称
+ * @param {Object} whereCondition - 查询条件
+ * @returns {Promise<Array>} - 查询结果
+ */
 async function fetchAll(collectionName, whereCondition = {}) {
   try {
     const countRes = await db.collection(collectionName).where(whereCondition).count();
@@ -38,6 +76,11 @@ async function fetchAll(collectionName, whereCondition = {}) {
   }
 }
 
+/**
+ * 获取当前用户信息
+ * @param {string} openid - 用户openid
+ * @returns {Promise<Object|null>} - 用户信息
+ */
 async function getCurrentUser(openid) {
   try {
     const res = await db.collection('users').where({ openid }).limit(1).get();
@@ -48,6 +91,11 @@ async function getCurrentUser(openid) {
   }
 }
 
+/**
+ * 执行商家操作
+ * @param {Object} action - 操作对象
+ * @returns {string} - 操作结果
+ */
 async function executeMerchantAction(action) {
   if (!action || !action.type) {
     return '';
@@ -100,6 +148,10 @@ async function executeMerchantAction(action) {
   return '';
 }
 
+/**
+ * 记录AI操作日志
+ * @param {Object} payload - 操作日志
+ */
 async function writeOperationLog(payload) {
   try {
     await db.collection('ai_operation_logs').add({
@@ -113,13 +165,114 @@ async function writeOperationLog(payload) {
   }
 }
 
+function shouldBypassModel(role, intent) {
+  return role === 'merchant' && MERCHANT_SENSITIVE_INTENTS.has(intent);
+}
+
+async function callMerchantOrderGoods(type, data = {}) {
+  const res = await cloud.callFunction({
+    name: 'getMerchantOrderGoods',
+    data: { type, ...data }
+  });
+  if (!res.result || res.result.code !== 0) {
+    throw new Error((res.result && res.result.message) || '获取订单数据失败');
+  }
+  return res.result.data || [];
+}
+
+function formatPendingCustomerOrders(customerList = []) {
+  const pendingCustomers = customerList.filter((customer) => Number(customer.pickableQty || 0) > 0);
+  if (pendingCustomers.length === 0) {
+    return {
+      answerDraft: '目前没有未取货的订单。',
+      contextSummary: '暂无未取货订单。'
+    };
+  }
+
+  let answerDraft = '以下买家有货品还没有取，详情如下\n\n';
+  let contextSummary = '未取货订单：\n';
+  pendingCustomers.forEach((customer) => {
+    answerDraft += `${customer.customerName}  ${customer.phone || '暂无电话'} 取货码:${customer.pickupCode || '暂无'}\n`;
+    const goodsItems = String(customer.goodsPreviewText || '').split('、').filter(Boolean);
+    goodsItems.forEach((goods) => {
+      const match = goods.match(/(.+?)\s*×(\d+)/);
+      if (match) {
+        answerDraft += `${match[1].trim()}   ×${match[2]}\n`;
+      } else {
+        answerDraft += `${goods.trim()}   ×1\n`;
+      }
+    });
+    answerDraft += '\n';
+    contextSummary += `- ${customer.customerName}（${customer.phone || '暂无电话'}）：${customer.pickableQty}件\n`;
+  });
+
+  return { answerDraft, contextSummary };
+}
+
+async function callFetchGoods() {
+  const res = await cloud.callFunction({ name: 'fetchGoods', data: {} });
+  if (!res.result || res.result.code !== 0) {
+    throw new Error((res.result && res.result.message) || '获取商品列表失败');
+  }
+  const payload = res.result.data || {};
+  return {
+    stock: Array.isArray(payload.stock) ? payload.stock : [],
+    special: Array.isArray(payload.special) ? payload.special : []
+  };
+}
+
+async function callFetchPreorderList() {
+  const res = await cloud.callFunction({ name: 'fetchPreorderList', data: {} });
+  if (!res.result || res.result.code !== 0) {
+    throw new Error((res.result && res.result.message) || '获取接龙列表失败');
+  }
+  const payload = res.result.data || {};
+  return {
+    current: Array.isArray(payload.current) ? payload.current : [],
+    completed: Array.isArray(payload.completed) ? payload.completed : []
+  };
+}
+
+async function callFetchPreorderDetail(goodsId) {
+  const res = await cloud.callFunction({
+    name: 'fetchPreorderOrders',
+    data: { goodsId }
+  });
+  if (!res.result || res.result.code !== 0) {
+    throw new Error((res.result && res.result.message) || '获取接龙详情失败');
+  }
+  return (res.result.data && res.result.data.goods) || null;
+}
+
+/**
+ * 云函数主入口
+ * @param {Object} event - 事件对象，包含消息内容、历史记录等
+ * @param {Object} context - 上下文对象，包含用户信息
+ * @returns {Object} - 响应结果，包含AI回复和相关数据
+ * 
+ * 处理流程：
+ * 1. 获取用户信息和验证
+ * 2. 处理特殊操作（如意图理解）
+ * 3. 获取用户角色和数据
+ * 4. 规则匹配意图
+ * 5. 处理商家特殊意图（调用对应云函数获取数据）
+ * 6. 大模型意图理解（当规则匹配不确定时）
+ * 7. 权限检查
+ * 8. 构建回复结果
+ * 9. 执行商家操作
+ * 10. 调用大模型优化回复
+ * 11. 记录操作日志
+ * 12. 返回结果
+ */
 exports.main = async (event = {}, context) => {
   console.log('aiAssistant called with event:', JSON.stringify(event));
 
   try {
+    // 获取用户OPENID
     const wxContext = cloud.getWXContext();
     const OPENID = wxContext.OPENID;
 
+    // 验证用户身份
     if (!OPENID) {
       console.error('No OPENID in context');
       return {
@@ -134,9 +287,11 @@ exports.main = async (event = {}, context) => {
       return await processUnderstoodIntent(event, context);
     }
 
+    // 提取消息和历史记录
     const message = String(event.message || '').trim();
     const history = Array.isArray(event.history) ? event.history : [];
 
+    // 验证消息不为空
     if (!message) {
       return {
         code: -1,
@@ -193,7 +348,7 @@ exports.main = async (event = {}, context) => {
         orders = await fetchAll('orders');
         feedbacks = await fetchAll('feedbacks');
       } else {
-        // 顾客只能查看自己的订单，从myOrder集合获取
+        // 顾客只能查看自己的订单
         orders = await fetchAll('orders', { openid: OPENID });
         // 顾客不能查看反馈
         feedbacks = [];
@@ -205,6 +360,7 @@ exports.main = async (event = {}, context) => {
       // 数据获取失败时继续处理，使用空数组
     }
 
+    // 构建上下文数据
     const contextData = {
       user: user || { openid: OPENID, nickName: '微信用户', pickupCode: '' },
       openid: OPENID,  // 确保openid被传递，用于订单筛选
@@ -218,60 +374,127 @@ exports.main = async (event = {}, context) => {
     let intent = detectIntent(role, message);
     let intentSource = 'rule';
 
-    // 商家特殊意图：查询待取货商品统计
-    if (role === 'merchant' && intent === 'merchant_pending_pickup_goods') {
+    // 商家特殊意图：现货/特价商品列表
+    if (role === 'merchant' && (intent === 'merchant_stock_goods' || intent === 'merchant_special_goods')) {
       try {
-        // 调用 getMerchantOrderGoods 云函数获取待取货商品列表
-        const pickupRes = await cloud.callFunction({
-          name: 'getMerchantOrderGoods',
-          data: { type: 'pickup' }
-        });
-
-        if (pickupRes.result && pickupRes.result.code === 0) {
-          const pendingGoods = pickupRes.result.data || [];
-
-          // 构建回复
-          let answerDraft = '';
-          let contextSummary = '';
-
-          if (pendingGoods.length === 0) {
-            answerDraft = '目前没有待取货的商品。所有商品都已取货完成。';
-            contextSummary = '待取货商品：无';
-          } else {
-            answerDraft = `目前有 ${pendingGoods.length} 种商品待取货：\n`;
-            contextSummary = `待取货商品统计（共${pendingGoods.length}种）：\n`;
-
-            pendingGoods.forEach((item, index) => {
-              answerDraft += `${index + 1}. ${item.name}：还有${item.pickupQty}件待取货\n`;
-              contextSummary += `- ${item.name}：待取货${item.pickupQty}件\n`;
-            });
-          }
-
+        const goodsData = await callFetchGoods();
+        const list = intent === 'merchant_stock_goods' ? goodsData.stock : goodsData.special;
+        const label = intent === 'merchant_stock_goods' ? '现货' : '特价';
+        if (!list.length) {
           return {
             code: 0,
             message: 'ok',
             data: {
               role,
               intent,
-              answerDraft,
-              contextSummary,
-              suggestions: ['哪些商品低库存', '本周营业额'],
-              modelPayload: createModelMessages({
-                role,
-                userName: contextData.user.nickName,
-                message,
-                history,
-                answerDraft,
-                contextSummary,
-                suggestions: ['哪些商品低库存', '本周营业额'],
-                actionLog: ''
-              }),
-              actionLog: ''
+              answerDraft: `当前没有可售${label}商品。`,
+              contextSummary: `商家商品管理-${label}列表为空。`,
+              suggestions: intent === 'merchant_stock_goods' ? ['特价商品有哪些', '哪些商品低库存'] : ['现货商品有哪些', '本周营业额'],
+              modelPayload: null,
+              actionLog: '',
+              forceUseDraft: true
             }
           };
         }
+        const lines = list.slice(0, 20).map((item, index) => (
+          `${index + 1}. ${item.name || '商品'}\n` +
+          `   规格：${item.spec || item.specs || '默认'}\n` +
+          `   售价：￥${Number(item.sellPrice ?? item.price ?? 0).toFixed(2)}  进价：￥${Number(item.costPrice ?? item.cost ?? 0).toFixed(2)}\n` +
+          `   库存：${Number(item.stock || 0)}件`
+        ));
+        return {
+          code: 0,
+          message: 'ok',
+          data: {
+            role,
+            intent,
+            answerDraft: `以下是商家商品管理页中的${label}商品：\n\n${lines.join('\n\n')}`,
+            contextSummary: `${label}商品共${list.length}个（展示前20个）。`,
+            suggestions: intent === 'merchant_stock_goods' ? ['特价商品有哪些', '哪些商品低库存'] : ['现货商品有哪些', '本周营业额'],
+            modelPayload: null,
+            actionLog: '',
+            forceUseDraft: true
+          }
+        };
       } catch (error) {
-        console.error('获取待取货商品列表失败:', error);
+        console.error('获取商家商品管理列表失败，降级到数据库:', error);
+      }
+    }
+
+    // 商家特殊意图：预售/接龙概览
+    if (role === 'merchant' && intent === 'merchant_preorder_overview') {
+      try {
+        const preorderData = await callFetchPreorderList();
+        const current = preorderData.current || [];
+        const completed = preorderData.completed || [];
+        const currentLines = current.slice(0, 10).map((item, index) =>
+          `${index + 1}. ${item.name || '商品'}（规格：${item.spec || '默认'}，已订${Number(item.totalQty || 0)}件，预计到货：${item.arrivalDate || '待定'}）`
+        );
+        const completedLines = completed.slice(0, 10).map((item, index) =>
+          `${index + 1}. ${item.name || '商品'}（规格：${item.spec || '默认'}，已订${Number(item.totalQty || 0)}件，截止：${item.closedAt || '未记录'}）`
+        );
+
+        const allPreorder = current.concat(completed);
+        const target = allPreorder.find((item) => message.includes(String(item.name || '')));
+        let detailLine = '';
+        if (target && (target.goodsId || target.id)) {
+          try {
+            const detail = await callFetchPreorderDetail(target.goodsId || target.id);
+            if (detail) {
+              detailLine = `\n\n补充（接龙详情页）：${detail.name || target.name} 参与人数${Number(detail.participantCount || 0)}，总订件数${Number(detail.totalQty || 0)}，状态${detail.preorderState === 'closed' ? '已截止' : '进行中'}。`;
+            }
+          } catch (error) {
+            console.error('获取接龙详情补充信息失败:', error);
+          }
+        }
+
+        return {
+          code: 0,
+          message: 'ok',
+          data: {
+            role,
+            intent,
+            answerDraft: [
+              `正在接龙：${current.length}个`,
+              current.length ? currentLines.join('\n') : '暂无进行中的接龙商品',
+              '',
+              `已截止：${completed.length}个`,
+              completed.length ? completedLines.join('\n') : '暂无已截止接龙商品',
+              detailLine
+            ].filter(Boolean).join('\n'),
+            contextSummary: `商家预售订货页：进行中${current.length}个，已截止${completed.length}个。`,
+            suggestions: ['接龙统计', '现货商品有哪些'],
+            modelPayload: null,
+            actionLog: '',
+            forceUseDraft: true
+          }
+        };
+      } catch (error) {
+        console.error('获取商家预售订货列表失败，降级到数据库:', error);
+      }
+    }
+
+    // 商家特殊意图：查询所有未取货订单（严格复用订单处理-顾客订单逻辑）
+    if (role === 'merchant' && intent === 'merchant_pending_pickup_goods') {
+      try {
+        const customerList = await callMerchantOrderGoods('customer');
+        const { answerDraft, contextSummary } = formatPendingCustomerOrders(customerList);
+        return {
+          code: 0,
+          message: 'ok',
+          data: {
+            role,
+            intent,
+            answerDraft,
+            contextSummary,
+            suggestions: ['超过3天未取货有哪些', '本周营业额'],
+            modelPayload: null,
+            actionLog: '',
+            forceUseDraft: true
+          }
+        };
+      } catch (error) {
+        console.error('通过订单处理页面逻辑获取未取货订单失败，降级到数据库:', error);
       }
     }
 
@@ -287,7 +510,7 @@ exports.main = async (event = {}, context) => {
           data: {
             role,
             intent,
-            answerDraft: '请指定要查询的商品名称，例如"李宁战戟8000还有谁没取货"。',
+            answerDraft: '请指定要查询的商品名称，例如"水果玉米还有谁没取货"。',
             contextSummary: '未指定商品名称',
             suggestions: goodsList.slice(0, 3).map(item => `${item.name}还有谁没取货`),
             modelPayload: null,
@@ -323,13 +546,9 @@ exports.main = async (event = {}, context) => {
             answerDraft = `${targetGoods.name} 没有待取货的买家。所有买家都已取货完成。`;
             contextSummary = `${targetGoods.name}：无待取货买家`;
           } else {
-            answerDraft = `${targetGoods.name} 还有 ${pendingCustomers.length} 位买家待取货：\n`;
-            contextSummary = `${targetGoods.name} 待取货买家（共${pendingCustomers.length}人）：\n`;
-
-            pendingCustomers.forEach((customer, index) => {
-              answerDraft += `${index + 1}. ${customer.customerName}  ${customer.phone || '暂无电话'}  待取货${customer.totalQty}件\n`;
-              contextSummary += `- ${customer.customerName}（${customer.phone || '暂无电话'}）：${customer.totalQty}件\n`;
-            });
+            // 按照要求的格式构建回复
+            answerDraft = pendingCustomers.map((customer) => `${customer.customerName} ${customer.phone || '暂无电话'} 还有${customer.totalQty}件${targetGoods.name}未取`).join('；');
+            contextSummary = pendingCustomers.map((customer) => `${customer.customerName}（${customer.phone || '暂无电话'}）：${customer.totalQty}件`).join('；');
           }
 
           return {
@@ -341,22 +560,64 @@ exports.main = async (event = {}, context) => {
               answerDraft,
               contextSummary,
               suggestions: ['还有哪些货物没取完', '哪些商品低库存'],
-              modelPayload: createModelMessages({
-                role,
-                userName: contextData.user.nickName,
-                message,
-                history,
-                answerDraft,
-                contextSummary,
-                suggestions: ['还有哪些货物没取完', '哪些商品低库存'],
-                actionLog: ''
-              }),
-              actionLog: ''
+              modelPayload: null,
+              actionLog: '',
+              forceUseDraft: true
             }
           };
         }
       } catch (error) {
-        console.error('获取商品买家列表失败:', error);
+        console.error('获取商品买家列表失败，使用本地订单数据处理:', error);
+
+        // 使用本地订单数据进行处理作为备份方案
+        const customerMap = {};
+
+        orders.forEach((order) => {
+          (Array.isArray(order.goods) ? order.goods : []).forEach((item) => {
+            if (String(item.goodsId || '') === String(targetGoods.goodsId || targetGoods._id) && item.pickupStatus === '待取货') {
+              const customerName = (order.customerInfo && order.customerInfo.name) || '未知顾客';
+              const customerPhone = (order.customerInfo && order.customerInfo.phone) || '暂无电话';
+              const quantity = Number(item.quantity || 0);
+
+              if (!customerMap[customerName]) {
+                customerMap[customerName] = {
+                  name: customerName,
+                  phone: customerPhone,
+                  quantity: 0
+                };
+              }
+              customerMap[customerName].quantity += quantity;
+            }
+          });
+        });
+
+        const customers = Object.values(customerMap);
+        let answerDraft = '';
+        let contextSummary = '';
+
+        if (customers.length === 0) {
+          answerDraft = `目前没有关于"${targetGoods.name}"的未取货订单记录。`;
+          contextSummary = `暂无${targetGoods.name}的未取货订单。`;
+        } else {
+          // 按照要求的格式构建回复
+          answerDraft = customers.map((customer) => `${customer.name} ${customer.phone} 还有${customer.quantity}件${targetGoods.name}未取`).join('；');
+          contextSummary = customers.map((customer) => `${customer.name}（${customer.phone}）：${customer.quantity}件`).join('；');
+        }
+
+        return {
+          code: 0,
+          message: 'ok',
+          data: {
+            role,
+            intent,
+            answerDraft,
+            contextSummary,
+            suggestions: ['还有哪些货物没取完', '哪些商品低库存'],
+            modelPayload: null,
+            actionLog: '',
+            forceUseDraft: true
+          }
+        };
       }
     }
 
@@ -417,22 +678,210 @@ exports.main = async (event = {}, context) => {
               answerDraft,
               contextSummary,
               suggestions: ['新的售后申请有哪些', '本周营业额'],
-              modelPayload: createModelMessages({
-                role,
-                userName: contextData.user.nickName,
-                message,
-                history,
-                answerDraft,
-                contextSummary,
-                suggestions: ['新的售后申请有哪些', '本周营业额'],
-                actionLog: ''
-              }),
-              actionLog: ''
+              modelPayload: null,
+              actionLog: '',
+              forceUseDraft: true
             }
           };
         }
       } catch (error) {
         console.error('获取未取货订单列表失败:', error);
+      }
+    }
+
+    // 商家特殊意图回退：无法复用页面云函数时，直接查订单库
+    if (role === 'merchant' && intent === 'merchant_pending_pickup_goods') {
+      const results = contextData.orders.filter((order) => /待取货/.test(String(order.status || '')));
+      const customerMap = {};
+      results.forEach((order) => {
+        const customerName = (order.customerInfo && order.customerInfo.name) || '未知顾客';
+        const customerPhone = (order.customerInfo && order.customerInfo.phone) || '暂无电话';
+        const pickupCode = order.pickupCode || '暂无';
+        if (!customerMap[customerName]) {
+          customerMap[customerName] = { name: customerName, phone: customerPhone, pickupCode, goods: [] };
+        }
+        (Array.isArray(order.goods) ? order.goods : []).forEach((item) => {
+          if (item.pickupStatus === '待取货') {
+            customerMap[customerName].goods.push({ name: item.name || '商品', quantity: item.quantity || 1 });
+          }
+        });
+      });
+      if (Object.keys(customerMap).length === 0) {
+        return {
+          code: 0,
+          message: 'ok',
+          data: {
+            role, intent,
+            answerDraft: '目前没有未取货的订单。',
+            contextSummary: '暂无未取货订单。',
+            suggestions: ['超过3天未取货有哪些', '本周营业额'],
+            modelPayload: null,
+            actionLog: '',
+            forceUseDraft: true
+          }
+        };
+      }
+      let answerDraft = '以下买家有货品还没有取，详情如下\n\n';
+      let contextSummary = '未取货订单（数据库回退）：\n';
+      Object.values(customerMap).forEach((customer) => {
+        answerDraft += `${customer.name}  ${customer.phone} 取货码:${customer.pickupCode}\n`;
+        customer.goods.forEach((item) => {
+          answerDraft += `${item.name}   ×${item.quantity}\n`;
+          contextSummary += `- ${customer.name} ${item.name} ×${item.quantity}\n`;
+        });
+        answerDraft += '\n';
+      });
+      return {
+        code: 0,
+        message: 'ok',
+        data: {
+          role, intent, answerDraft, contextSummary,
+          suggestions: ['超过3天未取货有哪些', '本周营业额'],
+          modelPayload: null,
+          actionLog: '',
+          forceUseDraft: true
+        }
+      };
+    }
+
+    // 商家特殊意图：查询特定商品的未取货买家
+    if (role === 'merchant' && intent === 'merchant_goods_buyers') {
+      try {
+        // 从消息中提取商品名称
+        const targetGoods = matchGoods(message, contextData.goodsList);
+        if (!targetGoods) {
+          return {
+            code: 0,
+            message: 'ok',
+            data: {
+              role,
+              intent,
+              answerDraft: '请明确您要查询的商品名称。',
+              contextSummary: '未识别到商品名称。',
+              suggestions: ['未取货订单有哪些', '本周营业额'],
+              modelPayload: null,
+              actionLog: '',
+              forceUseDraft: true
+            }
+          };
+        }
+
+        // 调用 getMerchantOrderGoods 云函数获取商品详情
+        const goodsDetailRes = await cloud.callFunction({
+          name: 'getMerchantOrderGoods',
+          data: {
+            type: 'detail',
+            docId: targetGoods._id,
+            goodsId: targetGoods.goodsId
+          }
+        });
+
+        if (goodsDetailRes.result && goodsDetailRes.result.code === 0) {
+          const goodsDetail = goodsDetailRes.result.data || {};
+          const customers = goodsDetail.customers || [];
+
+          // 筛选出未取货的买家
+          const pendingCustomers = customers.filter(customer =>
+            customer.status === '待取货'
+          );
+
+          let answerDraft = '';
+          let contextSummary = '';
+
+          if (pendingCustomers.length === 0) {
+            answerDraft = `${targetGoods.name} 没有待取货的买家。所有买家都已取货完成。`;
+            contextSummary = `${targetGoods.name}：无待取货买家`;
+          } else {
+            // 按照要求的格式构建回复
+            answerDraft = pendingCustomers.map((customer) => `${customer.customerName} ${customer.phone || '暂无电话'} 还有${customer.totalQty}件${targetGoods.name}未取`).join('；');
+            contextSummary = pendingCustomers.map((customer) => `${customer.customerName}（${customer.phone || '暂无电话'}）：${customer.totalQty}件`).join('；');
+          }
+
+          return {
+            code: 0,
+            message: 'ok',
+            data: {
+              role,
+              intent,
+              answerDraft,
+              contextSummary,
+              suggestions: ['还有哪些货物没取完', '哪些商品低库存'],
+              modelPayload: null,
+              actionLog: '',
+              forceUseDraft: true
+            }
+          };
+        }
+      } catch (error) {
+        console.error('获取商品买家列表失败:', error);
+
+        // 使用本地订单数据进行处理作为备份方案
+        const targetGoods = matchGoods(message, contextData.goodsList);
+        if (!targetGoods) {
+          return {
+            code: 0,
+            message: 'ok',
+            data: {
+              role,
+              intent,
+              answerDraft: '请明确您要查询的商品名称。',
+              contextSummary: '未识别到商品名称。',
+              suggestions: ['未取货订单有哪些', '本周营业额'],
+              modelPayload: null,
+              actionLog: '',
+              forceUseDraft: true
+            }
+          };
+        }
+
+        const customerMap = {};
+
+        contextData.orders.forEach((order) => {
+          (Array.isArray(order.goods) ? order.goods : []).forEach((item) => {
+            if (String(item.goodsId || '') === String(targetGoods.goodsId || targetGoods._id) && item.pickupStatus === '待取货') {
+              const customerName = (order.customerInfo && order.customerInfo.name) || '未知顾客';
+              const customerPhone = (order.customerInfo && order.customerInfo.phone) || '暂无电话';
+              const quantity = Number(item.quantity || 0);
+
+              if (!customerMap[customerName]) {
+                customerMap[customerName] = {
+                  name: customerName,
+                  phone: customerPhone,
+                  quantity: 0
+                };
+              }
+              customerMap[customerName].quantity += quantity;
+            }
+          });
+        });
+
+        const customers = Object.values(customerMap);
+        let answerDraft = '';
+        let contextSummary = '';
+
+        if (customers.length === 0) {
+          answerDraft = `目前没有关于"${targetGoods.name}"的未取货订单记录。`;
+          contextSummary = `暂无${targetGoods.name}的未取货订单。`;
+        } else {
+          // 按照要求的格式构建回复
+          answerDraft = customers.map((customer) => `${customer.name} ${customer.phone} 还有${customer.quantity}件${targetGoods.name}未取`).join('；');
+          contextSummary = customers.map((customer) => `${customer.name}（${customer.phone}）：${customer.quantity}件`).join('；');
+        }
+
+        return {
+          code: 0,
+          message: 'ok',
+          data: {
+            role,
+            intent,
+            answerDraft,
+            contextSummary,
+            suggestions: ['还有哪些货物没取完', '哪些商品低库存'],
+            modelPayload: null,
+            actionLog: '',
+            forceUseDraft: true
+          }
+        };
       }
     }
 
@@ -484,16 +933,20 @@ exports.main = async (event = {}, context) => {
       };
     }
 
+    // 构建回复结果
     const result = role === 'merchant'
       ? buildMerchantResult(intent, message, contextData)
       : buildCustomerResult(intent, message, contextData);
 
+    // 执行商家操作（如果有）
     let actionLog = '';
     if (role === 'merchant' && result.action) {
       actionLog = await executeMerchantAction(result.action);
     }
 
-    const modelPayload = createModelMessages({
+    // 创建大模型消息
+    const bypassModel = shouldBypassModel(role, intent);
+    const modelPayload = bypassModel ? null : createModelMessages({
       role,
       userName: contextData.user.nickName,
       message,
@@ -504,6 +957,7 @@ exports.main = async (event = {}, context) => {
       actionLog
     });
 
+    // 记录操作日志
     await writeOperationLog({
       openid: OPENID,
       role,
@@ -514,6 +968,7 @@ exports.main = async (event = {}, context) => {
       actionLog
     });
 
+    // 返回结果
     return {
       code: 0,
       message: 'ok',
@@ -525,6 +980,7 @@ exports.main = async (event = {}, context) => {
         suggestions: result.suggestions || [],
         modelPayload,
         actionLog,
+        forceUseDraft: bypassModel,
         validationData: {
           role,
           intent,
@@ -543,9 +999,16 @@ exports.main = async (event = {}, context) => {
   }
 };
 
-// 检查是否为商家专属意图
+/**
+ * 检查是否为商家专属意图
+ * @param {string} intent - 意图
+ * @returns {boolean} - 是否为商家专属意图
+ */
 function isMerchantOnlyIntent(intent) {
   const merchantOnlyIntents = [
+    'merchant_stock_goods',
+    'merchant_special_goods',
+    'merchant_preorder_overview',
     'merchant_turnover',
     'merchant_preorder_stats',
     'merchant_batch_threshold',
@@ -589,6 +1052,9 @@ function validateUnderstoodIntent(understoodIntent, role) {
 /**
  * 处理大模型理解后的意图
  * 这个函数可以在前端调用大模型后，将结果传回后端处理
+ * @param {Object} event - 事件对象
+ * @param {Object} context - 上下文对象
+ * @returns {Object} - 响应结果
  */
 async function processUnderstoodIntent(event, context) {
   const wxContext = cloud.getWXContext();
@@ -624,7 +1090,8 @@ async function processUnderstoodIntent(event, context) {
   }
 
   // 构建最终的消息
-  const modelPayload = createModelMessages({
+  const bypassModel = shouldBypassModel(contextData.role, validatedIntent);
+  const modelPayload = bypassModel ? null : createModelMessages({
     role: contextData.role,
     userName: contextData.user.nickName,
     message: originalMessage,
@@ -645,7 +1112,8 @@ async function processUnderstoodIntent(event, context) {
       contextSummary: result.contextSummary,
       suggestions: result.suggestions || [],
       modelPayload,
-      actionLog
+      actionLog,
+      forceUseDraft: bypassModel
     }
   };
 }

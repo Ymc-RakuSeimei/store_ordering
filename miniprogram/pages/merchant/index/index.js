@@ -52,7 +52,7 @@ Page({
 
   openAiAssistant() {
     wx.navigateTo({
-      url: '/pages/ai-assistant/index?role=merchant'
+      url: '/pages/ai-assistant/index?role=merchant&sourcePage=merchant_index'
     });
   },
 

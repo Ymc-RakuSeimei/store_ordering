@@ -1,8 +1,21 @@
+/**
+ * AI助手前端页面
+ * 负责用户与AI助手的交互界面，包括消息发送、历史记录管理、大模型调用和幻觉检测
+ */
+
 const { streamModelReply } = require('../../utils/ai-assistant');
 
+// 聊天历史存储键名
 const STORAGE_KEY = 'ai_chat_history';
+// 历史记录过期时间（24小时）
 const EXPIRE_TIME = 24 * 60 * 60 * 1000;
 
+/**
+ * 检测大模型是否编造数据
+ * @param {string} originalData - 原始数据
+ * @param {string} answer - 大模型回答
+ * @returns {Object} - 检测结果，包含isValid和warnings
+ */
 function detectDataFabrication(originalData, answer) {
   if (!originalData || !answer) return { isValid: true, warnings: [] };
 
@@ -11,15 +24,18 @@ function detectDataFabrication(originalData, answer) {
   const originalStr = String(originalData || '');
   const answerStr = String(answer || '');
 
+  // 检测原始数据为空但回答包含统计数据的情况
   if (originalStr.length < 10 && answerStr.length > 30) {
     if (/(共|总计|合计|一共|总共有)/.test(answerStr) && /\d+[个件名]/.test(answerStr)) {
       warnings.push('originalDataEmpty');
     }
   }
 
+  // 提取原始数据和回答中的金额
   const originalMoney = originalStr.match(/￥?(\d+(?:\.\d+)?)/g) || [];
   const answerMoney = answerStr.match(/￥?(\d+(?:\.\d+)?)/g) || [];
 
+  // 检测原始数据无金额但回答有金额的情况
   if (originalMoney.length === 0 && answerMoney.length > 0) {
     const answerVals = answerMoney.map(m => parseFloat(m.replace('￥', ''))).filter(v => v > 0);
     if (answerVals.some(v => v > 100)) {
@@ -27,6 +43,7 @@ function detectDataFabrication(originalData, answer) {
     }
   }
 
+  // 检测回答金额超出原始数据范围的情况
   if (originalMoney.length > 0) {
     const originalMax = Math.max(...originalMoney.map(m => parseFloat(m.replace('￥', ''))));
     const answerVals = answerMoney.map(m => parseFloat(m.replace('￥', '')));
@@ -41,15 +58,24 @@ function detectDataFabrication(originalData, answer) {
   };
 }
 
+/**
+ * 修正大模型编造的答案
+ * @param {string} originalData - 原始数据
+ * @param {string} answer - 大模型回答
+ * @param {Array} warnings - 警告信息
+ * @returns {string} - 修正后的回答
+ */
 function correctFabricatedAnswer(originalData, answer, warnings) {
   if (!warnings || warnings.length === 0) return answer;
 
   let corrected = answer;
 
+  // 修正原始数据为空的情况
   if (warnings.includes('originalDataEmpty')) {
     corrected = corrected.replace(/(共|总计|合计|一共|总共有)\s*\d+[个件名]/, '暂无相关数据');
   }
 
+  // 修正金额超出范围的情况
   if (warnings.includes('answerExceedsOriginal')) {
     corrected = corrected.replace(/￥?\d+\.?\d+/, '数据不足');
   }
@@ -57,6 +83,12 @@ function correctFabricatedAnswer(originalData, answer, warnings) {
   return corrected;
 }
 
+/**
+ * 构建消息对象
+ * @param {string} role - 角色，user或assistant
+ * @param {string} content - 消息内容
+ * @returns {Object} - 消息对象
+ */
 function buildMessage(role, content) {
   return {
     id: `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
@@ -76,9 +108,14 @@ Page({
     sending: false,
     scrollIntoView: '',
     userAvatar: 'cloud://cloud1-2gltiqs6a2c5cd76.636c-cloud1-2gltiqs6a2c5cd76-1411302136/icons/avatar.png',
-    scene: 'customer'
+    scene: 'customer', // 角色：customer或merchant
+    sourcePage: '' // 商家端来源页面（用于后端复用对应页面取数逻辑）
   },
 
+  /**
+   * 页面加载时初始化
+   * @param {Object} options - 页面参数
+   */
   onLoad(options = {}) {
     const app = getApp();
     const userInfo = app.globalData.userInfo || {};
@@ -90,6 +127,7 @@ Page({
 
     this.setData({
       scene: role,
+      sourcePage: String(options.sourcePage || ''),
       assistantTitle: title,
       assistantSubtitle: isMerchant
         ? '支持经营数据、库存、售后、商品管理和操作指引。'
@@ -103,14 +141,23 @@ Page({
     this.loadChatHistory();
   },
 
+  /**
+   * 页面卸载时保存聊天历史
+   */
   onUnload() {
     this.saveChatHistory();
   },
 
+  /**
+   * 页面隐藏时保存聊天历史
+   */
   onHide() {
     this.saveChatHistory();
   },
 
+  /**
+   * 加载聊天历史
+   */
   loadChatHistory() {
     try {
       const stored = wx.getStorageSync(STORAGE_KEY);
@@ -129,12 +176,16 @@ Page({
       console.error('加载历史记录失败', e);
     }
 
+    // 显示欢迎消息
     const isMerchant = this.data.scene === 'merchant';
     this.appendMessage(buildMessage('assistant', isMerchant
       ? '你好，我可以帮你查经营数据、低库存、接龙统计，也可以执行简单商品操作。'
       : '你好，我可以帮你查商品、接龙、订单状态、取货码和优惠活动。'));
   },
 
+  /**
+   * 保存聊天历史
+   */
   saveChatHistory() {
     try {
       const messages = this.data.messages.filter(msg =>
@@ -142,7 +193,7 @@ Page({
       );
 
       wx.setStorageSync(STORAGE_KEY, {
-        messages: messages.slice(-20),
+        messages: messages.slice(-20), // 只保存最近20条消息
         expireAt: Date.now() + EXPIRE_TIME,
         scene: this.data.scene
       });
@@ -151,12 +202,20 @@ Page({
     }
   },
 
+  /**
+   * 处理输入框输入
+   * @param {Object} event - 输入事件
+   */
   onInput(event) {
     this.setData({
       inputValue: event.detail.value
     });
   },
 
+  /**
+   * 使用快捷问题
+   * @param {Object} event - 点击事件
+   */
   useQuickQuestion(event) {
     const { question } = event.currentTarget.dataset;
     if (!question) return;
@@ -164,6 +223,11 @@ Page({
     this.sendMessage();
   },
 
+  /**
+   * 添加消息到聊天界面
+   * @param {Object} message - 消息对象
+   * @param {Function} callback - 回调函数
+   */
   appendMessage(message, callback) {
     const messages = this.data.messages.concat(message);
     this.setData({
@@ -172,6 +236,10 @@ Page({
     }, callback);
   },
 
+  /**
+   * 更新最后一条助手消息
+   * @param {string} content - 消息内容
+   */
   updateLastAssistantMessage(content) {
     const messages = this.data.messages.slice();
     const lastIndex = messages.length - 1;
@@ -186,12 +254,16 @@ Page({
     });
   },
 
+  /**
+   * 发送消息
+   */
   async sendMessage() {
     const text = String(this.data.inputValue || '').trim();
     if (!text || this.data.sending) {
       return;
     }
 
+    // 准备历史消息
     const history = this.data.messages.map((item) => ({
       role: item.role,
       content: item.content
@@ -203,14 +275,17 @@ Page({
       loading: true
     });
 
+    // 添加用户消息和空的助手消息
     this.appendMessage(buildMessage('user', text));
     this.appendMessage(buildMessage('assistant', ''));
 
     try {
+      // 调用云函数处理消息
       const res = await wx.cloud.callFunction({
         name: 'aiAssistant',
         data: {
           scene: this.data.scene,
+          sourcePage: this.data.sourcePage,
           message: text,
           history
         }
@@ -252,7 +327,7 @@ Page({
           console.error('意图理解流程失败:', error);
           this.updateLastAssistantMessage(fallbackAnswer);
         }
-      } else if (!payload.modelPayload || !payload.modelPayload.messages) {
+      } else if (payload.forceUseDraft || !payload.modelPayload || !payload.modelPayload.messages) {
         // 如果服务器返回了直接的回答（如权限拒绝），不调用AI
         this.updateLastAssistantMessage(fallbackAnswer);
       } else {
@@ -260,6 +335,7 @@ Page({
         await this.processModelResponse(payload, fallbackAnswer);
       }
 
+      // 更新快捷问题
       if (payload.suggestions && payload.suggestions.length) {
         this.setData({
           quickQuestions: payload.suggestions.slice(0, 3)
@@ -276,6 +352,9 @@ Page({
     }
   },
 
+  /**
+   * 返回上一页
+   */
   goBack() {
     wx.navigateBack({
       fail: () => {
@@ -317,6 +396,7 @@ Page({
       const validationData = payload.validationData || {};
       const originalData = validationData.originalData || '';
 
+      // 调用大模型生成回复
       let finalText = await streamModelReply(payload.modelPayload.messages, {
         onToken: (_, currentText) => {
           this.updateLastAssistantMessage(currentText);
@@ -328,6 +408,7 @@ Page({
         return;
       }
 
+      // 检测并修正大模型可能编造的答案
       const validation = detectDataFabrication(originalData, finalText);
       if (!validation.isValid) {
         console.warn('检测到大模型可能编造答案:', validation.warnings);

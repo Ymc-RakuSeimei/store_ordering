@@ -4,7 +4,8 @@ Page({
     completedDragons: [],
     loading: true,
     stopLoading: false,
-    markLoading: false
+    markLoading: false,
+    deleteLoading: false
   },
 
   onLoad() {
@@ -157,6 +158,48 @@ Page({
       const result = res.result || {};
       if (result.code !== 0) {
         throw new Error(result.message || '标记失败');
+      }
+      return result.data || null;
+    });
+  },
+
+  // 删除已截单商品
+  onDeleteCompleted(e) {
+    const id = e.currentTarget.dataset.id;
+
+    wx.showModal({
+      title: '确认删除',
+      content: '删除后无法恢复，确定要删除该商品吗？',
+      confirmColor: '#ff3b30',
+      success: (res) => {
+        if (!res.confirm) return;
+
+        this.setData({ deleteLoading: true });
+
+        this.deleteProduct(id)
+          .then(() => {
+            this.setData({ deleteLoading: false });
+            wx.showToast({ title: '删除成功', icon: 'success' });
+            this.loadPreorderList();
+          })
+          .catch((err) => {
+            this.setData({ deleteLoading: false });
+            console.error('deleteProduct error', err);
+            wx.showToast({ title: err.message || '删除失败', icon: 'none' });
+          });
+      }
+    });
+  },
+
+  // 调用云函数删除商品
+  deleteProduct(id) {
+    return wx.cloud.callFunction({
+      name: 'deleteProduct',
+      data: { id }
+    }).then((res) => {
+      const result = res.result || {};
+      if (result.code !== 0) {
+        throw new Error(result.message || '删除失败');
       }
       return result.data || null;
     });

@@ -56,12 +56,14 @@ Page({
   },
 
   async handleLogin() {
+    // 如果已登录，不重复授权
     if (this.data.userInfo.openid) {
       return
     }
 
     this.setData({ loginLoading: true })
     try {
+      // 1. 获取微信用户信息
       const { userInfo } = await new Promise((resolve, reject) => {
         wx.getUserProfile({
           desc: '用于完善会员资料',
@@ -70,6 +72,13 @@ Page({
         })
       })
 
+      // 2. 立即显示用户头像和昵称（不等云函数）
+      this.setData({
+        'userInfo.nickName': userInfo.nickName,
+        'userInfo.avatarUrl': userInfo.avatarUrl
+      })
+
+      // 3. 保存到云数据库
       const saveRes = await wx.cloud.callFunction({
         name: 'saveUserInfo',
         data: {
@@ -79,6 +88,7 @@ Page({
       })
 
       if (saveRes.result.success) {
+        // 4. 重新获取完整用户信息（获取 openid 等）
         await this.checkLoginStatus()
         wx.showToast({
           title: '登录成功',
@@ -103,6 +113,55 @@ Page({
     } finally {
       this.setData({ loginLoading: false })
     }
+  },
+
+  // 手动输入手机号
+  editPhoneNumber() {
+    wx.showModal({
+      title: '绑定手机号',
+      editable: true,
+      placeholderText: '请输入手机号码',
+      success: async (res) => {
+        if (res.confirm && res.content) {
+          const phoneNumber = res.content.trim()
+          
+          if (phoneNumber === '') {
+            wx.showToast({
+              title: '请输入手机号码',
+              icon: 'none'
+            })
+            return
+          }
+          
+          wx.showLoading({ title: '保存中...' })
+          try {
+            await wx.cloud.callFunction({
+              name: 'saveUserInfo',
+              data: {
+                phoneNumber: phoneNumber
+              }
+            })
+            
+            this.setData({
+              'userInfo.phoneNumber': phoneNumber
+            })
+            
+            wx.showToast({
+              title: '绑定成功',
+              icon: 'success'
+            })
+          } catch (err) {
+            console.error('保存手机号失败', err)
+            wx.showToast({
+              title: '保存失败',
+              icon: 'none'
+            })
+          } finally {
+            wx.hideLoading()
+          }
+        }
+      }
+    })
   },
 
   goToOrderCenter() {
@@ -189,6 +248,7 @@ Page({
       }
     })
   },
+
   ScanQR() {
     wx.navigateTo({
       url: '/pages/customer/myOrder/myOrder?tab=waiting'

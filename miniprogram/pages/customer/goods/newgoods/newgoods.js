@@ -54,13 +54,11 @@ Page({
     }
   },
 
-  // 筛选 24 小时内上架的商品（使用 createdAt，不是 updatedAt）
   filterTodayGoods(goodsList) {
     const now = new Date();
     const twentyFourHoursAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
     
     return goodsList.filter(item => {
-      // 使用 createdAt 作为判断基点（商品上架时间，不会变化）
       const createTime = item.createdAt;
       if (!createTime) return false;
       
@@ -77,7 +75,6 @@ Page({
     });
   },
 
-  // 格式化商品数据（保持不变）
   formatGoodsData(goodsList) {
     if (!goodsList || goodsList.length === 0) return [];
     
@@ -115,12 +112,12 @@ Page({
         actionText: isPreorder ? '参与接龙' : '加入购物车',
         actionType: isPreorder ? 'joinGroup' : 'addToCart',
         type: item.type,
-        cartQuantity: cartQuantity
+        cartQuantity: cartQuantity,
+        limitPerPerson: item.limitPerPerson || 0
       };
     });
   },
 
-  // 跳转到详情页（需要修复）
   goToDetail(e) {
     const { item } = e.currentTarget.dataset;
     if (item.type === 'preorder') {
@@ -134,7 +131,6 @@ Page({
     }
   },
 
-  // 其他方法保持不变...
   goBack() {
     wx.navigateBack({ delta: 1 });
   },
@@ -266,17 +262,32 @@ Page({
     }
   },
 
+  // 增加数量（增加限购检查）
   increaseQuantity(e) {
     const { id } = e.currentTarget.dataset;
+    // 先找到商品信息
+    const item = this.data.goodsList.find(item => item.id === id);
+    if (!item) return;
+    
+    // 接龙商品检查限购
+    if (item.type === 'preorder' && item.limitPerPerson > 0) {
+      const currentQty = item.cartQuantity || 0;
+      if (currentQty >= item.limitPerPerson) {
+        wx.showToast({ title: `每人限购${item.limitPerPerson}件`, icon: 'none' });
+        return;
+      }
+    }
+    
     const cart = [...this.data.cartList];
-    const item = cart.find(item => item.id === id);
-    if (item) {
-      item.quantity += 1;
+    const cartItem = cart.find(item => item.id === id);
+    if (cartItem) {
+      cartItem.quantity += 1;
       this.updateCartData(cart);
       this.updateGoodsCartQuantity(id);
     }
   },
 
+  // 减少数量
   decreaseQuantity(e) {
     const { id } = e.currentTarget.dataset;
     let cart = [...this.data.cartList];

@@ -5,15 +5,19 @@
     <view class="loading-spinner"></view>
     <view class="loading-text">{{loginLoading ? '获取中...' : (contactLoading ? '获取商家微信...' : '加载中...')}}</view>
   </view>
+  
   <!-- 顶部用户信息区 -->
   <view class="header">
     <view class="greeting" bindtap="handleLogin">
       <text class="greeting-title">Hello, {{userInfo.nickName}}</text>
       <text class="greeting-subtitle">Wish you a happy shopping!</text>
+      <!-- 未登录时显示提示 -->
+      <text wx:if="{{!userInfo.openid}}" class="login-tip">点击这里登录</text>
     </view>
-    <image class="qrcode" bindtap = "ScanQR"src="cloud://cloud1-2gltiqs6a2c5cd76.636c-cloud1-2gltiqs6a2c5cd76-1411302136/icons/二维码.png" mode="aspectFill"></image>
+    <image class="qrcode" bindtap="ScanQR" src="cloud://cloud1-2gltiqs6a2c5cd76.636c-cloud1-2gltiqs6a2c5cd76-1411302136/icons/二维码.png" mode="aspectFill"></image>
     <image class="avatar" src="{{userInfo.avatarUrl}}" mode="aspectFill" bindtap="handleLogin"></image>
   </view>
+
   <!-- 功能列表卡片 -->
   <view class="function-card">
     <!-- 订单中心 -->
@@ -25,6 +29,7 @@
       </view>
     </view>
     <view class="divider"></view>
+
     <!-- 用户名 -->
     <view class="list-item">
       <image class="item-icon" src="cloud://cloud1-2gltiqs6a2c5cd76.636c-cloud1-2gltiqs6a2c5cd76-1411302136/icons/名片.png" mode="aspectFit"></image>
@@ -34,6 +39,7 @@
       </view>
     </view>
     <view class="divider"></view>
+
     <!-- 消息订阅通知 -->
     <view class="list-item" bindtap="toggleNotification">
       <image class="item-icon" src="cloud://cloud1-2gltiqs6a2c5cd76.636c-cloud1-2gltiqs6a2c5cd76-1411302136/icons/喇叭.png" mode="aspectFit"></image>
@@ -43,14 +49,16 @@
       </view>
     </view>
     <view class="divider"></view>
-    <!-- 手机号 -->
-    <view class="list-item">
+
+    <!-- 手机号 - 点击手动输入 -->
+    <view class="list-item" bindtap="editPhoneNumber">
       <image class="item-icon" src="cloud://cloud1-2gltiqs6a2c5cd76.636c-cloud1-2gltiqs6a2c5cd76-1411302136/icons/电话.png" mode="aspectFit"></image>
       <view class="item-content">
-        <text class="item-phone">{{userInfo.phoneNumber || '点击绑定'}}</text>
+        <text class="item-phone">{{userInfo.phoneNumber || '点击绑定手机号'}}</text>
       </view>
     </view>
     <view class="divider"></view>
+
     <!-- 售后/联系商家 -->
     <view class="list-item" bindtap="contactService">
       <image class="item-icon" src="cloud://cloud1-2gltiqs6a2c5cd76.636c-cloud1-2gltiqs6a2c5cd76-1411302136/icons/商务用户.png" mode="aspectFit"></image>

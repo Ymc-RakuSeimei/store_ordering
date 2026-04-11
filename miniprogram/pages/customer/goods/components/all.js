@@ -31,7 +31,6 @@ Component({
   },
 
   methods: {
-    // 格式化商品数据
     formatGoodsItem(item) {
       const isPreorder = item.type === 'preorder';
       const isSpot = item.type === 'spot' || item.type === 'special';
@@ -45,11 +44,9 @@ Component({
         imageUrl = '';
       }
       
-      // 使用父页面传递的购物车数量
       const cartQuantity = item.cartQuantity || 0;
       
       return {
-        // 优先使用 goodsId 作为业务索引；老数据没有 goodsId 时回退到 _id。
         id: item.goodsId || item._id,
         name: item.name || '商品名称',
         price: isSpecial ? (item.specialPrice || item.price) : item.price,
@@ -65,18 +62,15 @@ Component({
         actionText: isPreorder ? '参与接龙' : '加入购物车',
         actionType: isPreorder ? 'joinGroup' : 'addToCart',
         type: item.type,
-        cartQuantity: cartQuantity
+        cartQuantity: cartQuantity,
+        limitPerPerson: item.limitPerPerson || 0  // 添加限购字段
       };
     },
 
-    // 筛选商品
     filterGoods() {
       let list = [...this.data.originalList];
-      
-      // 格式化数据
       list = list.map(item => this.formatGoodsItem(item));
       
-      // 关键词筛选
       const keyword = this.properties.searchKeyword;
       if (keyword && keyword.trim()) {
         const lowerKeyword = keyword.toLowerCase().trim();
@@ -108,7 +102,6 @@ Component({
       }
     },
 
-    // 减少数量
     decreaseQuantity(e) {
       const { item } = e.currentTarget.dataset;
       this.triggerEvent('updateQuantity', {
@@ -117,36 +110,36 @@ Component({
       });
     },
 
-    // 增加数量
+    // 增加数量（增加限购检查）
     increaseQuantity(e) {
       const { item } = e.currentTarget.dataset;
+      // 接龙商品检查限购
+      if (item.type === 'preorder' && item.limitPerPerson > 0) {
+        const currentQty = item.cartQuantity || 0;
+        if (currentQty >= item.limitPerPerson) {
+          wx.showToast({ title: `每人限购${item.limitPerPerson}件`, icon: 'none' });
+          return;
+        }
+      }
       this.triggerEvent('updateQuantity', {
         id: item.id,
         quantity: 1
       });
     },
 
-    // 跳转到详情页
     goToDetail(e) {
       const { item } = e.currentTarget.dataset;
-      // 根据商品类型跳转不同的详情页
       if (item.type === 'preorder') {
-        // 接龙商品跳转到参与接龙页
         wx.navigateTo({
           url: `/pages/preorder/join/join?id=${item.id}`
         });
       } else {
-        // 现货/特价商品跳转到商品详情页
         wx.navigateTo({
           url: `/pages/customer/goods/detail/detail?id=${item.id}`
         });
       }
     },
 
-    // 阻止事件冒泡
-    stopPropagation() {
-      // 防止点击按钮时触发页面跳转
-
-    }
+    stopPropagation() {}
   }
 });

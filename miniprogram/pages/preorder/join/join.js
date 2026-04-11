@@ -26,15 +26,10 @@ Page({
     this.authAndLoad();
   },
 
-  /**
-   * 身份验证并加载数据
-   */
   async authAndLoad() {
     try {
       wx.showLoading({ title: '验证中...' });
-
       await app.getUserRole();
-
       wx.hideLoading();
       this.loadDragonDetail();
     } catch (err) {
@@ -44,15 +39,11 @@ Page({
     }
   },
 
-  /**
-   * 加载接龙详情
-   */
   async loadDragonDetail() {
     wx.showLoading({ title: '加载中...' });
     try {
       const dragonId = this.data.dragonId;
       
-      // 调用 getGoodsDetail 获取商品基本信息
       const goodsRes = await wx.cloud.callFunction({
         name: 'getGoodsDetail',
         data: { goodsId: dragonId }
@@ -68,14 +59,12 @@ Page({
         throw new Error('商品类型错误');
       }
 
-      // 获取当前用户的 openid，判断是否已参与
       let openid = '';
       let myParticipation = null;
       try {
         const openidRes = await wx.cloud.callFunction({ name: 'getOpenId' });
         openid = openidRes.result.openid;
         
-        // 查询用户是否已参与此接龙
         const preorderRes = await wx.cloud.callFunction({
           name: 'fetchPreorderDetail',
           data: { dragonId: dragonId }
@@ -89,7 +78,6 @@ Page({
         console.log('获取参与记录失败', err);
       }
 
-      // 组装接龙商品数据
       const dragon = {
         id: goods.goodsId || goods._id,
         name: goods.name || '接龙商品',
@@ -103,11 +91,16 @@ Page({
         description: goods.description || ''
       };
 
+      const cart = wx.getStorageSync('shoppingCart') || [];
+      const cartItem = cart.find(item => item.id === dragon.id);
+      const currentQuantity = cartItem ? cartItem.quantity : 1;
+
       this.setData({
         dragon: dragon,
-        loading: false,
         hasJoined: !!myParticipation,
-        myParticipation: myParticipation || null
+        myParticipation: myParticipation || null,
+        quantity: currentQuantity,
+        loading: false
       });
     } catch (err) {
       console.error('加载详情失败', err);
@@ -117,18 +110,12 @@ Page({
     }
   },
 
-  /**
-   * 减少数量
-   */
   onDecreaseQty() {
     if (this.data.quantity > 1) {
       this.setData({ quantity: this.data.quantity - 1 });
     }
   },
 
-  /**
-   * 增加数量
-   */
   onIncreaseQty() {
     const { quantity, dragon } = this.data;
     if (dragon.limitPerPerson > 0 && quantity >= dragon.limitPerPerson) {
@@ -138,30 +125,57 @@ Page({
     this.setData({ quantity: quantity + 1 });
   },
 
-  /**
-   * 手动输入数量
-   */
   onQtyInput(e) {
-    let qty = parseInt(e.detail.value) || 1;
+    let rawValue = e.detail.value;
     const { dragon } = this.data;
+    
+    if (rawValue === '' || rawValue === null || rawValue === undefined) {
+      this.setData({ quantity: '' });
+      return;
+    }
+    
+    let qty = parseInt(rawValue);
+    if (isNaN(qty)) {
+      this.setData({ quantity: '' });
+      return;
+    }
+    
+    if (qty < 1) qty = 1;
     if (dragon.limitPerPerson > 0 && qty > dragon.limitPerPerson) {
       qty = dragon.limitPerPerson;
       wx.showToast({ title: `每人限购${dragon.limitPerPerson}件`, icon: 'none' });
     }
-    if (qty < 1) qty = 1;
+    
     this.setData({ quantity: qty });
   },
 
-  /**
-   * 输入备注
-   */
+  onQtyBlur(e) {
+    let rawValue = e.detail.value;
+    const { dragon } = this.data;
+    
+    if (rawValue === '' || rawValue === null || rawValue === undefined) {
+      this.setData({ quantity: 1 });
+      return;
+    }
+    
+    let qty = parseInt(rawValue);
+    if (isNaN(qty) || qty < 1) {
+      this.setData({ quantity: 1 });
+      return;
+    }
+    
+    if (dragon.limitPerPerson > 0 && qty > dragon.limitPerPerson) {
+      qty = dragon.limitPerPerson;
+      wx.showToast({ title: `每人限购${dragon.limitPerPerson}件`, icon: 'none' });
+    }
+    
+    this.setData({ quantity: qty });
+  },
+
   onRemarkInput(e) {
     this.setData({ remark: e.detail.value });
   },
 
-  /**
-   * 提交参与（添加到购物车）
-   */
   onSubmit() {
     if (this.data.submitting) return;
     if (this.data.quantity < 1) {
@@ -180,9 +194,6 @@ Page({
     });
   },
 
-  /**
-   * 执行提交（添加到购物车）
-   */
   async doSubmit() {
     this.setData({ submitting: true });
     wx.showLoading({ title: '处理中...' });
@@ -190,11 +201,11 @@ Page({
     try {
       const { dragon, quantity, remark } = this.data;
       
-      const cart = wx.getStorageSync('shoppingCart') || [];
-      const existingItem = cart.find(item => item.id === dragon.id);
+      let cart = wx.getStorageSync('shoppingCart') || [];
+      const existingIndex = cart.findIndex(item => item.id === dragon.id);
 
-      if (existingItem) {
-        existingItem.quantity += quantity;
+      if (existingIndex !== -1) {
+        cart[existingIndex].quantity = quantity;
       } else {
         cart.push({
           id: dragon.id,
@@ -211,15 +222,11 @@ Page({
       
       wx.hideLoading();
       this.setData({ submitting: false });
-      wx.showToast({ title: '已加入接龙', icon: 'success' });
+      wx.showToast({ title: '已更新接龙数量', icon: 'success' });
 
       setTimeout(() => {
-        this.loadDragonDetail();
-      }, 500);
-      
-      setTimeout(() => {
         wx.navigateBack();
-      }, 1500);
+      }, 800);
     } catch (err) {
       wx.hideLoading();
       this.setData({ submitting: false });
@@ -228,9 +235,6 @@ Page({
     }
   },
 
-  /**
-   * 返回上一页
-   */
   goBack() {
     wx.navigateBack();
   }

@@ -5,36 +5,18 @@
   background-color: #f8f9fa;
 }
 
-/* ========== 加载状态 ========== */
-.loading-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-}
-
-.loading-spinner {
-  width: 60rpx;
-  height: 60rpx;
-  border: 4rpx solid #e0e0e0;
-  border-top-color: #ff6b35;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-.loading-text {
-  margin-top: 24rpx;
-  font-size: 28rpx;
-  color: #999;
+/* ========== 占位加载状态 - 无文字无转圈，只用于占位 ========== */
+.loading-placeholder {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #f8f9fa;
+  z-index: 999;
 }
 
 /* ========== 错误状态 ========== */
-/* 错误状态 */
 .error-container {
   display: flex;
   flex-direction: column;
@@ -276,7 +258,7 @@
   color: #666;
 }
 
-/* 统计卡片 - 只有已接龙数量 */
+/* 统计卡片 */
 .stats-card {
   background: white;
   margin: 20rpx 24rpx;
@@ -359,6 +341,7 @@
   color: #333;
 }
 
+/* 数量控制器 */
 .quantity-control {
   display: flex;
   align-items: center;
@@ -394,12 +377,20 @@
   color: white;
 }
 
-.qty-num {
+/* 数量输入框 - 修复滚动漂移 */
+.qty-input {
+  width: 80rpx;
+  height: 64rpx;
+  text-align: center;
   font-size: 32rpx;
   font-weight: 600;
   color: #1a1a1a;
-  min-width: 60rpx;
-  text-align: center;
+  background-color: #f5f5f5;
+  border-radius: 32rpx;
+  line-height: 64rpx;
+  position: relative;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
 }
 
 .remark-row {

@@ -13,12 +13,17 @@
     <view class="card">
       <view class="card-header">
         <text class="feedback-type">{{feedback.type}}</text>
-        <text class="feedback-status status-{{feedback.status === '待处理' ? 'red' : 'green'}}">{{feedback.status}}</text>
+        <text class="feedback-status status-{{feedback.status === '待处理' ? 'red' : (feedback.status === '已处理' ? 'gray' : 'green')}}">{{feedback.status}}</text>
       </view>
 
       <view class="info-row">
         <text class="info-label">商品名称</text>
         <text class="info-value">{{feedback.goodsName || '-'}}</text>
+      </view>
+
+      <view class="info-row" wx:if="{{feedback.userName}}">
+        <text class="info-label">用户名</text>
+        <text class="info-value">{{feedback.userName}}</text>
       </view>
 
       <view class="info-row" wx:if="{{feedback.orderNo}}">
@@ -72,6 +77,42 @@
           data-urls="{{feedback.images}}"
         />
       </view>
+    </view>
+
+    <!-- 历史消息区域 -->
+    <view class="card" wx:if="{{feedback.messages && feedback.messages.length > 0}}">
+      <view class="card-title">对话记录</view>
+      <view class="message-list">
+        <view class="message-item" wx:for="{{feedback.messages}}" wx:key="index">
+          <view class="message-header">
+            <text class="message-sender {{item.role === 'merchant' ? 'merchant' : 'customer'}}">
+              {{item.role === 'merchant' ? '商家' : '用户'}}
+            </text>
+            <text class="message-time">{{item.time}}</text>
+          </view>
+          <view class="message-content">{{item.content}}</view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 商家回复框 -->
+    <view class="card reply-card" wx:if="{{feedback.status !== '已处理'}}">
+      <view class="card-title">商家回复</view>
+      <textarea
+        class="reply-textarea"
+        placeholder="请输入回复内容..."
+        value="{{replyContent}}"
+        bindinput="onReplyInput"
+        maxlength="500"
+      ></textarea>
+      <button
+        class="reply-btn"
+        bindtap="submitReply"
+        disabled="{{!replyContent || replyLoading}}"
+        loading="{{replyLoading}}"
+      >
+        发送回复
+      </button>
     </view>
   </view>
 </view>

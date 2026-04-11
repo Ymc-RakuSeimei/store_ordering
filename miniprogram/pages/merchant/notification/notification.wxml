@@ -18,7 +18,7 @@
               </text>
               <text class="notice-sub">{{item.reason || item.content || item.createdAt}}</text>
             </view>
-            <view class="feedback-status-mini status-{{item.status === '待处理' ? 'red' : 'green'}}">
+            <view class="feedback-status-mini status-{{item.status === '待处理' ? 'red' : (item.status === '已处理' ? 'gray' : 'green')}}">
               {{item.status}}
             </view>
           </view>
@@ -38,7 +38,7 @@
               </text>
               <text class="notice-sub">{{item.reason || item.content || item.createdAt}}</text>
             </view>
-            <view class="feedback-status-mini status-{{item.status === '待处理' ? 'red' : 'green'}}">
+            <view class="feedback-status-mini status-{{item.status === '待处理' ? 'red' : (item.status === '已处理' ? 'gray' : 'green')}}">
               {{item.status}}
             </view>
           </view>

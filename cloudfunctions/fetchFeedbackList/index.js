@@ -50,27 +50,78 @@ exports.main = async (event) => {
     console.log('Feedbacks query result, count:', (res.data || []).length);
     console.log('Feedbacks data:', res.data);
 
-    const feedbacks = (res.data || []).map(item => ({
-      id: item._id,
-      _id: item._id,
-      type: item.type || '意见反馈',
-      orderId: item.orderId || '',
-      orderNo: item.orderNo || '',
-      goodsId: item.goodsId || '',
-      goodsName: item.goodsName || '',
-      afterSaleType: item.afterSaleType || '',
-      reason: item.reason || '',
-      content: item.content || '',
-      rating: item.rating || 0,
-      images: item.images || [],
-      status: item.status || '待处理',
-      left: item.status || '待处理',
-      name: item.goodsName || item.type || '售后反馈',
-      orderName: item.goodsName || item.type || '售后反馈',
-      spec: item.reason || item.content || '',
-      createdAt: formatDate(item.createdAt),
-      updatedAt: formatDate(item.updatedAt)
-    }));
+    const feedbacks = [];
+    for (const item of res.data || []) {
+      let userName = '';
+      const goodsName = item.goodsName || '';
+
+      // 如果有订单号，查询订单获取用户名
+      if (item.orderNo) {
+        try {
+          const orderRes = await db
+            .collection('orders')
+            .where({ orderNo: item.orderNo })
+            .limit(1)
+            .get();
+
+          if (orderRes.data && orderRes.data.length > 0) {
+            const order = orderRes.data[0];
+
+            // 从 customerInfo 获取用户名
+            if (order.customerInfo) {
+              userName = order.customerInfo.nickName || order.customerInfo.name || '';
+            }
+            // 如果没有customerInfo，尝试其他可能的字段
+            if (!userName) {
+              userName = order.userName || order.customerName || order.nickName || '';
+            }
+          }
+        } catch (orderErr) {
+          console.error('查询订单失败:', orderErr);
+        }
+      }
+
+      // 如果还是没有用户名，尝试通过openid查users表
+      if (!userName && item.openid) {
+        try {
+          const userRes = await db
+            .collection('users')
+            .where({ openid: item.openid })
+            .limit(1)
+            .get();
+
+          if (userRes.data && userRes.data.length > 0) {
+            userName = userRes.data[0].nickName || userRes.data[0].name || '';
+          }
+        } catch (userErr) {
+          console.error('查询用户失败:', userErr);
+        }
+      }
+
+      feedbacks.push({
+        id: item._id,
+        _id: item._id,
+        type: item.type || '意见反馈',
+        orderId: item.orderId || '',
+        orderNo: item.orderNo || '',
+        goodsId: item.goodsId || '',
+        goodsName: goodsName,
+        userName: userName,
+        afterSaleType: item.afterSaleType || '',
+        reason: item.reason || '',
+        content: item.content || '',
+        rating: item.rating || 0,
+        images: item.images || [],
+        messages: item.messages || [],
+        status: item.status || '待处理',
+        left: item.status || '待处理',
+        name: goodsName || item.type || '售后反馈',
+        orderName: goodsName || item.type || '售后反馈',
+        spec: item.reason || item.content || '',
+        createdAt: formatDate(item.createdAt),
+        updatedAt: formatDate(item.updatedAt)
+      });
+    }
 
     console.log('Returning feedbacks:', feedbacks);
 

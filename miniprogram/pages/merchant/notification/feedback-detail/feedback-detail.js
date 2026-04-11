@@ -2,7 +2,9 @@ Page({
   data: {
     feedbackId: '',
     feedback: null,
-    loading: true
+    loading: true,
+    replyContent: '',
+    replyLoading: false
   },
 
   onLoad(options) {
@@ -52,5 +54,50 @@ Page({
       current: current,
       urls: urls
     });
+  },
+
+  // 回复内容输入
+  onReplyInput(e) {
+    this.setData({ replyContent: e.detail.value });
+  },
+
+  // 提交商家回复
+  async submitReply() {
+    const { feedback, replyContent } = this.data;
+
+    if (!replyContent || replyContent.trim() === '') {
+      wx.showToast({ title: '请输入回复内容', icon: 'none' });
+      return;
+    }
+
+    this.setData({ replyLoading: true });
+
+    try {
+      const res = await wx.cloud.callFunction({
+        name: 'submitFeedbackReply',
+        data: {
+          feedbackId: feedback._id || feedback.id,
+          replyContent: replyContent.trim()
+        }
+      });
+
+      if (res.result.success) {
+        wx.showToast({ title: '回复成功', icon: 'success' });
+        // 更新本地数据
+        const updatedFeedback = res.result.data;
+        this.setData({
+          feedback: updatedFeedback,
+          replyContent: '',
+          replyLoading: false
+        });
+      } else {
+        this.setData({ replyLoading: false });
+        wx.showToast({ title: res.result.message || '回复失败', icon: 'none' });
+      }
+    } catch (err) {
+      console.error('提交回复失败', err);
+      this.setData({ replyLoading: false });
+      wx.showToast({ title: '回复失败，请重试', icon: 'none' });
+    }
   }
 });

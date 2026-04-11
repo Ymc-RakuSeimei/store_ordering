@@ -5,6 +5,18 @@ const cloud = require('wx-server-sdk');
 // 如果在云函数中未指定 env，则 auto 选当前环境
 cloud.init({ env: 'cloud1-2gltiqs6a2c5cd76' || cloud.DYNAMIC_CURRENT_ENV });
 
+function formatDate(dateValue) {
+  if (!dateValue) return '';
+  const date = dateValue instanceof Date ? dateValue : new Date(dateValue);
+  if (Number.isNaN(date.getTime())) return '';
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const hour = String(date.getHours()).padStart(2, '0');
+  const minute = String(date.getMinutes()).padStart(2, '0');
+  return `${year}-${month}-${day} ${hour}:${minute}`;
+}
+
 exports.main = async (event, context) => {
   const db = cloud.database();
   const wxContext = cloud.getWXContext();
@@ -45,6 +57,13 @@ exports.main = async (event, context) => {
         reason: reason.trim(),
         images: images || [],
         status: '待处理',
+        messages: [
+          {
+            role: 'customer',
+            content: reason.trim(),
+            time: formatDate(new Date())
+          }
+        ],
         updatedAt: new Date(),
       };
 
@@ -121,10 +140,19 @@ exports.main = async (event, context) => {
         type: type || '意见反馈',
         orderId: orderId,
         orderNo: orderNo,
+        goodsId: goodsId || '',
+        goodsName: goodsName || '',
         content: content.trim(),
         rating: rating || 0,
         images: images || [],
         status: '待处理',
+        messages: [
+          {
+            role: 'customer',
+            content: content.trim(),
+            time: formatDate(new Date())
+          }
+        ],
         createdAt: new Date(),
         updatedAt: new Date(),
       };

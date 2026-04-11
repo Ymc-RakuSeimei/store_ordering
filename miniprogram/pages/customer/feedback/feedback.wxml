@@ -119,13 +119,24 @@
       </view>
     </view>
 
-    <!-- 订单详情 -->
-    <view class="section" wx:if="{{feedbackOrderIndex >= 0}}">
-      <text class="section-title">订单详情</text>
-      <view class="order-detail">
-        <view class="order-item" wx:for="{{orders[feedbackOrderIndex].goods}}" wx:key="goodsId">
-          <text>{{item.name}} × {{item.quantity}}</text>
+    <!-- 商品选择 -->
+    <view class="section">
+      <text class="section-title">选择商品</text>
+      <picker
+        wx:if="{{feedbackOrderIndex >= 0}}"
+        bindchange="bindFeedbackGoodsChange"
+        value="{{feedbackGoodsIndex >= 0 ? feedbackGoodsIndex : ''}}"
+        range="{{orders[feedbackOrderIndex].goods}}"
+        range-key="name"
+      >
+        <view class="picker">
+          <text class="{{feedbackGoodsIndex >= 0 && orders[feedbackOrderIndex].goods[feedbackGoodsIndex] ? '' : 'picker-placeholder'}}">
+            {{feedbackGoodsIndex >= 0 && orders[feedbackOrderIndex].goods[feedbackGoodsIndex] ? orders[feedbackOrderIndex].goods[feedbackGoodsIndex].name + ' × ' + orders[feedbackOrderIndex].goods[feedbackGoodsIndex].quantity : '请选择商品'}}
+          </text>
         </view>
+      </picker>
+      <view wx:else class="picker">
+        <text class="picker-placeholder">请先选择订单</text>
       </view>
     </view>
 
@@ -173,11 +184,11 @@
     </view>
 
     <!-- 提交按钮 -->
-    <view wx:if="{{feedbackOrderIndex >= 0 && !submittedFeedbackOrders[orders[feedbackOrderIndex]._id]}}">
-      <button 
-        class="submit-btn" 
-        bindtap="submitFeedback" 
-        disabled="{{feedbackOrderIndex < 0}}"
+    <view wx:if="{{feedbackOrderIndex >= 0 && feedbackGoodsIndex >= 0 && !submittedFeedbackOrders[orders[feedbackOrderIndex]._id]}}">
+      <button
+        class="submit-btn"
+        bindtap="submitFeedback"
+        disabled="{{feedbackOrderIndex < 0 || feedbackGoodsIndex < 0}}"
       >
         提交反馈
       </button>

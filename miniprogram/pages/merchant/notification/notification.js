@@ -16,7 +16,21 @@ Page({
 
   onLoad() {
     wx.setNavigationBarTitle({ title: '消息中心' });
+    this.recordViewTime();
     this.loadNotifications();
+  },
+
+  onShow() {
+    this.recordViewTime();
+  },
+
+  // 记录查看通知的时间
+  recordViewTime() {
+    try {
+      wx.setStorageSync('merchant_last_notification_view_time', Date.now());
+    } catch (e) {
+      console.error('recordViewTime error', e);
+    }
   },
 
   onBack() {
@@ -431,6 +445,62 @@ Page({
     const dataStr = encodeURIComponent(JSON.stringify(item));
     wx.navigateTo({
       url: `/pages/merchant/notification/feedback-detail/feedback-detail?id=${item.id}&data=${dataStr}`
+    });
+  },
+
+  /**
+   * 删除通知/反馈
+   */
+  onDelete(e) {
+    const item = e.currentTarget.dataset.item;
+    const type = e.currentTarget.dataset.type;
+
+    wx.showModal({
+      title: '确认删除',
+      content: '确定要删除这条消息吗？',
+      success: (res) => {
+        if (!res.confirm) return;
+
+        wx.showLoading({ title: '删除中...' });
+
+        if (type === 'feedback') {
+          // 删除售后反馈（从数据库删除）
+          this.deleteFeedbackFromServer(item.id || item._id)
+            .then(() => {
+              wx.hideLoading();
+              wx.showToast({ title: '删除成功', icon: 'success' });
+              // 重新加载列表
+              this.loadNotifications();
+            })
+            .catch(err => {
+              wx.hideLoading();
+              console.error('deleteFeedback error', err);
+              wx.showToast({ title: err.message || '删除失败', icon: 'none' });
+            });
+        } else {
+          // 库存提醒和滞留预警是动态生成的，直接重新加载列表即可
+          wx.hideLoading();
+          wx.showToast({ title: '删除成功', icon: 'success' });
+          // 重新加载列表（会重新根据当前数据生成通知）
+          this.loadNotifications();
+        }
+      }
+    });
+  },
+
+  /**
+   * 删除售后反馈
+   */
+  deleteFeedbackFromServer(feedbackId) {
+    return wx.cloud.callFunction({
+      name: 'deleteFeedback',
+      data: { id: feedbackId }
+    }).then(res => {
+      const result = res.result || {};
+      if (result.code !== 0) {
+        throw new Error(result.message || '删除失败');
+      }
+      return result.data;
     });
   }
 });

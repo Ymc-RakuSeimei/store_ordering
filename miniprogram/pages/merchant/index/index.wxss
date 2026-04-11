@@ -174,6 +174,19 @@ page {
   align-items: center;
   justify-content: center;
   width: 100%;
+  position: relative;
+}
+
+.notification-badge {
+  position: absolute;
+  top: 10rpx;
+  right: 10rpx;
+  width: 20rpx;
+  height: 20rpx;
+  background-color: #ff4d4f;
+  border-radius: 50%;
+  border: 3rpx solid #ffffff;
+  box-shadow: 0 2rpx 6rpx rgba(255, 77, 79, 0.4);
 }
 
 .long-icon {

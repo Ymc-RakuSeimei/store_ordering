@@ -35,6 +35,7 @@
         <text class="long-title">{{notify.title}}</text>
         <text class="long-subtitle">{{notify.subtitle}}</text>
       </view>
+      <view wx:if="{{hasNewNotification}}" class="notification-badge"></view>
     </view>
   </view>
 

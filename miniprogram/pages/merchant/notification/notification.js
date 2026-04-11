@@ -56,15 +56,23 @@ Page({
       this.fetchFeedbackListFromServer()
     ])
       .then(([goodsList, feedbackList]) => {
+        // 过滤掉已删除的售后反馈
+        const filteredFeedbackList = this.filterDeletedFeedback(feedbackList);
         const notifications = this.generateNotifications(goodsList);
-        const allNotifications = this.mergeAndSortNotifications(notifications, feedbackList);
-        this.setData({ notifications, feedbackList, allNotifications, loading: false });
+        const allNotifications = this.mergeAndSortNotifications(notifications, filteredFeedbackList);
+        this.setData({ notifications, feedbackList: filteredFeedbackList, allNotifications, loading: false });
       })
       .catch(err => {
         console.error('loadNotifications error', err);
         wx.showToast({ title: '通知加载失败', icon: 'none' });
         this.setData({ loading: false });
       });
+  },
+
+  // 过滤已删除的售后反馈
+  filterDeletedFeedback(feedbackList) {
+    const deletedIds = wx.getStorageSync('merchant_deleted_feedback_ids') || [];
+    return feedbackList.filter(item => !deletedIds.includes(item.id));
   },
 
   // 合并并按时间排序所有通知
@@ -151,15 +159,162 @@ Page({
     return notifications;
   },
 
-  // 统一删除所有通知
+  // 统一删除所有通知（根据当前标签页）
   onDeleteAll() {
-    this.deleteAllNotifications().then(() => {
-      wx.showToast({ title: '已清空', icon: 'success' });
-      this.setData({ notifications: [] });
-    }).catch(err => {
-      console.error('deleteAllNotifications error', err);
-      wx.showToast({ title: '清空失败', icon: 'none' });
+    const { activeTab, allNotifications, notifications, feedbackList } = this.data;
+
+    // 根据当前标签页确定要删除的内容
+    let deleteType = '';
+    let hasFeedback = false;
+    let messagesToDelete = [];
+
+    switch (activeTab) {
+      case 'all':
+        deleteType = '所有消息';
+        // 检查是否包含售后反馈
+        hasFeedback = allNotifications.some(item => item.isFeedback);
+        messagesToDelete = allNotifications;
+        break;
+      case 'inventory':
+        deleteType = '库存提醒';
+        hasFeedback = false;
+        messagesToDelete = notifications.filter(item => item.type === 'inventory');
+        break;
+      case 'retention':
+        deleteType = '滞留预警';
+        hasFeedback = false;
+        messagesToDelete = notifications.filter(item => item.type === 'retention');
+        break;
+      case 'feedback':
+        deleteType = '售后反馈';
+        hasFeedback = true;
+        messagesToDelete = feedbackList;
+        break;
+    }
+
+    // 构建确认提示内容
+    let content = `确定要删除所有${deleteType}吗？`;
+    if (hasFeedback) {
+      content = `确定要删除所有${deleteType}吗？\n\n⚠️ 注意：其中包含售后反馈消息，删除后将无法恢复，请谨慎操作！`;
+    } else if (activeTab === 'all') {
+      content = `确定要删除所有${deleteType}吗？\n\n注：库存提醒和滞留预警为实时计算消息，下次进入页面会根据商品状态重新生成。`;
+    }
+
+    wx.showModal({
+      title: '确认删除',
+      content: content,
+      confirmColor: '#ff3b30',
+      success: async (res) => {
+        if (res.confirm) {
+          // 如果包含售后反馈，增加二次确认
+          if (hasFeedback) {
+            const confirmRes = await this.showFeedbackConfirm();
+            if (!confirmRes) return;
+          }
+
+          try {
+            await this.deleteMessagesByTab(activeTab, messagesToDelete);
+            wx.showToast({ title: '已删除', icon: 'success' });
+          } catch (err) {
+            console.error('deleteAllNotifications error', err);
+            wx.showToast({ title: '删除失败', icon: 'none' });
+          }
+        }
+      }
     });
+  },
+
+  // 售后反馈二次确认
+  showFeedbackConfirm() {
+    return new Promise((resolve) => {
+      wx.showModal({
+        title: '⚠️ 重要提醒',
+        content: '售后反馈消息删除后将永久丢失，确定要继续吗？',
+        confirmText: '确定删除',
+        confirmColor: '#ff3b30',
+        cancelText: '取消',
+        success: (res) => {
+          resolve(res.confirm);
+        }
+      });
+    });
+  },
+
+  // 根据标签页删除消息
+  async deleteMessagesByTab(tab, messages) {
+    const { notifications, feedbackList, allNotifications } = this.data;
+
+    switch (tab) {
+      case 'all':
+        // 删除全部：清空所有消息
+        // 1. 删除售后反馈
+        const feedbackIds = feedbackList.map(item => item.id);
+        if (feedbackIds.length > 0) {
+          await this.deleteFeedbackFromServer(feedbackIds);
+          const existingDeletedIds = wx.getStorageSync('merchant_deleted_feedback_ids') || [];
+          const allDeletedIds = [...new Set([...existingDeletedIds, ...feedbackIds])];
+          wx.setStorageSync('merchant_deleted_feedback_ids', allDeletedIds);
+        }
+        // 2. 清空所有数据
+        this.setData({
+          notifications: [],
+          feedbackList: [],
+          allNotifications: []
+        });
+        break;
+
+      case 'inventory':
+        // 删除库存提醒：从 notifications 中移除 inventory 类型
+        const remainingNotifications = notifications.filter(item => item.type !== 'inventory');
+        this.setData({
+          notifications: remainingNotifications,
+          allNotifications: this.mergeAndSortNotifications(remainingNotifications, feedbackList)
+        });
+        break;
+
+      case 'retention':
+        // 删除滞留预警：从 notifications 中移除 retention 类型
+        const remainingNotifications2 = notifications.filter(item => item.type !== 'retention');
+        this.setData({
+          notifications: remainingNotifications2,
+          allNotifications: this.mergeAndSortNotifications(remainingNotifications2, feedbackList)
+        });
+        break;
+
+      case 'feedback':
+        // 删除售后反馈
+        const idsToDelete = messages.map(item => item.id);
+        if (idsToDelete.length > 0) {
+          await this.deleteFeedbackFromServer(idsToDelete);
+          const existingDeletedIds = wx.getStorageSync('merchant_deleted_feedback_ids') || [];
+          const allDeletedIds = [...new Set([...existingDeletedIds, ...idsToDelete])];
+          wx.setStorageSync('merchant_deleted_feedback_ids', allDeletedIds);
+        }
+        // 更新 feedbackList
+        const remainingFeedback = feedbackList.filter(item => !idsToDelete.includes(item.id));
+        this.setData({
+          feedbackList: remainingFeedback,
+          allNotifications: this.mergeAndSortNotifications(notifications, remainingFeedback)
+        });
+        break;
+    }
+  },
+
+  // 从服务器删除售后反馈
+  async deleteFeedbackFromServer(feedbackIds) {
+    try {
+      const res = await wx.cloud.callFunction({
+        name: 'deleteFeedbackBatch',
+        data: {
+          ids: feedbackIds
+        }
+      });
+      if (res.result.code !== 0) {
+        console.error('删除售后反馈失败:', res.result.message);
+      }
+    } catch (error) {
+      console.error('调用删除售后反馈接口失败:', error);
+    }
   },
 
   // 逐条提醒操作
@@ -226,10 +381,10 @@ Page({
   },
 
   /**
-   * 一键删除所有通知（后端实现）
+   * 一键删除所有通知（已废弃，使用 onDeleteAll 替代）
    */
   deleteAllNotifications() {
-    // TODO: 后端实现
+    // 此方法已废弃，删除逻辑已移至 onDeleteAll
     return Promise.resolve();
   },
 

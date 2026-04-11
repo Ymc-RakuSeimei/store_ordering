@@ -1,8 +1,12 @@
+/**
+ * AI 模型配置与调用模块
+ * 负责AI模型的初始化、配置和流式调用
+ */
+
 // AI 模型配置
 // 可选模型：
 // - deepseek: 'deepseek-chat', 'deepseek-v3.2', 'deepseek-reasoner'
 // - hunyuan: 'hunyuan-lite', 'hunyuan-standard', 'hunyuan-standard-256K', 'hunyuan-pro'
-
 
 const AI_CONFIG = {
   // 使用 DeepSeek V3.2 模型
@@ -14,11 +18,22 @@ const AI_CONFIG = {
   // model: 'hunyuan-standard',
 };
 
+/**
+ * 从流式响应中提取文本内容
+ * @param {Object} chunk - 流式响应的一个片段
+ * @returns {string} - 提取的文本内容
+ */
 function extractTextFromStreamChunk(chunk) {
   const delta = chunk && chunk.choices && chunk.choices[0] && chunk.choices[0].delta;
   return delta && delta.content ? delta.content : '';
 }
 
+/**
+ * 流式调用AI模型
+ * @param {Array} messages - 消息列表，包含system、user、assistant角色的消息
+ * @param {Object} handlers - 回调函数，包括onToken（每收到一个token时调用）和onReasoning（收到推理内容时调用）
+ * @returns {Promise<string>} - 完整的AI回复
+ */
 async function streamModelReply(messages, handlers = {}) {
   const { onToken, onReasoning } = handlers;
 
@@ -27,6 +42,7 @@ async function streamModelReply(messages, handlers = {}) {
     throw new Error('当前基础库不支持 wx.cloud.extend.AI，请升级基础库版本');
   }
 
+  // 创建模型实例
   const model = wx.cloud.extend.AI.createModel(AI_CONFIG.provider);
 
   if (!model) {
@@ -40,6 +56,7 @@ async function streamModelReply(messages, handlers = {}) {
   })).filter(msg => msg.content && msg.role);
 
   try {
+    // 调用模型的流式文本生成接口
     const res = await model.streamText({
       data: {
         model: AI_CONFIG.model,
@@ -49,6 +66,7 @@ async function streamModelReply(messages, handlers = {}) {
 
     let fullText = '';
 
+    // 处理流式响应
     for await (const event of res.eventStream) {
       if (!event || event.data === '[DONE]') {
         break;
@@ -95,7 +113,10 @@ async function streamModelReply(messages, handlers = {}) {
   }
 }
 
-// 获取当前AI配置信息（用于调试）
+/**
+ * 获取当前AI配置信息（用于调试）
+ * @returns {Object} - AI配置信息
+ */
 function getAIConfig() {
   return {
     provider: AI_CONFIG.provider,
@@ -103,7 +124,11 @@ function getAIConfig() {
   };
 }
 
-// 切换AI模型（如果需要动态切换）
+/**
+ * 切换AI模型（如果需要动态切换）
+ * @param {string} provider - 模型提供商
+ * @param {string} model - 模型名称
+ */
 function switchAIModel(provider, model) {
   AI_CONFIG.provider = provider;
   AI_CONFIG.model = model;

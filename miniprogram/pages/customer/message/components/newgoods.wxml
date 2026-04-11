@@ -5,30 +5,29 @@
     <view class="loading-spinner"></view>
     <text class="loading-text">加载中...</text>
   </view>
-  
-  <!-- 消息列表 -->
-  <view wx:else class="message-list">
-    <block wx:for="{{messageList}}" wx:key="id">
-      <view class="message-card">
-        <view class="message-content">
-          <text class="message-number">{{index + 1}}.</text>
-          <text class="message-text">{{item.content}}</text>
-          <view wx:if="{{!item.isRead}}" class="unread-dot"></view>
+  <!-- 消息列表区域 -->
+  <scroll-view wx:else class="message-scroll" scroll-y enable-flex>
+    <view class="message-list">
+      <block wx:for="{{messageList}}" wx:key="id">
+        <view class="message-card">
+          <view class="message-content">
+            <text class="message-title">上新通知</text>
+            <text class="message-sub">{{item.content}}</text>
+          </view>
+          <view wx:if="{{!item.isRead}}" class="unread-badge">未读</view>
+          <view class="view-btn" bindtap="viewDetail" data-id="{{item.id}}" data-productid="{{item.productId}}" catchtap="viewDetail">
+            {{item.btnText}}
+          </view>
         </view>
-        <view class="view-btn orange" bindtap="viewDetail" data-id="{{item.id}}" data-productid="{{item.productId}}" catchtap="viewDetail">
-          {{item.btnText}}
-        </view>
+      </block>
+      <!-- 空状态 -->
+      <view class="empty-state" wx:if="{{messageList.length === 0}}">
+        <text>暂无上新通知</text>
       </view>
-    </block>
-    
-    <!-- 空状态 -->
-    <view class="empty-state" wx:if="{{messageList.length === 0}}">
-      <text>暂无上新通知</text>
     </view>
-  </view>
-  
+  </scroll-view>
   <!-- 一键删除按钮 - 仅在有消息时显示 -->
-  <view wx:if="{{messageList.length > 0}}" class="delete-all-btn" bindtap="deleteAllMessages">
+  <view wx:if="{{!loading && messageList.length > 0}}" class="delete-all-btn" bindtap="deleteAllMessages">
     <text>一键删除</text>
   </view>
 </view>

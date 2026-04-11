@@ -3,10 +3,11 @@ const cloud = require('wx-server-sdk');
 const ENV_ID = 'cloud1-2gltiqs6a2c5cd76';
 const DEFAULT_PRODUCT_IMAGE = 'cloud://cloud1-2gltiqs6a2c5cd76.636c-cloud1-2gltiqs6a2c5cd76-1411302136/icons/placeholder.png';
 
-cloud.init({ env: ENV_ID });
+cloud.init({ env: ENV_ID || cloud.DYNAMIC_CURRENT_ENV });
 
 const db = cloud.database();
-const _ = db.command;
+const STATUS_WAITING = '未到货';
+const LEGACY_STATUS_WAITING = '待到货';
 
 function isUsableImage(value) {
   if (typeof value !== 'string') return false;
@@ -17,21 +18,46 @@ function isUsableImage(value) {
 
 function toTimestamp(value) {
   if (!value) return 0;
-  const date = value instanceof Date ? value : new Date(value);
-  const timestamp = date.getTime();
+
+  if (value instanceof Date) {
+    return value.getTime();
+  }
+
+  if (value && typeof value === 'object' && value.$date) {
+    const exportedTimestamp = new Date(value.$date).getTime();
+    return Number.isNaN(exportedTimestamp) ? 0 : exportedTimestamp;
+  }
+
+  const timestamp = new Date(value).getTime();
   return Number.isNaN(timestamp) ? 0 : timestamp;
 }
 
-function formatDate(dateValue) {
-  if (!dateValue) return '';
-  const date = dateValue instanceof Date ? dateValue : new Date(dateValue);
-  if (Number.isNaN(date.getTime())) return '';
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  const hour = String(date.getHours()).padStart(2, '0');
-  const minute = String(date.getMinutes()).padStart(2, '0');
-  return `${year}-${month}-${day} ${hour}:${minute}`;
+function formatDateTime(value) {
+  const timestamp = toTimestamp(value);
+  if (!timestamp) {
+    return '';
+  }
+
+  const date = new Date(timestamp);
+  const pad = (num) => String(num).padStart(2, '0');
+
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
+
+function formatTime(value) {
+  const timestamp = toTimestamp(value);
+  if (!timestamp) {
+    return '';
+  }
+
+  const date = new Date(timestamp);
+  const pad = (num) => String(num).padStart(2, '0');
+  return `${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
+
+function normalizeWaitingStatus(value = '') {
+  const text = String(value || '').trim();
+  return text === LEGACY_STATUS_WAITING ? STATUS_WAITING : text;
 }
 
 async function assertMerchant(openid) {
@@ -71,13 +97,37 @@ async function fetchAllByWhere(collectionName, whereCondition, limit = 100) {
   return result;
 }
 
-function pickImage(item = {}) {
-  if (Array.isArray(item.images) && item.images[0]) {
-    return item.images[0];
+async function findGoodsByIdentity(identity = '') {
+  const safeIdentity = String(identity || '').trim();
+  if (!safeIdentity) {
+    return null;
   }
+
+  try {
+    const docRes = await db.collection('goods').doc(safeIdentity).get();
+    if (docRes && docRes.data) {
+      return docRes.data;
+    }
+  } catch (error) {
+    // 如果不是 docId，再按业务 goodsId 查询。
+  }
+
+  const goodsList = await db.collection('goods').where({ goodsId: safeIdentity }).limit(1).get();
+  return (goodsList.data || [])[0] || null;
+}
+
+function pickImage(item = {}) {
+  if (Array.isArray(item.images) && item.images.length > 0) {
+    const image = item.images.find(isUsableImage);
+    if (image) {
+      return image;
+    }
+  }
+
   if (typeof item.img === 'string' && item.img.trim()) {
     return item.img.trim();
   }
+
   return DEFAULT_PRODUCT_IMAGE;
 }
 
@@ -85,14 +135,29 @@ function getGoodsSpec(item = {}) {
   return String(item.specs || item.spec || '').trim();
 }
 
-exports.main = async (event) => {
+function buildCloseTimeStr(goods = {}) {
+  if (goods.closeType !== 'timed' || !goods.closeAt) {
+    return '';
+  }
+
+  return formatTime(goods.closeAt);
+}
+
+function buildClosedAt(goods = {}) {
+  if (goods.preorderState !== 'closed') {
+    return '';
+  }
+
+  return formatDateTime(goods.closeAt);
+}
+
+exports.main = async (event = {}) => {
   try {
     const { OPENID } = cloud.getWXContext();
     await assertMerchant(OPENID);
 
-    const { goodsId } = event;
-
-    if (!goodsId) {
+    const goodsIdentity = String(event.goodsId || '').trim();
+    if (!goodsIdentity) {
       return {
         code: -1,
         message: '缺少商品ID',
@@ -100,9 +165,7 @@ exports.main = async (event) => {
       };
     }
 
-    // 1. 获取商品详情
-    const goodsRes = await db.collection('goods').doc(goodsId).get();
-    const goods = goodsRes.data;
+    const goods = await findGoodsByIdentity(goodsIdentity);
 
     if (!goods) {
       return {
@@ -112,99 +175,86 @@ exports.main = async (event) => {
       };
     }
 
-    // 2. 获取该商品的所有订单
     const allOrders = await fetchAllByWhere('orders', {});
-
-    // 3. 筛选出包含该商品的订单
     const relevantOrders = [];
     const participantMap = new Map();
+    const targetGoodsId = String(goods.goodsId || '').trim();
+    const targetDocId = String(goods._id || '').trim();
 
-    allOrders.forEach(order => {
+    allOrders.forEach((order) => {
       const goodsList = Array.isArray(order.goods) ? order.goods : [];
-      let hasTargetGoods = false;
-      let targetItem = null;
+      const targetItem = goodsList.find((item) => {
+        const itemGoodsId = String(item.goodsId || '').trim();
+        const itemDocId = String(item.goodsDocId || '').trim();
 
-      for (const item of goodsList) {
-        const itemGoodsId = String(item.goodsId || item.goodsDocId || '').trim();
-        if (itemGoodsId === goodsId || itemGoodsId === String(goods.goodsId || '').trim()) {
-          hasTargetGoods = true;
-          targetItem = item;
-          break;
-        }
+        return itemGoodsId === targetGoodsId || itemGoodsId === targetDocId || itemDocId === targetDocId;
+      });
+
+      if (!targetItem) {
+        return;
       }
 
-      if (hasTargetGoods && targetItem) {
-        const customerInfo = order.customerInfo || {};
-        const openid = String(order.openid || '').trim();
-        const quantity = Number(targetItem.quantity) || 0;
+      const customerInfo = order.customerInfo || {};
+      const orderTime = order.paytime || order.createdAt || order.updatedAt;
+      const orderTimeTs = toTimestamp(orderTime);
+      const openid = String(order.openid || '').trim();
+      const quantity = Number(targetItem.quantity) || 0;
 
-        const orderData = {
-          orderId: order._id,
-          orderNo: order.orderNo || '',
-          customerName: customerInfo.name || customerInfo.nickName || '微信用户',
-          avatarUrl: customerInfo.avatarUrl || '',
-          phone: customerInfo.phone || customerInfo.phoneNumber || '',
-          quantity: quantity,
-          pickupStatus: targetItem.pickupStatus || '',
-          orderTime: formatDate(order.paytime || order.createdAt || order.updatedAt),
-          remark: String(order.remark || '').trim()
-        };
+      relevantOrders.push({
+        orderId: order._id,
+        orderNo: order.orderNo || '',
+        customerName: customerInfo.name || customerInfo.nickName || '微信用户',
+        avatarUrl: customerInfo.avatarUrl || '',
+        phone: customerInfo.phone || customerInfo.phoneNumber || '',
+        quantity,
+        pickupStatus: normalizeWaitingStatus(targetItem.pickupStatus) || '',
+        orderTime: formatDateTime(orderTime),
+        orderTimeTs,
+        remark: String(order.remark || '').trim()
+      });
 
-        relevantOrders.push(orderData);
-
-        // 统计参与人数（按用户去重
-        if (openid && !participantMap.has(openid)) {
-          participantMap.set(openid, {
-            name: orderData.customerName,
-            avatarUrl: orderData.avatarUrl
-          });
-        }
+      if (openid && !participantMap.has(openid)) {
+        participantMap.set(openid, {
+          name: customerInfo.name || customerInfo.nickName || '微信用户',
+          avatarUrl: customerInfo.avatarUrl || ''
+        });
       }
     });
 
-    // 4. 计算统计数据
-    const participantCount = participantMap.size;
-    const totalQty = relevantOrders.reduce((sum, o) => sum + o.quantity, 0);
+    relevantOrders.sort((a, b) => b.orderTimeTs - a.orderTimeTs);
 
-    // 5. 整理商品信息
-    const imageList = Array.isArray(goods.images) ? goods.images.filter(isUsableImage) : [];
-    const image = imageList[0] || DEFAULT_PRODUCT_IMAGE;
+    const participantCount = participantMap.size;
+    const totalQty = relevantOrders.reduce((sum, item) => sum + item.quantity, 0);
 
     const goodsDetail = {
       id: goods._id,
       goodsId: goods.goodsId || goods._id,
-      img: image,
+      img: pickImage(goods),
       name: goods.name || '',
       description: goods.description || '',
       spec: getGoodsSpec(goods),
-      salePrice: goods.salePrice || goods.price || 0,
-      costPrice: goods.costPrice || goods.cost || 0,
-      stock: goods.stock || 0,
-      limitPerPerson: goods.limitPerPerson || 0,
+      salePrice: Number(goods.price) || 0,
+      costPrice: Number(goods.cost) || 0,
+      stock: Number(goods.stock) || 0,
+      limitPerPerson: Number(goods.limitPerPerson) || 0,
       arrivalDate: goods.arrivalDate || '',
       closeType: goods.closeType || 'manual',
-      closeTimeStr: goods.closeTimeStr || '',
+      closeTimeStr: buildCloseTimeStr(goods),
       preorderState: goods.preorderState || 'ongoing',
-      status: goods.status || '',
-      closedAt: formatDate(goods.closedAt),
-      arrivalTime: formatDate(goods.arrivalTime),
-      createdAt: formatDate(goods.createdAt),
-      // 统计数据
+      status: normalizeWaitingStatus(goods.status) || STATUS_WAITING,
+      closedAt: buildClosedAt(goods),
+      arrivalTime: formatDateTime(goods.arrivedAt || goods.arrivalTime),
+      createdAt: formatDateTime(goods.createdAt),
       participantCount,
       totalQty
     };
-
-    // 6. 按时间倒序排列订单
-    relevantOrders.sort((a, b) => {
-      return toTimestamp(b.orderTime) - toTimestamp(a.orderTime);
-    });
 
     return {
       code: 0,
       message: 'ok',
       data: {
         goods: goodsDetail,
-        orders: relevantOrders
+        orders: relevantOrders.map(({ orderTimeTs, ...item }) => item)
       }
     };
   } catch (err) {

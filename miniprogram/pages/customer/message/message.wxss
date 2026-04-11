@@ -1,8 +1,11 @@
 .container {
   background-color: #ffffff;
-  min-height: 100vh;
-  padding-bottom: 120rpx;
+  height: 100vh;
+  padding-bottom: 100rpx;
   padding-top: 20rpx;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
 }
 
 /* Tab栏 + 一键删除区域 */
@@ -51,6 +54,8 @@
   flex: 1;
   padding: 0 32rpx;
   margin-top: 20rpx;
+  height: 0;
+  overflow: hidden;
 }
 
 /* 底部导航栏 - 与主页统一 */

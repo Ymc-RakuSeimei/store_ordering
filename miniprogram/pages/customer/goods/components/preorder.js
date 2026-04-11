@@ -31,7 +31,6 @@ Component({
   },
 
   methods: {
-    // 格式化商品数据
     formatGoodsItem(item) {
       let imageUrl = '';
       if (item.images && item.images.length > 0 && item.images[0]) {
@@ -57,11 +56,11 @@ Component({
         actionText: '参与接龙',
         actionType: 'joinGroup',
         type: item.type,
-        cartQuantity: cartQuantity
+        cartQuantity: cartQuantity,
+        limitPerPerson: item.limitPerPerson || 0
       };
     },
 
-    // 筛选商品
     filterGoods() {
       let list = [...this.data.originalList];
       list = list.map(item => this.formatGoodsItem(item));
@@ -89,7 +88,6 @@ Component({
       }
     },
 
-    // 减少数量
     decreaseQuantity(e) {
       const { item } = e.currentTarget.dataset;
       this.triggerEvent('updateQuantity', {
@@ -98,27 +96,29 @@ Component({
       });
     },
 
-    // 增加数量
+    // 增加数量（增加限购检查）
     increaseQuantity(e) {
       const { item } = e.currentTarget.dataset;
+      if (item.limitPerPerson > 0) {
+        const currentQty = item.cartQuantity || 0;
+        if (currentQty >= item.limitPerPerson) {
+          wx.showToast({ title: `每人限购${item.limitPerPerson}件`, icon: 'none' });
+          return;
+        }
+      }
       this.triggerEvent('updateQuantity', {
         id: item.id,
         quantity: 1
       });
     },
 
-    // 跳转到详情页（修复：接龙商品跳转到接龙详情页）
     goToDetail(e) {
       const { item } = e.currentTarget.dataset;
-      // 接龙商品跳转到参与接龙页
       wx.navigateTo({
         url: `/pages/preorder/join/join?id=${item.id}`
       });
     },
 
-    // 阻止事件冒泡
-    stopPropagation() {
-      // 防止点击按钮时触发页面跳转
-    }
+    stopPropagation() {}
   }
 });

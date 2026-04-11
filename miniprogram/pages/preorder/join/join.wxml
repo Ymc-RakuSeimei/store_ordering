@@ -1,20 +1,17 @@
 <!--pages/preorder/join/join.wxml-->
 <view class="container">
-  <!-- 加载状态 -->
-  <view wx:if="{{loading || authLoading || submitLoading}}" class="loading-state">
-    <view class="loading-spinner"></view>
-    <view class="loading-text">{{authLoading ? '验证中...' : (submitLoading ? '处理中...' : '加载中...')}}</view>
-  </view>
+  <!-- 占位加载状态（空内容，只用于占位） -->
+  <view wx:if="{{loading}}" class="loading-placeholder"></view>
 
   <!-- 错误状态 -->
-<view wx:elif="{{error}}" class="error-container">
-  <view class="error-icon">😵</view>
-  <text class="error-text">{{error}}</text>
-  <button class="retry-btn" bindtap="authAndLoad">重试</button>
-</view>
+  <view wx:elif="{{error}}" class="error-container">
+    <view class="error-icon">😵</view>
+    <text class="error-text">{{error}}</text>
+    <button class="retry-btn" bindtap="authAndLoad">重试</button>
+  </view>
 
   <!-- 接龙已结束 -->
-  <view wx:elif="{{dragon.status === 'completed'}}" class="ended-container">
+  <view wx:elif="{{dragon && dragon.status === 'completed'}}" class="ended-container">
     <view class="ended-card">
       <view class="ended-icon">🎉</view>
       <text class="ended-title">接龙已结束</text>
@@ -33,8 +30,8 @@
   </view>
 
   <!-- 正常内容 -->
-  <view wx:else class="content">
-    <!-- 商品图片区域 - 沉浸式 -->
+  <view wx:elif="{{dragon}}" class="content">
+    <!-- 商品图片区域 -->
     <view class="hero-section">
       <image class="hero-image" src="{{dragon.img}}" mode="aspectFill"></image>
       <view class="hero-overlay"></view>
@@ -55,7 +52,6 @@
         <text class="price-unit">/ {{dragon.spec}}</text>
       </view>
       
-      <!-- 限购和到货 -->
       <view class="meta-grid">
         <view class="meta-item" wx:if="{{dragon.limitPerPerson > 0}}">
           <text class="meta-icon">🔒</text>
@@ -68,7 +64,7 @@
       </view>
     </view>
 
-    <!-- 统计卡片 - 只显示已接龙数量 -->
+    <!-- 统计卡片 -->
     <view class="stats-card">
       <view class="stats-item">
         <text class="stats-number">{{dragon.totalBooked}}</text>
@@ -93,7 +89,13 @@
           <view class="qty-btn minus {{quantity <= 1 ? 'disabled' : ''}}" bindtap="onDecreaseQty">
             <text>-</text>
           </view>
-          <text class="qty-num">{{quantity}}</text>
+          <input 
+            class="qty-input" 
+            type="number" 
+            value="{{quantity}}" 
+            bindinput="onQtyInput"
+            bindblur="onQtyBlur"
+          />
           <view class="qty-btn plus" bindtap="onIncreaseQty">
             <text>+</text>
           </view>
@@ -107,12 +109,11 @@
       </view>
     </view>
 
-    <!-- 底部安全区 -->
     <view class="safe-bottom"></view>
   </view>
 
   <!-- 底部固定按钮 -->
-  <view class="bottom-fixed" wx:if="{{dragon && dragon.status === 'ongoing' && !hasJoined && !loading}}">
+  <view class="bottom-fixed" wx:if="{{dragon && dragon.status === 'ongoing' && !hasJoined}}">
     <button class="submit-btn" bindtap="onSubmit" disabled="{{submitting}}">
       <text wx:if="{{!submitting}}">确认参与</text>
       <text wx:else>提交中...</text>

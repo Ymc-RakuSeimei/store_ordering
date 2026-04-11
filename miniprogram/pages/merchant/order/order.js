@@ -4,14 +4,13 @@ Page({
     tabs: [
       { id: 'pickup', label: '待取货' },
       { id: 'arrival', label: '未到货' },
-      { id: 'customer', label: '顾客订单' },
-      { id: 'feedback', label: '售后反馈' }
+      { id: 'customer', label: '顾客订单' }
     ],
     orderData: {
       pickup: [],
       arrival: [],
       customer: [],
-      feedback: []
+
     },
     loading: true,
     markLoading: false,
@@ -43,14 +42,14 @@ Page({
       this.fetchCustomerOrdersFromServer(),
       this.fetchFeedbackListFromServer()
     ])
-      .then(([pickup, arrival, customer, feedback]) => {
+      .then(([pickup, arrival, customer]) => {
         const nextActiveTab = this.data.activeTab === 'pickup' && pickup.length === 0 && arrival.length > 0
           ? 'arrival'
           : this.data.activeTab;
 
         this.setData({
           activeTab: nextActiveTab,
-          orderData: { pickup, arrival, customer, feedback },
+          orderData: { pickup, arrival, customer},
           loading: false
         });
       })

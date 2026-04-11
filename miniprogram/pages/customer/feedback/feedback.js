@@ -15,6 +15,8 @@ Page({
     feedbackContent: '',
     feedbackImages: [],
     feedbackOrderIndex: -1,
+    feedbackGoodsIndex: -1,
+    feedbackSelectedGoods: null,
     submittedFeedbackOrders: {}, // 已提交反馈的订单ID列表
     userInfo: {},
     loading: false,
@@ -165,9 +167,22 @@ Page({
     const index = parseInt(e.detail.value)
     this.setData({
       feedbackOrderIndex: index,
+      feedbackGoodsIndex: -1,
+      feedbackSelectedGoods: null,
       rating: 0,
       feedbackContent: '',
       feedbackImages: []
+    })
+  },
+
+  // 反馈商品选择变化
+  bindFeedbackGoodsChange(e) {
+    const index = parseInt(e.detail.value)
+    const selectedOrder = this.data.orders[this.data.feedbackOrderIndex]
+    const feedbackSelectedGoods = selectedOrder.goods[index]
+    this.setData({
+      feedbackGoodsIndex: index,
+      feedbackSelectedGoods: feedbackSelectedGoods
     })
   },
 
@@ -330,15 +345,22 @@ Page({
 
   // 提交反馈
   async submitFeedback() {
-    const { feedbackOrderIndex, orders, rating, feedbackContent, feedbackImages } = this.data
-    
+    const { feedbackOrderIndex, feedbackGoodsIndex, orders, rating, feedbackContent, feedbackImages } = this.data
+
     if (feedbackOrderIndex < 0) {
       wx.showToast({ title: '请选择订单', icon: 'none' })
       return
     }
-    
+
     const selectedOrder = orders[feedbackOrderIndex]
-    
+
+    if (feedbackGoodsIndex < 0) {
+      wx.showToast({ title: '请选择商品', icon: 'none' })
+      return
+    }
+
+    const selectedGoods = selectedOrder.goods[feedbackGoodsIndex]
+
     if (rating === 0) {
       wx.showToast({ title: '请进行评分', icon: 'none' })
       return
@@ -368,6 +390,8 @@ Page({
           type: '意见反馈',
           orderId: selectedOrder._id,
           orderNo: selectedOrder.orderNo,
+          goodsId: selectedGoods.goodsId,
+          goodsName: selectedGoods.name,
           rating,
           content: feedbackContent,
           images: uploadedImages
@@ -382,6 +406,8 @@ Page({
         this.setData({
           submittedFeedbackOrders: submittedOrderMap,
           feedbackOrderIndex: -1,
+          feedbackGoodsIndex: -1,
+          feedbackSelectedGoods: null,
           rating: 0,
           feedbackContent: '',
           feedbackImages: [],

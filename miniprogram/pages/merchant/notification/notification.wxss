@@ -171,6 +171,11 @@ page {
   color: #34c759;
 }
 
+.feedback-status-mini.status-gray {
+  background: #f5f5f5;
+  color: #8e8e93;
+}
+
 /* 一键删除按钮 */
 .delete-all-btn {
   width: 100%;

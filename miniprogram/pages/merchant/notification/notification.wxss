@@ -12,28 +12,33 @@ page {
 }
 
 
-.tabbar {
+.tab-bar {
   display: flex;
   align-items: center;
-  background: #fff;
-  border-radius: 18rpx;
-  padding: 8rpx;
-  border: 1rpx solid #ddd;
+  justify-content: center;
+  gap: 24rpx;
+  padding: 20rpx 0;
+  width: 100%;
+  box-sizing: border-box;
+  background-color: transparent;
   margin-bottom: 14rpx;
 }
-.tab {
-  flex: 1;
-  height: 60rpx;
-  line-height: 60rpx;
-  text-align: center;
-  font-size: 26rpx;
-  color: #666;
-  border-radius: 14rpx;
-  margin-right: 8rpx;
+
+.tab-item {
+  padding: 12rpx 28rpx;
+  border-radius: 40rpx;
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #333333;
+  background-color: #f5f5f5;
+  transition: all 0.3s ease;
 }
-.tab.active {
-  background: #333;
-  color: #fff;
+
+.tab-item.active {
+  color: #ffffff;
+  background-color: #000000;
+  transform: translateY(-2rpx);
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.15);
 }
 
 /* 消息列表滚动区域 */
@@ -179,20 +184,21 @@ page {
 /* 一键删除按钮 */
 .delete-all-btn {
   width: 100%;
-  height: 100rpx;
+  height: 84rpx;
   background: #ff3b30;
   border-radius: 30rpx;
   margin-top: 20rpx;
-  margin-bottom: 20rpx;
+  margin-bottom: 100rpx;
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
   flex-shrink: 0;
+  transition: all 0.3s ease;
 }
 
 .delete-all-btn text {
-  font-size: 34rpx;
+  font-size: 30rpx;
   font-weight: 600;
   color: #ffffff;
 }

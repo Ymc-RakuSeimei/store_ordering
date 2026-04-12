@@ -214,29 +214,44 @@ Page({
             if (merchantRes.result && merchantRes.result.success && merchantRes.result.user) {
               const merchantUser = merchantRes.result.user
               const wechat = merchantUser.wechat || 'wechat_ymc123456'
+              const phoneNumber = merchantUser.phoneNumber || '暂无电话信息'
 
               wx.showModal({
-                title: `${storeName} 商家微信`,
-                content: `商家微信号：${wechat}\n\n请复制微信号添加商家`,
+                title: storeName + ' 商家信息',
+                content: '商家微信号：' + wechat + '\n\n' + '商家电话：' + phoneNumber,
                 showCancel: false,
                 confirmText: '确定',
                 success: (modalRes) => {
                   if (modalRes.confirm) {
-                    wx.setClipboardData({
-                      data: wechat,
-                      success: () => {
-                        wx.showToast({ title: '微信号已复制', icon: 'success' })
+                    wx.showActionSheet({
+                      itemList: ['复制微信号', '复制电话'],
+                      success: (res) => {
+                        if (res.tapIndex === 0) {
+                          wx.setClipboardData({
+                            data: wechat,
+                            success: () => {
+                              wx.showToast({ title: '微信号已复制', icon: 'success' })
+                            }
+                          })
+                        } else if (res.tapIndex === 1) {
+                          wx.setClipboardData({
+                            data: phoneNumber,
+                            success: () => {
+                              wx.showToast({ title: '电话已复制', icon: 'success' })
+                            }
+                          })
+                        }
                       }
                     })
                   }
                 }
               })
             } else {
-              wx.showToast({ title: '暂未获取到商家微信', icon: 'none' })
+              wx.showToast({ title: '暂未获取到商家信息', icon: 'none' })
             }
           } catch (err) {
             that.setData({ contactLoading: false })
-            console.error('获取商家微信失败', err)
+            console.error('获取商家信息失败', err)
             wx.showToast({ title: '获取失败，请重试', icon: 'none' })
           }
         } else if (res.tapIndex === 1) {

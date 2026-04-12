@@ -3,7 +3,7 @@
   <!-- 加载状态 -->
   <view wx:if="{{loading || loginLoading || contactLoading}}" class="loading-state">
     <view class="loading-spinner"></view>
-    <view class="loading-text">{{loginLoading ? '获取中...' : (contactLoading ? '获取商家微信...' : '加载中...')}}</view>
+    <view class="loading-text">{{loginLoading ? '获取中...' : (contactLoading ? '获取商家信息...' : '加载中...')}}</view>
   </view>
   
   <!-- 顶部用户信息区 -->

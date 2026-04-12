@@ -23,9 +23,9 @@
     </button>
   </view>
 
-  <view class="tabbar">
+  <view class="tab-bar">
     <block wx:for="{{tabs}}" wx:key="id">
-      <view class="tab {{activeTab === item.id ? 'active' : ''}}" bindtap="switchTab" data-tab="{{item.id}}">
+      <view class="tab-item {{activeTab === item.id ? 'active' : ''}}" bindtap="switchTab" data-tab="{{item.id}}">
         <text class="tab-label">{{item.label}}</text>
       </view>
     </block>

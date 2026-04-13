@@ -220,20 +220,30 @@ page {
 
 .big-btn {
   width: 90%;
-  height: 80rpx;
+  height: 84rpx;
   background: #333;
   color: #fff;
   border: none;
-  border-radius: 18rpx;
+  border-radius: 30rpx;
   font-size: 30rpx;
-  font-weight: bold;
+  font-weight: 600;
   position: fixed;
   bottom: 40rpx;
   left: 20rpx;
   right: 20rpx;
   z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
 }
 
 .big-btn::after {
   border: none;
+}
+
+.big-btn:active {
+  background: #555;
+  transform: scale(0.98);
 }

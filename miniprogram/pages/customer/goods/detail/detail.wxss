@@ -257,18 +257,23 @@
 
 .submit-btn {
   flex: 1;
-  height: 88rpx;
+  height: 84rpx;
   background: #000000;
   color: #fff;
   border: none;
-  border-radius: 44rpx;
-  font-size: 32rpx;
-  font-weight: bold;
+  border-radius: 30rpx;
+  font-size: 30rpx;
+  font-weight: 600;
   margin-left: 24rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
 }
 
-.submit-btn:disabled {
-  background: #ccc;
+.submit-btn:active {
+  background: #333333;
+  transform: scale(0.98);
 }
 
 /* 状态标签 */

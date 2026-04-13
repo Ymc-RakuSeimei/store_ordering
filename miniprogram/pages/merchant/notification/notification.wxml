@@ -1,7 +1,7 @@
 <view class="page">
-  <view class="tabbar">
+  <view class="tab-bar">
     <block wx:for="{{tabs}}" wx:key="id">
-      <view class="tab {{activeTab===item.id?'active':''}}" data-tab="{{item.id}}" bindtap="switchTab">
+      <view class="tab-item {{activeTab===item.id?'active':''}}" data-tab="{{item.id}}" bindtap="switchTab">
         {{item.label}}
       </view>
     </block>

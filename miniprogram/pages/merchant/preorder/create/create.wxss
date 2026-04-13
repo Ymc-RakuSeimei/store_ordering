@@ -104,30 +104,48 @@ page {
   display: flex;
   justify-content: space-between;
   margin-top: 30rpx;
+  gap: 20rpx;
 }
 .primary-btn {
-  width: 56%;
-  height: 70rpx;
+  flex: 1.5;
+  height: 84rpx;
   background: #33c266;
   color: #fff;
   border: none;
-  border-radius: 16rpx;
-  font-size: 28rpx;
-  font-weight: bold;
+  border-radius: 30rpx;
+  font-size: 30rpx;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4rpx 12rpx rgba(51, 194, 102, 0.3);
+  transition: all 0.3s ease;
 }
 .primary-btn::after {
   border: none;
 }
+.primary-btn:active {
+  opacity: 0.9;
+  transform: scale(0.98);
+}
 .secondary-btn {
-  width: 38%;
-  height: 70rpx;
+  flex: 1;
+  height: 84rpx;
   background: #f0f0f0;
   color: #333;
   border: none;
-  border-radius: 16rpx;
-  font-size: 28rpx;
-  font-weight: bold;
+  border-radius: 30rpx;
+  font-size: 30rpx;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
 }
 .secondary-btn::after {
   border: none;
+}
+.secondary-btn:active {
+  background: #e0e0e0;
+  transform: scale(0.98);
 }

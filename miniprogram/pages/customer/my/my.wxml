@@ -14,7 +14,6 @@
       <!-- 未登录时显示提示 -->
       <text wx:if="{{!userInfo.openid}}" class="login-tip">点击这里登录</text>
     </view>
-    <image class="qrcode" bindtap="ScanQR" src="cloud://cloud1-2gltiqs6a2c5cd76.636c-cloud1-2gltiqs6a2c5cd76-1411302136/icons/二维码.png" mode="aspectFill"></image>
     <image class="avatar" src="{{userInfo.avatarUrl}}" mode="aspectFill" bindtap="handleLogin"></image>
   </view>
 

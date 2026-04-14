@@ -16,7 +16,7 @@
 
 <!-- 主内容 -->
 <view class="content" wx:if="{{!loading && !errorMsg}}">
-
+<!--AI辅助生成：KIMI-K2.5，2026-3-28-->
   <!-- 顾客信息 -->
   <view class="customer-card" wx:if="{{customerInfo}}">
     <view class="customer-avatar">

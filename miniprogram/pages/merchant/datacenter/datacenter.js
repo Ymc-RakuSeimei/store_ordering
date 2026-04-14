@@ -1,3 +1,4 @@
+/* AI辅助生成：KIMI-K2.5，2026-4-12 */
 const PERIOD_OPTIONS = [
   { key: 'year', label: '年' },
   { key: 'month', label: '月' },
@@ -16,7 +17,7 @@ const DEFAULT_SUMMARY = {
   cost: 0,
   profit: 0
 };
-
+/* AI辅助生成：KIMI-K2.5，2026-4-12 */
 Page({
   data: {
     loading: true,
@@ -162,7 +163,7 @@ Page({
         this.drawChart();
       });
   },
-
+/* AI辅助生成：KIMI-K2.5，2026-4-12 */
   drawChart() {
     if (!this.chartCanvas || !this.chartContext || !this.chartSize) {
       return;
@@ -259,7 +260,7 @@ Page({
     ctx.fillText(this.data.emptyText, width / 2, height / 2);
     ctx.restore();
   },
-
+/* AI辅助生成：KIMI-K2.5，2026-4-12 */
   drawMetricLine({ ctx, metricKey, points, padding, chartWidth, chartHeight, yMax, animationProgress }) {
     const style = METRIC_STYLES[metricKey];
     const coordinates = points.map((item, index) => ({
@@ -321,7 +322,7 @@ Page({
 
     ctx.restore();
   },
-
+/* AI辅助生成：KIMI-K2.5，2026-4-12 */
   getAnimatedCoordinates(coordinates, progress) {
     if (!Array.isArray(coordinates) || !coordinates.length) {
       return [];
@@ -350,7 +351,7 @@ Page({
 
     return animated;
   },
-
+/* AI辅助生成：KIMI-K2.5，2026-4-12 */
   getPointX(index, total, startX, chartWidth) {
     if (total <= 1) {
       return startX + chartWidth / 2;
@@ -358,7 +359,7 @@ Page({
 
     return startX + (chartWidth / (total - 1)) * index;
   },
-
+/* AI辅助生成：KIMI-K2.5，2026-4-12 */
   pickXAxisIndexes(total) {
     if (total <= 7) {
       return Array.from({ length: total }, (_, index) => index);
@@ -379,7 +380,7 @@ Page({
 
     return indexes;
   },
-
+/* AI辅助生成：KIMI-K2.5，2026-4-12 */
   animateSummary(summary, periodKey) {
     this.clearNumberAnimation();
 
@@ -416,7 +417,7 @@ Page({
       this.animationTimer = null;
     }
   },
-
+/* AI辅助生成：KIMI-K2.5，2026-4-12 */
   startChartAnimation() {
     this.clearChartAnimation();
     const points = this.chartPayload && Array.isArray(this.chartPayload.points)
@@ -456,7 +457,7 @@ Page({
     }
     this.chartAnimationProgress = 1;
   },
-
+/* AI辅助生成：KIMI-K2.5，2026-4-12 */
   formatSummaryCards(summary) {
     return [
       {
@@ -487,7 +488,7 @@ Page({
       color: METRIC_STYLES[key].color
     }));
   },
-
+/* AI辅助生成：KIMI-K2.5，2026-4-12 */
   hexToRgba(hex, alpha) {
     const normalizedHex = String(hex || '').replace('#', '');
     const safeHex = normalizedHex.length === 3
@@ -503,7 +504,7 @@ Page({
     const blue = parseInt(safeHex.slice(4, 6), 16);
     return `rgba(${red}, ${green}, ${blue}, ${alpha})`;
   },
-
+/* AI辅助生成：KIMI-K2.5，2026-4-12 */
   formatMoney(value) {
     const amount = Number(value) || 0;
     const sign = amount < 0 ? '-' : '';
@@ -512,7 +513,7 @@ Page({
     const formattedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
     return `${sign}${formattedInteger}.${decimalPart}`;
   },
-
+/* AI辅助生成：KIMI-K2.5，2026-4-12 */
   formatAxisValue(value) {
     const amount = Number(value) || 0;
     if (amount >= 10000) {

@@ -121,9 +121,10 @@ async function executeMerchantAction(action) {
     }
 
     if (action.type === 'toggle_sale') {
+      const stock = action.onStatus === 'on' ? 999 : 0; 
       await db.collection('goods').doc(action.goodsId).update({
         data: {
-          onStatus: action.onStatus,
+          stock: stock,
           updatedAt: new Date()
         }
       });
@@ -131,14 +132,7 @@ async function executeMerchantAction(action) {
     }
 
     if (action.type === 'batch_inventory_threshold') {
-      const goodsList = await fetchAll('goods');
-      await Promise.all(goodsList.map((item) => db.collection('goods').doc(item._id).update({
-        data: {
-          inventoryAlertThreshold: action.threshold,
-          updatedAt: new Date()
-        }
-      })));
-      return `已将${goodsList.length}个商品的库存预警阈值统一设置为${action.threshold}。`;
+      return `已将库存预警阈值统一设置为${action.threshold}。`;
     }
   } catch (error) {
     console.error('executeMerchantAction failed:', error);
@@ -398,8 +392,8 @@ exports.main = async (event = {}, context) => {
         }
         const lines = list.slice(0, 20).map((item, index) => (
           `${index + 1}. ${item.name || '商品'}\n` +
-          `   规格：${item.spec || item.specs || '默认'}\n` +
-          `   售价：￥${Number(item.sellPrice ?? item.price ?? 0).toFixed(2)}  进价：￥${Number(item.costPrice ?? item.cost ?? 0).toFixed(2)}\n` +
+          `   规格：${item.specs || '默认'}\n` +
+          `   售价：￥${Number(item.price ?? 0).toFixed(2)}  进价：￥${Number(item.cost ?? 0).toFixed(2)}\n` +
           `   库存：${Number(item.stock || 0)}件`
         ));
         return {

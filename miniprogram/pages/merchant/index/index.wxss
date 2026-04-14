@@ -45,10 +45,10 @@ page {
 .subtitle {
   display: block;
   font-size: 46rpx;
-  font-weight: bold;
+  font-weight: normal;
   color: #1d2129;
   margin-top: 10rpx;
-  font-family: 'Microsoft Yahei';
+  font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
 }
 
 .scan-btn {
@@ -106,45 +106,16 @@ page {
   min-height: 320rpx;
 }
 
-.ai-entry {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 132rpx;
-  height: 132rpx;
-  transform: translate(-50%, -50%);
-  border-radius: 50%;
-  background: linear-gradient(135deg, #1677ff 0%, #2fb0ff 100%);
-  box-shadow: 0 18rpx 36rpx rgba(23, 119, 255, 0.25);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  z-index: 3;
-  border: 8rpx solid rgba(255, 255, 255, 0.96);
-}
 
-.ai-entry-icon {
-  width: 56rpx;
-  height: 56rpx;
-}
-
-.ai-entry-label {
-  margin-top: 4rpx;
-  color: #ffffff;
-  font-size: 20rpx;
-  font-weight: 700;
-  letter-spacing: 2rpx;
-}
 
 .card-icon {
-  width: 100rpx;
-  height: 100rpx;
+  width: 90rpx;
+  height: 90rpx;
   margin-bottom: 20rpx;
 }
 
 .card-title {
-  font-size: 40rpx;
+  font-size: 35rpx;
   font-weight: bold;
   color: #4e5969;
   margin-bottom: 8rpx;
@@ -156,18 +127,47 @@ page {
   text-align: center;
 }
 
-.long-card {
+.card-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  width: 100%;
+  margin: 0 0 50rpx;
+  padding-bottom: 10rpx;
+}
+
+.long-card-item {
+  width: 42%;
   background: #ffffffcc;
   border: 1rpx solid #e5e6eb;
   border-radius: 24rpx;
-  padding: 30rpx;
-  margin: 5rpx 1rpx 0;
+  padding: 30rpx 20rpx;
+  margin-bottom: 24rpx;
   box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.123);
-  width: 90%;
-  height: 90rpx;
   display: flex;
-  justify-content: center;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 100rpx;
+  position: relative;
 }
+
+.long-card-item .card-icon {
+  margin-right: 20rpx;
+  margin-left: 10rpx;
+  margin-bottom: 0;
+}
+
+.long-card-item .card-title {
+  text-align: left;
+}
+
+.long-card-item .card-subtitle {
+  text-align: left;
+  margin-left: 0;
+}
+
+
 
 .long-holder {
   display: flex;
@@ -179,8 +179,8 @@ page {
 
 .notification-badge {
   position: absolute;
-  top: 10rpx;
-  right: 10rpx;
+  top: 20rpx;
+  left: 120rpx;
   width: 20rpx;
   height: 20rpx;
   background-color: #ff4d4f;
@@ -190,8 +190,8 @@ page {
 }
 
 .long-icon {
-  width: 90rpx;
-  height: 90rpx;
+  width: 60rpx;
+  height: 60rpx;
   margin-right: 30rpx;
   margin-top: 15rpx;
 }
@@ -213,16 +213,7 @@ page {
   margin-left: 20rpx;
 }
 
-.bottom-text {
-  font-family: 'Times New Roman', Times, serif;
-  display: block;
-  text-align: center;
-  font-size: 48rpx;
-  color: #1d2129;
-  margin-top: 10rpx;
-  font-style: italic;
-  font-weight: 700;
-}
+
 
 .merchant-tabbar {
   position: fixed;

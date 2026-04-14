@@ -37,8 +37,13 @@
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 
@@ -367,6 +372,8 @@
   text-align: center;
   line-height: 1.4;
 }
+
+/* AI辅助生成：DouBao-Seed-Code，2026-3-25 */
 
 /* 动画效果 */
 @keyframes fadeIn {

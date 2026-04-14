@@ -7,6 +7,7 @@ const { streamModelReply } = require('../../utils/ai-assistant');
 
 // 聊天历史存储键名
 const STORAGE_KEY = 'ai_chat_history';
+/* AI辅助生成：KIMI-K2.5，2026-4-7 */
 // 历史记录过期时间（24小时）
 const EXPIRE_TIME = 24 * 60 * 60 * 1000;
 
@@ -96,7 +97,7 @@ function buildMessage(role, content) {
     content
   };
 }
-
+/* AI辅助生成：KIMI-K2.5，2026-4-7 */
 Page({
   data: {
     assistantTitle: 'AI智能店员',
@@ -154,7 +155,7 @@ Page({
   onHide() {
     this.saveChatHistory();
   },
-
+/* AI辅助生成：KIMI-K2.5，2026-4-7 */
   /**
    * 加载聊天历史
    */
@@ -182,7 +183,7 @@ Page({
       ? '你好，我可以帮你查经营数据、低库存、接龙统计，也可以执行简单商品操作。'
       : '你好，我可以帮你查商品、接龙、订单状态、取货码和优惠活动。'));
   },
-
+/* AI辅助生成：KIMI-K2.5，2026-4-7 */
   /**
    * 保存聊天历史
    */
@@ -222,7 +223,7 @@ Page({
     this.setData({ inputValue: question });
     this.sendMessage();
   },
-
+/* AI辅助生成：KIMI-K2.5，2026-4-7 */
   /**
    * 添加消息到聊天界面
    * @param {Object} message - 消息对象
@@ -235,7 +236,7 @@ Page({
       scrollIntoView: `msg-${message.id}`
     }, callback);
   },
-
+/* AI辅助生成：KIMI-K2.5，2026-4-7 */
   /**
    * 更新最后一条助手消息
    * @param {string} content - 消息内容
@@ -262,7 +263,7 @@ Page({
     if (!text || this.data.sending) {
       return;
     }
-
+/* AI辅助生成：KIMI-K2.5，2026-4-7 */
     // 准备历史消息
     const history = this.data.messages.map((item) => ({
       role: item.role,
@@ -365,7 +366,7 @@ Page({
       }
     });
   },
-
+/* AI辅助生成：KIMI-K2.5，2026-4-8 */
   /**
    * 使用大模型理解用户意图
    * @param {Object} intentUnderstandingPayload - 意图理解的消息格式

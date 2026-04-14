@@ -13,6 +13,7 @@
       </button>
     </view>
     <view class="qrcode-content">
+      <!-- AI辅助生成：DouBao-Seed-Code，2026-3-25 -->
       <!-- 在线二维码服务（主要方案） -->
       <image wx:if="{{qrcodeUrl}}" src="{{qrcodeUrl}}" class="qrcode-image" mode="aspectFit"></image>
       <!-- 保底文本：如果二维码生成失败，显示取货码 -->

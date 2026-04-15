@@ -13,7 +13,6 @@
       <text class="scan-text">扫码取货</text>
     </view>
   </view>
-
   <view class="card-container">
     <block wx:for="{{cardGroup}}" wx:key="id">
       <view class="card-item" bindtap="onCardTap" data-id="{{item.id}}">
@@ -22,26 +21,19 @@
         <text class="card-subtitle">{{item.subtitle}}</text>
       </view>
     </block>
-    <view class="ai-entry" bindtap="openAiAssistant">
-      <image class="ai-entry-icon" src="/images/icon_ai.png" mode="aspectFit"></image>
-      <text class="ai-entry-label">AI智能店员</text>
-    </view>
   </view>
-
-  <view class="long-card" bindtap="onCardTap" data-id="{{notify.id}}">
-    <view class="long-holder">
-      <image class="long-icon" src="{{notify.icon}}" />
-      <view class="long-text">
-        <text class="long-title">{{notify.title}}</text>
-        <text class="long-subtitle">{{notify.subtitle}}</text>
-      </view>
+  <view class="card-row">
+    <view class="card-item long-card-item" bindtap="onCardTap" data-id="{{notify.id}}">
+      <image class="card-icon" src="{{notify.icon}}" />
+      <text class="card-title">{{notify.title}}</text>
       <view wx:if="{{hasNewNotification}}" class="notification-badge"></view>
     </view>
+    <view class="card-item long-card-item" bindtap="openAiAssistant">
+      <image class="card-icon" src="cloud://cloud1-2gltiqs6a2c5cd76.636c-cloud1-2gltiqs6a2c5cd76-1411302136/icons/icon_ai_2.png" />
+      <text class="card-title">AI智能助手</text>
+    </view>
   </view>
-
-  <text class="bottom-text">Run your store well!</text>
 </view>
-
 <view class="merchant-tabbar">
   <view class="tabbar-item tabbar-item--active" data-tab="home" bindtap="onTabTap">
     <image class="tabbar-icon" src="cloud://cloud1-2gltiqs6a2c5cd76.636c-cloud1-2gltiqs6a2c5cd76-1411302136/icons/icon_home_active.png" />

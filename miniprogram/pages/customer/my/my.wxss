@@ -26,10 +26,11 @@ page {
   display: flex;
   flex-direction: column;
   flex: 1;
+  margin-left: 29rpx;
 }
 
 .greeting-title {
-  font-size: 44rpx;
+  font-size: 50rpx;
   font-weight: 700;
   color: #000000;
   line-height: 1.2;
@@ -37,7 +38,7 @@ page {
 }
 
 .greeting-subtitle {
-  font-size: 26rpx;
+  font-size: 30rpx;
   font-family: 'Georgia', 'Times New Roman', '华文行书', cursive;
   color: #888888;
   font-style: italic;
@@ -50,14 +51,6 @@ page {
   gap: 24rpx;
 }
 
-/* 二维码 */
-/* 二维码 - 圆角矩形 */
-.qrcode {
-  width: 120rpx;
-  height: 120rpx;
-  background-color: #f5f5f5;
-  border-radius: 16rpx;  /* 原来是 12rpx，改为与头像一致 */
-}
 
 /* 头像 */
 /* 头像 - 改为圆角矩形，与主页统一 */
@@ -66,6 +59,7 @@ page {
   height: 120rpx;
   border-radius: 16rpx;  /* 原来是 50% */
   background-color: #f5f5f5;
+  margin-left: 100rpx;
   box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.08);
 }
 
@@ -74,8 +68,8 @@ page {
   background-color: #ffffff;
   border-radius: 32rpx;
   box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.06);
-  padding: 0 32rpx;
-  margin-top: 40rpx;
+  padding: 0 40rpx;
+  margin-top: 20rpx;
   width: 100%;
   box-sizing: border-box;
 }
@@ -84,14 +78,14 @@ page {
 .list-item {
   display: flex;
   align-items: center;
-  padding: 32rpx 0;
+  padding: 36rpx 0;
   width: 100%;
 }
 
 /* 左侧图标 */
 .item-icon {
-  width: 56rpx;
-  height: 56rpx;
+  width: 66rpx;
+  height: 66rpx;
   margin-right: 32rpx;
   flex-shrink: 0;
 }
@@ -104,7 +98,7 @@ page {
 }
 
 .item-title {
-  font-size: 32rpx;
+  font-size: 36rpx;
   font-weight: 700;
   color: #000000;
   line-height: 1.4;
@@ -118,7 +112,7 @@ page {
 }
 
 .item-phone {
-  font-size: 32rpx;
+  font-size: 36rpx;
   font-weight: 700;
   color: #000000;
 }

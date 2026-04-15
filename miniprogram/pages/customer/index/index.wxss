@@ -83,49 +83,36 @@ page {
   font-size: 24rpx;
 }
 
-.ai-entry {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 132rpx;
-  height: 132rpx;
-  transform: translate(-50%, -50%);
-  border-radius: 50%;
-  background: linear-gradient(135deg, #1677ff 0%, #2fb0ff 100%);
-  box-shadow: 0 18rpx 36rpx rgba(23, 119, 255, 0.25);
+.card-row {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  z-index: 3;
-  border: 8rpx solid rgba(255, 255, 255, 0.96);
+  flex-wrap: wrap;
+  justify-content: space-between;
+  width: 100%;
+  margin: 0 0 50rpx;
+  padding-bottom: 10rpx;
 }
 
-.ai-entry-icon {
-  width: 56rpx;
-  height: 56rpx;
-}
-
-.ai-entry-label {
-  margin-top: 4rpx;
-  color: #ffffff;
-  font-size: 20rpx;
-  font-weight: 700;
-  letter-spacing: 2rpx;
-}
-
-.long-card {
+.long-card-item {
+  width: 42%;
   background: #ffffff;
   border-radius: 24rpx;
-  padding: 30rpx;
-  margin: 10rpx 0 50rpx;
-  box-shadow: 0 6rpx 20rpx rgba(0, 0, 0, 0.06);
+  padding: 30rpx 20rpx;
+  box-shadow: 0 6rpx 20rpx rgba(0, 0, 0, 0.123);
   display: flex;
-  justify-content: center;
+  flex-direction: row;
   align-items: center;
-  width: 90%;
-  margin-left: auto;
-  margin-right: auto;
+  justify-content: flex-start;
+  min-height: 100rpx;
+}
+
+.long-card-item .card-icon {
+  margin-right: 18rpx;
+  margin-left: 30rpx;
+  margin-bottom: 0;
+}
+
+.long-card-item .card-title {
+  text-align: left;
 }
 
 .center-box {
@@ -167,14 +154,4 @@ page {
   justify-content: center;
   padding: 0 10rpx;
   box-shadow: 0 2rpx 8rpx rgba(255, 59, 48, 0.3);
-}
-
-.bottom-text {
-  font-family: Georgia, 'Times New Roman', Times, serif;
-  display: block;
-  text-align: center;
-  font-weight: bold;
-  font-size: 42rpx;
-  color: #333;
-  font-style: italic;
 }

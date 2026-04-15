@@ -48,6 +48,7 @@ exports.main = async (event, context) => {
           ])
         );
       } else if (type === 'newgoods') {
+        filter.type = type;
         Object.assign(filter, buildNotDeletedFilter(openid));
       }
     }

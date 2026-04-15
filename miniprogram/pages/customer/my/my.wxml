@@ -8,13 +8,24 @@
   
   <!-- 顶部用户信息区 -->
   <view class="header">
-    <view class="greeting" bindtap="handleLogin">
+    <view class="greeting">
       <text class="greeting-title">Hello, {{userInfo.nickName}}</text>
       <text class="greeting-subtitle">Wish you a happy shopping!</text>
-      <!-- 未登录时显示提示 -->
-      <text wx:if="{{!userInfo.openid}}" class="login-tip">点击这里登录</text>
     </view>
-    <image class="avatar" src="{{userInfo.avatarUrl}}" mode="aspectFill" bindtap="handleLogin"></image>
+    <button class="avatar-btn" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar">
+      <image class="avatar" src="{{userInfo.avatarUrl}}" mode="aspectFill"></image>
+    </button>
+  </view>
+
+  <!-- 昵称编辑区域（首次登录或未设置时显示） -->
+  <view class="nickname-section" wx:if="{{showNicknameInput}}">
+    <input 
+      type="nickname" 
+      class="nickname-input" 
+      placeholder="点击获取微信昵称" 
+      bindblur="onInputNickname"
+    />
+    <text class="nickname-tip">点击输入框可获取微信昵称</text>
   </view>
 
   <!-- 功能列表卡片 -->

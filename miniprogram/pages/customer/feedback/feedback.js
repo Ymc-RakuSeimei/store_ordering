@@ -17,7 +17,7 @@ Page({
     feedbackOrderIndex: -1,
     feedbackGoodsIndex: -1,
     feedbackSelectedGoods: null,
-    submittedFeedbackOrders: {}, // 已提交反馈的订单ID列表
+    submittedFeedbackOrders: {},
     userInfo: {},
     loading: false,
     submitLoading: false
@@ -27,20 +27,16 @@ Page({
     this.getUserInfoAndOrders()
   },
 
-  // 获取用户信息和订单
   async getUserInfoAndOrders() {
     try {
       this.setData({ loading: true })
-      // 先获取用户信息
       const userRes = await wx.cloud.callFunction({
         name: 'getUserInfo'
       })
       
       if (userRes.result.success && userRes.result.user) {
         this.setData({ userInfo: userRes.result.user })
-        // 然后获取订单
         await this.getOrderList(userRes.result.user.openid)
-        // 获取已提交反馈的订单列表
         await this.getSubmittedFeedbacks(userRes.result.user.openid)
       }
     } catch (err) {
@@ -50,7 +46,6 @@ Page({
     }
   },
 
-  // 获取已提交反馈的订单
   async getSubmittedFeedbacks(openid) {
     try {
       const db = wx.cloud.database()
@@ -60,7 +55,6 @@ Page({
       }).get()
       
       if (res.data) {
-        // 使用对象来存储，方便wxml中快速查找
         const submittedOrderMap = {}
         res.data.forEach(item => {
           submittedOrderMap[item.orderId] = true
@@ -72,22 +66,18 @@ Page({
     }
   },
 
-  // 切换选项卡
   switchTab(e) {
     this.setData({
       activeTab: e.currentTarget.dataset.tab
     })
   },
 
-  // 获取订单列表
   async getOrderList(openid) {
     try {
       const res = await wx.cloud.callFunction({
         name: 'getOrderList',
         data: { openid }
       })
-      
-      console.log('getOrderList返回结果:', res)
       
       if (res.result && res.result.code === 0 && res.result.data) {
         this.setData({
@@ -102,7 +92,6 @@ Page({
     }
   },
 
-  // 订单选择变化
   bindOrderChange(e) {
     const index = parseInt(e.detail.value)
     const selectedOrder = this.data.orders[index]
@@ -117,7 +106,6 @@ Page({
     })
   },
 
-  // 商品选择变化
   bindGoodsChange(e) {
     const index = parseInt(e.detail.value)
     const selectedOrder = this.data.selectedOrder
@@ -130,11 +118,9 @@ Page({
       afterSaleImages: []
     })
     
-    // 根据商品取货状态生成售后选项
     this.generateAfterSaleOptions(selectedGoods.pickupStatus)
   },
 
-  // 根据订单状态生成售后选项
   generateAfterSaleOptions(status) {
     let options = []
     
@@ -153,7 +139,6 @@ Page({
         ]
         break
       default:
-        // 未到货状态
         options = [
           { value: '取消订单', label: '取消订单' }
         ]
@@ -162,7 +147,6 @@ Page({
     this.setData({ afterSaleOptions: options })
   },
 
-  // 反馈订单选择变化
   bindFeedbackOrderChange(e) {
     const index = parseInt(e.detail.value)
     this.setData({
@@ -175,7 +159,6 @@ Page({
     })
   },
 
-  // 反馈商品选择变化
   bindFeedbackGoodsChange(e) {
     const index = parseInt(e.detail.value)
     const selectedOrder = this.data.orders[this.data.feedbackOrderIndex]
@@ -186,17 +169,14 @@ Page({
     })
   },
 
-  // 售后类型选择
   bindAfterSaleTypeChange(e) {
     this.setData({ afterSaleType: e.detail.value })
   },
 
-  // 售后理由输入
   bindAfterSaleReasonInput(e) {
     this.setData({ afterSaleReason: e.detail.value })
   },
 
-  // 选择售后图片
   chooseAfterSaleImage() {
     const that = this
     wx.chooseImage({
@@ -212,7 +192,6 @@ Page({
     })
   },
 
-  // 删除售后图片
   deleteAfterSaleImage(e) {
     const index = e.currentTarget.dataset.index
     const images = this.data.afterSaleImages
@@ -220,7 +199,6 @@ Page({
     this.setData({ afterSaleImages: images })
   },
 
-  // 提交售后申请
   async submitAfterSale() {
     const { orderIndex, goodsIndex, orders, afterSaleType, afterSaleReason, afterSaleImages } = this.data
     
@@ -255,7 +233,6 @@ Page({
     
     this.setData({ submitLoading: true })
     try {
-      // 上传图片
       const uploadedImages = []
       for (const image of afterSaleImages) {
         const uploadRes = await wx.cloud.uploadFile({
@@ -265,7 +242,6 @@ Page({
         uploadedImages.push(uploadRes.fileID)
       }
       
-      // 提交售后申请
       const res = await wx.cloud.callFunction({
         name: 'submitFeedback',
         data: {
@@ -282,7 +258,6 @@ Page({
       
       if (res.result.success) {
         wx.showToast({ title: '提交成功', icon: 'success' })
-        // 重置表单
         this.setData({
           orderIndex: -1,
           selectedOrder: null,
@@ -304,22 +279,18 @@ Page({
     }
   },
 
-  // 设置评分
   setRating(e) {
     this.setData({ rating: e.currentTarget.dataset.rating })
   },
 
-  // 获取星星图标
   getStarIcon(index) {
     return index < this.data.rating ? '★' : '☆'
   },
 
-  // 反馈内容输入
   bindFeedbackContentInput(e) {
     this.setData({ feedbackContent: e.detail.value })
   },
 
-  // 选择反馈图片
   chooseFeedbackImage() {
     const that = this
     wx.chooseImage({
@@ -335,7 +306,6 @@ Page({
     })
   },
 
-  // 删除反馈图片
   deleteFeedbackImage(e) {
     const index = e.currentTarget.dataset.index
     const images = this.data.feedbackImages
@@ -343,7 +313,6 @@ Page({
     this.setData({ feedbackImages: images })
   },
 
-  // 提交反馈
   async submitFeedback() {
     const { feedbackOrderIndex, feedbackGoodsIndex, orders, rating, feedbackContent, feedbackImages } = this.data
 
@@ -373,7 +342,6 @@ Page({
     
     this.setData({ submitLoading: true })
     try {
-      // 上传图片
       const uploadedImages = []
       for (const image of feedbackImages) {
         const uploadRes = await wx.cloud.uploadFile({
@@ -383,7 +351,6 @@ Page({
         uploadedImages.push(uploadRes.fileID)
       }
       
-      // 提交反馈
       const res = await wx.cloud.callFunction({
         name: 'submitFeedback',
         data: {
@@ -400,7 +367,6 @@ Page({
       
       if (res.result.success) {
         wx.showToast({ title: '提交成功', icon: 'success' })
-        // 更新已提交反馈的订单列表
         const submittedOrderMap = this.data.submittedFeedbackOrders
         submittedOrderMap[selectedOrder._id] = true
         this.setData({

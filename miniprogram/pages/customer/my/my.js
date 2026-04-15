@@ -3,14 +3,16 @@ Page({
   data: {
     userInfo: {
       nickName: '游客',
-      avatarUrl: 'cloud://cloud1-2gltiqs6a2c5cd76.636c-cloud1-2gltiqs6a2c5cd76-1411302136/icons/avatar.png',
+      avatarUrl: '',
       phoneNumber: '',
-      role: ''
+      role: '',
+      openid: ''
     },
     notificationEnabled: true,
     loading: false,
     loginLoading: false,
-    contactLoading: false
+    contactLoading: false,
+    showNicknameInput: false  // 是否显示昵称输入框
   },
 
   onLoad(options) {
@@ -29,23 +31,34 @@ Page({
       })
 
       if (res.result.success && res.result.user) {
+        const user = res.result.user
+        const avatarUrl = (user.avatarUrl && user.avatarUrl !== '') 
+          ? user.avatarUrl 
+          : ''
+        
+        // 判断是否需要显示昵称输入框（昵称为空或为默认值）
+        const needNickname = !user.nickName || user.nickName === '微信用户' || user.nickName === '游客'
+        
         this.setData({
           userInfo: {
-            nickName: res.result.user.nickName || '微信用户',
-            avatarUrl: res.result.user.avatarUrl || 'cloud://cloud1-2gltiqs6a2c5cd76.636c-cloud1-2gltiqs6a2c5cd76-1411302136/icons/avatar.png',
-            phoneNumber: res.result.user.phoneNumber || '',
-            role: res.result.user.role || 'customer',
-            openid: res.result.user.openid
-          }
+            nickName: user.nickName || '游客',
+            avatarUrl: avatarUrl,
+            phoneNumber: user.phoneNumber || '',
+            role: user.role || 'customer',
+            openid: user.openid
+          },
+          showNicknameInput: needNickname
         })
       } else {
         this.setData({
           userInfo: {
             nickName: '游客',
-            avatarUrl: 'cloud://cloud1-2gltiqs6a2c5cd76.636c-cloud1-2gltiqs6a2c5cd76-1411302136/icons/avatar.png',
+            avatarUrl: '',
             phoneNumber: '',
-            role: ''
-          }
+            role: '',
+            openid: ''
+          },
+          showNicknameInput: true
         })
       }
     } catch (err) {
@@ -55,63 +68,50 @@ Page({
     }
   },
 
-  async handleLogin() {
-    // 如果已登录，不重复授权
-    if (this.data.userInfo.openid) {
-      return
-    }
-
-    this.setData({ loginLoading: true })
-    try {
-      // 1. 获取微信用户信息
-      const { userInfo } = await new Promise((resolve, reject) => {
-        wx.getUserProfile({
-          desc: '用于完善会员资料',
-          success: resolve,
-          fail: reject
-        })
-      })
-
-      // 2. 立即显示用户头像和昵称（不等云函数）
+  // 选择头像（新方式）
+  onChooseAvatar(e) {
+    const { avatarUrl } = e.detail
+    if (avatarUrl) {
+      // 先更新页面显示
       this.setData({
-        'userInfo.nickName': userInfo.nickName,
-        'userInfo.avatarUrl': userInfo.avatarUrl
+        'userInfo.avatarUrl': avatarUrl
       })
+      // 保存到数据库
+      this.saveUserInfoToDB({
+        avatarUrl: avatarUrl
+      })
+    }
+  },
 
-      // 3. 保存到云数据库
+  // 输入昵称（新方式）
+  async onInputNickname(e) {
+    const nickName = e.detail.value
+    if (nickName && nickName.trim()) {
+      // 先更新页面显示
+      this.setData({
+        'userInfo.nickName': nickName.trim(),
+        showNicknameInput: false
+      })
+      // 保存到数据库
+      await this.saveUserInfoToDB({
+        nickName: nickName.trim()
+      })
+      wx.showToast({ title: '昵称更新成功', icon: 'success' })
+    }
+  },
+
+  // 保存用户信息到数据库
+  async saveUserInfoToDB(data) {
+    try {
       const saveRes = await wx.cloud.callFunction({
         name: 'saveUserInfo',
-        data: {
-          nickName: userInfo.nickName,
-          avatarUrl: userInfo.avatarUrl
-        }
+        data: data
       })
-
-      if (saveRes.result.success) {
-        // 4. 重新获取完整用户信息（获取 openid 等）
-        await this.checkLoginStatus()
-        wx.showToast({
-          title: '登录成功',
-          icon: 'success'
-        })
-      } else {
-        throw new Error('保存失败')
+      if (!saveRes.result.success) {
+        console.error('保存失败', saveRes.result)
       }
     } catch (err) {
-      console.error('登录失败', err)
-      if (err.errMsg && err.errMsg.includes('deny')) {
-        wx.showToast({
-          title: '需要授权才能登录',
-          icon: 'none'
-        })
-      } else {
-        wx.showToast({
-          title: '登录失败，请重试',
-          icon: 'none'
-        })
-      }
-    } finally {
-      this.setData({ loginLoading: false })
+      console.error('保存用户信息失败', err)
     }
   },
 

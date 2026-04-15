@@ -174,7 +174,7 @@ Page({
         }
       }
     } catch (e) {
-      console.error('加载历史记录失败', e);
+      // 静默失败，不影响功能
     }
 
     // 显示欢迎消息
@@ -199,7 +199,7 @@ Page({
         scene: this.data.scene
       });
     } catch (e) {
-      console.error('保存历史记录失败', e);
+      // 静默失败，不影响功能
     }
   },
 
@@ -325,7 +325,6 @@ Page({
             throw new Error('处理理解的意图失败');
           }
         } catch (error) {
-          console.error('意图理解流程失败:', error);
           this.updateLastAssistantMessage(fallbackAnswer);
         }
       } else if (payload.forceUseDraft || !payload.modelPayload || !payload.modelPayload.messages) {
@@ -343,7 +342,6 @@ Page({
         });
       }
     } catch (error) {
-      console.error('sendMessage failed', error);
       this.updateLastAssistantMessage(error.message || 'AI助手暂时不可用，请稍后再试。');
     } finally {
       this.setData({
@@ -377,10 +375,8 @@ Page({
 
     try {
       const intent = await streamModelReply(intentUnderstandingPayload.messages);
-      console.log('大模型理解的意图:', intent);
       return intent.trim();
     } catch (error) {
-      console.error('大模型理解意图失败:', error);
       throw error;
     }
   },
@@ -412,12 +408,10 @@ Page({
       // 检测并修正大模型可能编造的答案
       const validation = detectDataFabrication(originalData, finalText);
       if (!validation.isValid) {
-        console.warn('检测到大模型可能编造答案:', validation.warnings);
         finalText = correctFabricatedAnswer(originalData, finalText, validation.warnings);
         this.updateLastAssistantMessage(finalText);
       }
     } catch (error) {
-      console.error('streamModelReply failed', error);
       this.updateLastAssistantMessage(fallbackAnswer);
     }
   }

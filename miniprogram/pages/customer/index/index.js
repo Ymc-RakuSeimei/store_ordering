@@ -2,10 +2,11 @@
 Page({
   data: {
     userInfo: {
-      nickName: '派大星',
-      avatarUrl: 'cloud://cloud1-2gltiqs6a2c5cd76.636c-cloud1-2gltiqs6a2c5cd76-1411302136/icons/avatar.png'
+      nickName: '游客',
+      avatarUrl: ''
     },
-    unreadMessageCount: 0
+    unreadMessageCount: 0,
+    showNicknameInput: false
   },
 
   onLoad() {
@@ -14,35 +15,98 @@ Page({
   },
 
   onShow() {
-    this.getUserInfo();
+    if (!this._isLoading) {
+      this.getUserInfo();
+    }
     this.getUnreadMessageCount();
   },
 
   async getUserInfo() {
+    if (this._isLoading) return;
+    this._isLoading = true;
+    
     try {
       const res = await wx.cloud.callFunction({
         name: 'getUserInfo'
       });
 
       if (res.result.success && res.result.user) {
+        const user = res.result.user;
+        let avatarUrl = '';
+        if (user.avatarUrl && user.avatarUrl !== '') {
+          avatarUrl = user.avatarUrl;
+        }
+        
+        // 判断是否需要显示昵称输入框
+        const needNickname = !user.nickName || user.nickName === '微信用户' || user.nickName === '游客';
+        
         this.setData({
           userInfo: {
-            nickName: res.result.user.nickName || '派大星',
-            avatarUrl: res.result.user.avatarUrl || 'cloud://cloud1-2gltiqs6a2c5cd76.636c-cloud1-2gltiqs6a2c5cd76-1411302136/icons/avatar.png'
-          }
+            nickName: user.nickName || '游客',
+            avatarUrl: avatarUrl
+          },
+          showNicknameInput: needNickname
         });
-        return;
+      } else {
+        this.setData({
+          userInfo: {
+            nickName: '游客',
+            avatarUrl: ''
+          },
+          showNicknameInput: true
+        });
       }
     } catch (err) {
-      console.error('获取用户信息失败', err);
+      this.setData({
+        userInfo: {
+          nickName: '游客',
+          avatarUrl: ''
+        },
+        showNicknameInput: true
+      });
+    } finally {
+      this._isLoading = false;
     }
+  },
 
-    this.setData({
-      userInfo: {
-        nickName: '派大星',
-        avatarUrl: 'cloud://cloud1-2gltiqs6a2c5cd76.636c-cloud1-2gltiqs6a2c5cd76-1411302136/icons/avatar.png'
-      }
-    });
+  // 选择头像
+  onChooseAvatar(e) {
+    const { avatarUrl } = e.detail;
+    if (avatarUrl) {
+      // 立即更新页面显示
+      this.setData({
+        'userInfo.avatarUrl': avatarUrl
+      });
+      // 保存到数据库
+      this.saveUserInfoToDB({ avatarUrl: avatarUrl });
+    }
+  },
+
+  // 输入昵称
+  async onInputNickname(e) {
+    const nickName = e.detail.value;
+    if (nickName && nickName.trim()) {
+      // 立即更新页面显示
+      this.setData({
+        'userInfo.nickName': nickName.trim(),
+        showNicknameInput: false
+      });
+      // 保存到数据库
+      await this.saveUserInfoToDB({ nickName: nickName.trim() });
+      wx.showToast({ title: '昵称更新成功', icon: 'success' });
+    }
+  },
+
+  // 保存用户信息到数据库
+  async saveUserInfoToDB(data) {
+    try {
+      await wx.cloud.callFunction({
+        name: 'saveUserInfo',
+        data: data
+      });
+    } catch (err) {
+      console.error('保存用户信息失败', err);
+    }
   },
 
   async getUnreadMessageCount() {
@@ -68,7 +132,7 @@ Page({
         });
       }
     } catch (err) {
-      console.error('获取未读消息数量失败', err);
+      // 静默失败
     }
   },
 

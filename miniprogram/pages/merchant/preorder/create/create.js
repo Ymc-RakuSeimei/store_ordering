@@ -52,7 +52,24 @@ Page({
 
   onInputChange(e) {
     const key = e.currentTarget.dataset.key;
-    const value = e.detail.value;
+    let value = e.detail.value;
+
+    // 对售价、进价、库存、限购数量进行数字验证
+    if (['salePrice', 'costPrice', 'stock', 'limitPerPerson'].includes(key)) {
+      // 只允许数字和小数点（售价和进价允许小数，其他只允许整数）
+      if (key === 'salePrice' || key === 'costPrice') {
+        // 允许数字和小数点，只保留一个小数点
+        value = value.replace(/[^\d.]/g, '');
+        const dotIndex = value.indexOf('.');
+        if (dotIndex !== -1) {
+          value = value.substring(0, dotIndex + 1) + value.substring(dotIndex + 1).replace(/\./g, '');
+        }
+      } else {
+        // 只允许整数
+        value = value.replace(/[^\d]/g, '');
+      }
+    }
+
     this.setData({ [`form.${key}`]: value });
   },
 

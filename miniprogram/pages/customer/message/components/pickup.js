@@ -28,7 +28,7 @@ Component({
         const res = await wx.cloud.callFunction({
           name: 'getMessageList',
           data: {
-            openid: openid,
+            openid,
             type: 'pickup',
             limit: 30,
             page: 0
@@ -36,16 +36,18 @@ Component({
         });
 
         if (res.result.code === 0) {
-          const messageList = res.result.data.map(item => ({
-            id: item._id,
-            content: item.content || item.title || '',
-            btnText: '查看',
-            isRead: item.isRead || false,
-            createdAt: item.createdAt
-          }));
+          const messageList = (res.result.data || [])
+            .filter(item => item.type === 'pickup')
+            .map(item => ({
+              id: item._id,
+              content: item.content || item.title || '',
+              btnText: '查看',
+              isRead: item.isRead || false,
+              createdAt: item.createdAt
+            }));
 
           this.setData({
-            messageList: messageList,
+            messageList,
             loading: false
           });
         } else {
@@ -70,33 +72,31 @@ Component({
         const messageId = e.currentTarget.dataset.id;
         const app = getApp();
         const openid = app.globalData.openid || await app.getOpenId();
-        
+
         if (!openid) {
           return;
         }
-        
-        // 调用云函数标记消息为已读
+
         const res = await wx.cloud.callFunction({
           name: 'getMessageList',
           data: {
-            openid: openid,
+            openid,
             markRead: messageId,
             limit: 1,
             page: 0
           }
         });
-        
+
         if (res.result.code === 0) {
-          // 更新本地消息状态
           const messageList = this.data.messageList.map(item => {
             if (item.id === messageId) {
               return { ...item, isRead: true };
             }
             return item;
           });
-          
+
           this.setData({
-            messageList: messageList
+            messageList
           });
         }
       } catch (error) {
@@ -107,10 +107,9 @@ Component({
     /**
      * 查看详情 - 跳转到待取货页面
      */
-    viewDetail(e) {
-      const { id } = e.currentTarget.dataset;
+    viewDetail() {
       wx.navigateTo({
-        url: `/pages/customer/myOrder/myOrder?tab=waiting`
+        url: '/pages/customer/myOrder/myOrder?tab=waiting'
       });
     },
 
@@ -127,7 +126,6 @@ Component({
      * 一键删除所有消息
      */
     deleteAllMessages() {
-      // 直接调用父组件的deleteAllMessages方法，不显示自己的弹窗
       this.triggerEvent('deleteAllMessages', { type: 'pickup' });
     }
   }

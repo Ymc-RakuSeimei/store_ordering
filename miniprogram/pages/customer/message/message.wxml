@@ -1,6 +1,5 @@
 <!-- 消息中心主容器页面 -->
 <view class="container">
-  <!-- Tab栏 -->
   <view class="tab-header">
     <view class="tab-bar">
       <view class="tab-item {{currentTab === 'all' ? 'active' : ''}}" bindtap="switchTab" data-tab="all">
@@ -15,13 +14,33 @@
     </view>
   </view>
 
-  <!-- 组件容器 -->
-  <view class="component-container">
-    <!-- 全部消息组件 -->
-    <all-component id="allComponent" hidden="{{currentTab !== 'all'}}" bind:deleteAllMessages="deleteAllMessages"></all-component>
-    <!-- 取货提醒组件 -->
-    <pickup-component id="pickupComponent" hidden="{{currentTab !== 'pickup'}}" bind:deleteAllMessages="deleteAllMessages"></pickup-component>
-    <!-- 上新通知组件 -->
-    <newgoods-component id="newgoodsComponent" hidden="{{currentTab !== 'newgoods'}}" bind:deleteAllMessages="deleteAllMessages"></newgoods-component>
+  <view wx:if="{{loading}}" class="loading-state">
+    <view class="loading-spinner"></view>
+    <text class="loading-text">加载中...</text>
+  </view>
+
+  <scroll-view wx:else class="message-scroll" scroll-y enable-flex>
+    <view class="message-list">
+      <block wx:for="{{filteredMessageList}}" wx:key="id">
+        <view class="message-card type-{{item.type}}" bindtap="markAsRead" data-id="{{item.id}}">
+          <view class="message-content">
+            <text class="message-title">{{item.type === 'pickup' ? '取货提醒' : '上新通知'}}</text>
+            <text class="message-sub">{{item.content}}</text>
+          </view>
+          <view wx:if="{{!item.isRead}}" class="unread-badge">未读</view>
+          <view class="view-btn" bindtap="viewDetail" data-id="{{item.id}}" catchtap="viewDetail">
+            {{item.btnText}}
+          </view>
+        </view>
+      </block>
+
+      <view wx:if="{{!hasFilteredMessages}}" class="empty-state">
+        <text>{{currentTab === 'all' ? '暂无消息' : currentTab === 'pickup' ? '暂无取货提醒' : '暂无上新通知'}}</text>
+      </view>
+    </view>
+  </scroll-view>
+
+  <view wx:if="{{!loading && hasFilteredMessages}}" class="delete-all-btn" bindtap="deleteAllMessages">
+    <text>一键删除</text>
   </view>
 </view>

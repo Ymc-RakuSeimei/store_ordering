@@ -1,8 +1,3 @@
 {
-  "usingComponents": {
-    "all-component": "./components/all",
-    "pickup-component": "./components/pickup",
-    "newgoods-component": "./components/newgoods"
-  },
   "navigationBarTitleText": "消息中心"
 }

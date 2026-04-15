@@ -25,7 +25,7 @@ Component({
         const res = await wx.cloud.callFunction({
           name: 'getMessageList',
           data: {
-            openid: openid,
+            openid,
             type: 'newgoods',
             limit: 30,
             page: 0
@@ -33,17 +33,19 @@ Component({
         });
 
         if (res.result.code === 0) {
-          const messageList = res.result.data.map(item => ({
-            id: item._id,
-            content: item.content || item.title || '',
-            btnText: '查看',
-            isRead: item.isRead || false,
-            createdAt: item.createdAt || item.createdat,
-            productId: item.productId || item.productid
-          }));
+          const messageList = (res.result.data || [])
+            .filter(item => item.type === 'newgoods')
+            .map(item => ({
+              id: item._id,
+              content: item.content || item.title || '',
+              btnText: '查看',
+              isRead: item.isRead || false,
+              createdAt: item.createdAt || item.createdat,
+              productId: item.productId || item.productid
+            }));
 
           this.setData({
-            messageList: messageList,
+            messageList,
             loading: false
           });
         } else {
@@ -73,7 +75,7 @@ Component({
         const res = await wx.cloud.callFunction({
           name: 'getMessageList',
           data: {
-            openid: openid,
+            openid,
             markRead: messageId,
             limit: 1,
             page: 0
@@ -89,7 +91,7 @@ Component({
           });
 
           this.setData({
-            messageList: messageList
+            messageList
           });
         }
       } catch (error) {
@@ -100,7 +102,7 @@ Component({
     viewDetail(e) {
       this.markAsRead(e);
       wx.navigateTo({
-        url: `/pages/customer/goods/newgoods/newgoods`
+        url: '/pages/customer/goods/newgoods/newgoods'
       });
     },
 

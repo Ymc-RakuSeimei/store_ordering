@@ -75,7 +75,7 @@ Page({
           myParticipation = participants.find(p => p.userId === openid);
         }
       } catch (err) {
-        console.log('获取参与记录失败', err);
+        // 静默失败，不影响主流程
       }
 
       const dragon = {

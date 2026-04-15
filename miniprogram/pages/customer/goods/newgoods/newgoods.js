@@ -42,7 +42,6 @@ Page({
           goodsList: goodsList,
           totalCount: goodsList.length
         });
-        console.log('今日上新商品数量:', goodsList.length);
       } else {
         throw new Error(res.result?.message || '获取失败');
       }
@@ -262,14 +261,11 @@ Page({
     }
   },
 
-  // 增加数量（增加限购检查）
   increaseQuantity(e) {
     const { id } = e.currentTarget.dataset;
-    // 先找到商品信息
     const item = this.data.goodsList.find(item => item.id === id);
     if (!item) return;
     
-    // 接龙商品检查限购
     if (item.type === 'preorder' && item.limitPerPerson > 0) {
       const currentQty = item.cartQuantity || 0;
       if (currentQty >= item.limitPerPerson) {
@@ -287,7 +283,6 @@ Page({
     }
   },
 
-  // 减少数量
   decreaseQuantity(e) {
     const { id } = e.currentTarget.dataset;
     let cart = [...this.data.cartList];
@@ -306,21 +301,22 @@ Page({
   },
 
   checkout() {
-    console.log('checkout 被调用');
-    console.log('购物车数量:', this.data.cartList.length);
-    
     if (this.data.cartList.length === 0) {
       wx.showToast({ title: '购物车是空的', icon: 'none', duration: 2000 });
       return;
     }
 
     this.setData({ showCartModal: false });
-    
-    console.log('准备跳转到支付页面');
+
     wx.navigateTo({
       url: '/pages/customer/checkout/checkout?total=' + this.data.cartTotalPrice,
-      success: () => console.log('跳转成功'),
-      fail: (err) => console.error('跳转失败', err)
+      fail: (err) => {
+        console.error('跳转失败', err);
+        wx.showToast({
+          title: '页面不存在',
+          icon: 'none'
+        });
+      }
     });
   }
 });

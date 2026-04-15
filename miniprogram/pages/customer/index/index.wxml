@@ -2,11 +2,26 @@
 <view class="container">
   <view class="header">
     <view class="welcome-text">
-      <text>Hi，{{userInfo.nickName}}</text>
+      <text>Hi，{{userInfo.nickName || '游客'}}</text>
       <text class="main-title">欢迎来到MC_store。</text>
     </view>
-    <image class="avatar" src="{{userInfo.avatarUrl}}" mode="aspectFill"></image>
+    <!-- 使用 button 组件包裹头像，支持选择头像 -->
+    <button class="avatar-btn" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar">
+      <image class="avatar" src="{{userInfo.avatarUrl}}" mode="aspectFill"></image>
+    </button>
   </view>
+
+  <!-- 昵称编辑区域（首次登录或未设置时显示） -->
+  <view class="nickname-section" wx:if="{{showNicknameInput}}">
+    <input 
+      type="nickname" 
+      class="nickname-input" 
+      placeholder="点击获取微信昵称" 
+      bindblur="onInputNickname"
+    />
+    <text class="nickname-tip">点击输入框可获取微信昵称</text>
+  </view>
+
   <view class="card-container">
     <view class="card-item" bindtap="goToNewGoods">
       <image class="card-icon" src="cloud://cloud1-2gltiqs6a2c5cd76.636c-cloud1-2gltiqs6a2c5cd76-1411302136/icons/icon_new.png"></image>

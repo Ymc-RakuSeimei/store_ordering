@@ -16,7 +16,6 @@ Component({
 
   pageLifetimes: {
     show() {
-      // 页面显示时总是重新加载数据，确保获取最新状态
       if (!this.data.loading) {
         this.loadData()
       }
@@ -39,16 +38,12 @@ Component({
 
     async getPickupCode(openid) {
       try {
-        console.log('获取取货码，openid:', openid)
         const res = await wx.cloud.callFunction({
           name: 'getPickupCode',
           data: { openid }
         })
 
-        console.log('getPickupCode返回结果:', res)
-
         if (res && res.result && res.result.code === 0) {
-          console.log('获取到取货码:', res.result.data.pickupCode)
           return res.result.data.pickupCode
         } else {
           console.error('获取取货码失败，错误信息:', res.result)
@@ -56,9 +51,7 @@ Component({
         }
       } catch (err) {
         console.error('获取取货码失败:', err)
-        //  fallback: 如果云函数调用失败，使用本地生成作为备用
         const fallbackCode = this.generateFallbackCode(openid)
-        console.log('使用备用取货码:', fallbackCode)
         return fallbackCode
       }
     },
@@ -78,14 +71,11 @@ Component({
       return new Promise((resolve, reject) => {
         const app = getApp()
 
-        // 优先从全局数据获取openid
         if (app.globalData.userInfo?.openid) {
-          console.log('从全局数据获取openid:', app.globalData.userInfo.openid)
           resolve(app.globalData.userInfo.openid)
           return
         }
 
-        // 调用云函数获取当前登录用户的openid
         wx.cloud.callFunction({
           name: 'getOpenId',
           success: res => {
@@ -93,7 +83,6 @@ Component({
             if (openid) {
               if (!app.globalData.userInfo) app.globalData.userInfo = {}
               app.globalData.userInfo.openid = openid
-              console.log('从云函数获取openid:', openid)
               resolve(openid)
             } else {
               reject(new Error('获取 openid 失败'))
@@ -119,7 +108,6 @@ Component({
 
     async loadWaitingOrders(openid) {
       try {
-        console.log('加载待取货订单，openid:', openid)
         const res = await wx.cloud.callFunction({
           name: 'getOrderList',
           data: {
@@ -128,27 +116,19 @@ Component({
           }
         })
 
-        console.log('getOrderList返回结果:', res)
-
         if (res && res.result && res.result.code === 0) {
           const orders = res.result.data || []
-          console.log('获取到的订单数量:', orders.length)
-          // 提取未取货的商品（已到货或待到货）
           const allGoods = []
           let pickupCode = ''
           
           orders.forEach(order => {
-            console.log('处理订单:', order._id)
-            // 获取取货码
             if (order.pickupCode) {
               pickupCode = order.pickupCode
             }
             
             if (order.goods && order.goods.length > 0) {
               order.goods.forEach(goods => {
-                // 只添加未取货的商品
                 if (goods.pickupStatus !== '已取货' && goods.pickupStatus !== '已完成') {
-                  // 处理商品图片，支持字符串和数组格式
                   let image = '';
                   if (goods.images) {
                     if (Array.isArray(goods.images) && goods.images.length > 0) {
@@ -171,18 +151,12 @@ Component({
             }
           })
 
-          console.log('提取的商品数量:', allGoods.length)
-          console.log('获取到的取货码:', pickupCode)
-
           const statistics = {
             arrivedCount: allGoods.filter(item => item.pickupStatus === '待取货').length,
             waitingCount: allGoods.filter(item => item.pickupStatus === '未到货').length,
             totalCount: allGoods.length
           }
 
-          console.log('统计数据:', statistics)
-
-          // 生成二维码
           if (pickupCode) {
             this.generateQrcodeUrl(pickupCode)
           }

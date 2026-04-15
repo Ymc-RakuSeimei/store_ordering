@@ -76,13 +76,12 @@ async function streamModelReply(messages, handlers = {}) {
       try {
         data = JSON.parse(event.data);
       } catch (error) {
-        console.warn('解析流式数据失败:', event.data);
+        // 解析失败，跳过该事件
         continue;
       }
 
       // 检查是否有错误
       if (data.error) {
-        console.error('AI API Error:', data.error);
         throw new Error(data.error.message || 'AI服务返回错误');
       }
 
@@ -108,7 +107,6 @@ async function streamModelReply(messages, handlers = {}) {
 
     return fullText.trim();
   } catch (error) {
-    console.error('AI模型调用失败:', error);
     throw new Error(`AI服务暂时不可用: ${error.message || '请稍后重试'}`);
   }
 }
@@ -132,7 +130,6 @@ function getAIConfig() {
 function switchAIModel(provider, model) {
   AI_CONFIG.provider = provider;
   AI_CONFIG.model = model;
-  console.log(`已切换到 ${provider} 的 ${model} 模型`);
 }
 
 module.exports = {

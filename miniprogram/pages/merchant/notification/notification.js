@@ -24,7 +24,6 @@ Page({
     this.recordViewTime();
   },
 
-  // 记录查看通知的时间
   recordViewTime() {
     try {
       wx.setStorageSync('merchant_last_notification_view_time', Date.now());
@@ -42,13 +41,11 @@ Page({
     });
   },
 
-  // tab 切换
   switchTab(e) {
     const tab = e.currentTarget.dataset.tab;
     this.setData({ activeTab: tab });
   },
 
-  // 加载通知列表
   loadNotifications() {
     this.setData({ loading: true });
     Promise.all([
@@ -56,7 +53,6 @@ Page({
       this.fetchFeedbackListFromServer()
     ])
       .then(([goodsList, feedbackList]) => {
-        // 过滤掉已删除的售后反馈
         const filteredFeedbackList = this.filterDeletedFeedback(feedbackList);
         const notifications = this.generateNotifications(goodsList);
         const allNotifications = this.mergeAndSortNotifications(notifications, filteredFeedbackList);
@@ -69,36 +65,30 @@ Page({
       });
   },
 
-  // 过滤已删除的售后反馈
   filterDeletedFeedback(feedbackList) {
     const deletedIds = wx.getStorageSync('merchant_deleted_feedback_ids') || [];
     return feedbackList.filter(item => !deletedIds.includes(item.id));
   },
 
-  // 合并并按时间排序所有通知
   mergeAndSortNotifications(notifications, feedbackList) {
     const now = Date.now();
 
-    // 给库存提醒和滞留预警添加时间戳
     const notificationsWithTime = notifications.map(item => ({
       ...item,
       isFeedback: false,
-      timestamp: now // 这两类通知没有具体时间，用当前时间
+      timestamp: now
     }));
 
-    // 给售后反馈添加时间戳
     const feedbackWithTime = feedbackList.map(item => ({
       ...item,
       isFeedback: true,
       timestamp: this.parseTime(item.createdAt)
     }));
 
-    // 合并并按时间倒序排列
     return [...notificationsWithTime, ...feedbackWithTime]
       .sort((a, b) => b.timestamp - a.timestamp);
   },
 
-  // 解析时间字符串为时间戳
   parseTime(timeStr) {
     if (!timeStr) return 0;
     const date = new Date(timeStr);
@@ -106,7 +96,6 @@ Page({
     return isNaN(ts) ? 0 : ts;
   },
 
-  // 根据 goods 列表生成通知
   generateNotifications(goodsList) {
     const notifications = [];
     const now = new Date();
@@ -114,9 +103,6 @@ Page({
     goodsList.forEach((item, index) => {
       const itemType = item.type || 'spot';
 
-      // 1. 库存提醒：仅对现货/特价发送预警
-      // - type = 现货/特价: stock 表示实际库存，totalBooked 表示已售出
-      // - 预警条件：totalBooked >= stock * 0.7
       if (itemType === 'spot' || itemType === 'special') {
         const stock = item.stock || 0;
         const totalBooked = item.totalBooked || 0;
@@ -136,7 +122,6 @@ Page({
         }
       }
 
-      // 2. 滞留预警：已到货未取超两天（所有类型都检查）
       if (item.status === '已到货' && item.arrivedAt) {
         const arrivedDate = new Date(item.arrivedAt);
         const diffDays = Math.floor((now - arrivedDate) / (1000 * 60 * 60 * 24));
@@ -159,11 +144,9 @@ Page({
     return notifications;
   },
 
-  // 统一删除所有通知（根据当前标签页）
   onDeleteAll() {
     const { activeTab, allNotifications, notifications, feedbackList } = this.data;
 
-    // 根据当前标签页确定要删除的内容
     let deleteType = '';
     let hasFeedback = false;
     let messagesToDelete = [];
@@ -171,7 +154,6 @@ Page({
     switch (activeTab) {
       case 'all':
         deleteType = '所有消息';
-        // 检查是否包含售后反馈
         hasFeedback = allNotifications.some(item => item.isFeedback);
         messagesToDelete = allNotifications;
         break;
@@ -192,7 +174,6 @@ Page({
         break;
     }
 
-    // 构建确认提示内容
     let content = `确定要删除所有${deleteType}吗？`;
     if (hasFeedback) {
       content = `确定要删除所有${deleteType}吗？\n\n⚠️ 注意：其中包含售后反馈消息，删除后将无法恢复，请谨慎操作！`;
@@ -206,7 +187,6 @@ Page({
       confirmColor: '#ff3b30',
       success: async (res) => {
         if (res.confirm) {
-          // 如果包含售后反馈，增加二次确认
           if (hasFeedback) {
             const confirmRes = await this.showFeedbackConfirm();
             if (!confirmRes) return;
@@ -224,7 +204,6 @@ Page({
     });
   },
 
-  // 售后反馈二次确认
   showFeedbackConfirm() {
     return new Promise((resolve) => {
       wx.showModal({
@@ -240,14 +219,11 @@ Page({
     });
   },
 
-  // 根据标签页删除消息
   async deleteMessagesByTab(tab, messages) {
     const { notifications, feedbackList, allNotifications } = this.data;
 
     switch (tab) {
       case 'all':
-        // 删除全部：清空所有消息
-        // 1. 删除售后反馈
         const feedbackIds = feedbackList.map(item => item.id);
         if (feedbackIds.length > 0) {
           await this.deleteFeedbackFromServer(feedbackIds);
@@ -255,7 +231,6 @@ Page({
           const allDeletedIds = [...new Set([...existingDeletedIds, ...feedbackIds])];
           wx.setStorageSync('merchant_deleted_feedback_ids', allDeletedIds);
         }
-        // 2. 清空所有数据
         this.setData({
           notifications: [],
           feedbackList: [],
@@ -264,7 +239,6 @@ Page({
         break;
 
       case 'inventory':
-        // 删除库存提醒：从 notifications 中移除 inventory 类型
         const remainingNotifications = notifications.filter(item => item.type !== 'inventory');
         this.setData({
           notifications: remainingNotifications,
@@ -273,7 +247,6 @@ Page({
         break;
 
       case 'retention':
-        // 删除滞留预警：从 notifications 中移除 retention 类型
         const remainingNotifications2 = notifications.filter(item => item.type !== 'retention');
         this.setData({
           notifications: remainingNotifications2,
@@ -282,7 +255,6 @@ Page({
         break;
 
       case 'feedback':
-        // 删除售后反馈
         const idsToDelete = messages.map(item => item.id);
         if (idsToDelete.length > 0) {
           await this.deleteFeedbackFromServer(idsToDelete);
@@ -290,7 +262,6 @@ Page({
           const allDeletedIds = [...new Set([...existingDeletedIds, ...idsToDelete])];
           wx.setStorageSync('merchant_deleted_feedback_ids', allDeletedIds);
         }
-        // 更新 feedbackList
         const remainingFeedback = feedbackList.filter(item => !idsToDelete.includes(item.id));
         this.setData({
           feedbackList: remainingFeedback,
@@ -300,13 +271,12 @@ Page({
     }
   },
 
-  // 从服务器删除售后反馈
   async deleteFeedbackFromServer(feedbackIds) {
     try {
       const res = await wx.cloud.callFunction({
         name: 'deleteFeedbackBatch',
         data: {
-          ids: feedbackIds
+          ids: Array.isArray(feedbackIds) ? feedbackIds : [feedbackIds]
         }
       });
       if (res.result.code !== 0) {
@@ -317,7 +287,6 @@ Page({
     }
   },
 
-  // 逐条提醒操作
   onRemind(e) {
     const item = e.currentTarget.dataset.item;
     wx.showModal({
@@ -350,12 +319,6 @@ Page({
     });
   },
 
-  // ---------------- 后端接口 ----------------
-
-  /**
-   * 获取 goods 列表
-   * @returns {Promise<Array>}
-   */
   fetchGoodsListFromServer() {
     return wx.cloud.callFunction({
       name: 'fetchGoodsList'
@@ -366,7 +329,6 @@ Page({
       throw new Error(res.result.message || '获取失败');
     }).catch(err => {
       console.error('fetchGoodsListFromServer error', err);
-      // 失败时返回本地占位数据
       return [
         {
           _id: 'goods001',
@@ -380,19 +342,10 @@ Page({
     });
   },
 
-  /**
-   * 一键删除所有通知（已废弃，使用 onDeleteAll 替代）
-   */
   deleteAllNotifications() {
-    // 此方法已废弃，删除逻辑已移至 onDeleteAll
     return Promise.resolve();
   },
 
-  /**
-   * 通知提醒接口
-   * @param {object} item - 通知项
-   * @returns {Promise<{userCount: number}>} 返回发送提醒的用户数量
-   */
   requestNotificationReminder(item) {
     return wx.cloud.callFunction({
       name: 'sendPickupReminder',
@@ -409,48 +362,31 @@ Page({
     });
   },
 
-  /**
-   * 获取售后反馈列表
-   * @returns {Promise<Array>}
-   */
   fetchFeedbackListFromServer() {
-    console.log('Calling fetchFeedbackList cloud function...');
     return wx.cloud.callFunction({
       name: 'fetchFeedbackList'
     }).then(res => {
-      console.log('fetchFeedbackList response:', res);
       const result = res.result || {};
-      console.log('fetchFeedbackList result:', result);
       if (result.code === 0) {
-        const data = result.data || [];
-        console.log('Feedback data:', data);
-        return data;
+        return result.data || [];
       }
       throw new Error(result.message || '获取反馈列表失败');
     }).catch(err => {
       console.error('fetchFeedbackListFromServer error', err);
-      // 失败时返回空数组
       return [];
     });
   },
 
-  /**
-   * 查看反馈详情
-   */
   onViewFeedbackDetail(e) {
     const item = e.currentTarget.dataset.item;
     if (!item) return;
 
-    // 将数据编码后传递
     const dataStr = encodeURIComponent(JSON.stringify(item));
     wx.navigateTo({
       url: `/pages/merchant/notification/feedback-detail/feedback-detail?id=${item.id}&data=${dataStr}`
     });
   },
 
-  /**
-   * 删除通知/反馈
-   */
   onDelete(e) {
     const item = e.currentTarget.dataset.item;
     const type = e.currentTarget.dataset.type;
@@ -464,12 +400,10 @@ Page({
         wx.showLoading({ title: '删除中...' });
 
         if (type === 'feedback') {
-          // 删除售后反馈（从数据库删除）
           this.deleteFeedbackFromServer(item.id || item._id)
             .then(() => {
               wx.hideLoading();
               wx.showToast({ title: '删除成功', icon: 'success' });
-              // 重新加载列表
               this.loadNotifications();
             })
             .catch(err => {
@@ -478,29 +412,11 @@ Page({
               wx.showToast({ title: err.message || '删除失败', icon: 'none' });
             });
         } else {
-          // 库存提醒和滞留预警是动态生成的，直接重新加载列表即可
           wx.hideLoading();
           wx.showToast({ title: '删除成功', icon: 'success' });
-          // 重新加载列表（会重新根据当前数据生成通知）
           this.loadNotifications();
         }
       }
-    });
-  },
-
-  /**
-   * 删除售后反馈
-   */
-  deleteFeedbackFromServer(feedbackId) {
-    return wx.cloud.callFunction({
-      name: 'deleteFeedback',
-      data: { id: feedbackId }
-    }).then(res => {
-      const result = res.result || {};
-      if (result.code !== 0) {
-        throw new Error(result.message || '删除失败');
-      }
-      return result.data;
     });
   }
 });

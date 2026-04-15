@@ -1142,3 +1142,24 @@ AI智能助手系统采用了**前端+云函数+大模型**的三层架构：
 - **背景色**：两个页面的背景色均为 `#F5F7FA`
 - **无底部导航栏**：两个页面都不显示底部导航栏
 
+——————————————————————————————————————————————————2026/4/1 Zax 冗余代码删减与debug
+**冗余删减**
+
+-pages/customer/goods/goods.js
+-pages/preorder/join/join.js
+-pages/merchant/notification/notification.js
+-pages/customer/myOrder/components/waiting.js
+-pages/customer/myOrder/components/completed/completed.js
+-pages/customer/myOrder/components/all/all.js
+-pages/customer/goods/newgoods/newgoods.js
+-pages/customer/goods/detail/detail.js
+-pages/customer/feedback/feedback.js
+-pages/customer/ai-assistant/ai-assistant.js
+-utils/ai-assistant.js
+
+等文件里，console.log日志调试代码的删除，这些代码与应用无关，只在开发过程中有帮助。另外console.error与console.warn代码保留了一些，以便出错后调整。而云函数的console.log没有动，因为考虑到云函数需重新部署，就不改云函数了。
+
+**微信昵称头像获取**
+主页和我的页面均可以通过点击获取微信头像昵称。
+
+
